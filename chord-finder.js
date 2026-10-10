@@ -42,19 +42,23 @@
       const missing=[...expected].filter(p=>!tones.has(p));
       const exact=missing.length===0&&sameSet(tones,expected);
       let isPartial=false;
-      if (!exact && tones.size>=3 && [...tones].every(n=>expected.has(n))) {
+      if(!exact && tones.size>=2 && [...tones].every(n=>expected.has(n)) && tones.has(parsed.root)) {
         const essential=new Set(parsed.essential.map(d=>pc(parsed.root+d)));
-        // Yhtään tunnistuksen kannalta olennaista säveltä ei saa puuttua.
-        isPartial=[...essential].every(t=>tones.has(t)) && missing.length>0;
+        const essentialPresent=[...essential].filter(t=>tones.has(t)).length;
+        // Näytä vajaat soinnut vain ehdotuksina, ei koskaan varmoina tuloksina.
+        // Kaksi soivaa säveltä: enintään yksi puuttuva; kolme: enintään kaksi.
+        // Pohjasävel + riittävän monta tunnistavaa säveltä pitää löytyä.
+        const maximumMissing=tones.size>=3?2:1;
+        isPartial=missing.length>0 && missing.length<=maximumMissing && essentialPresent>=2;
       }
       if (!exact && !isPartial) continue;
       const inversion=bass!==parsed.root;
       const display=name+(inversion?'/'+spelledBass(name,parsed,bass):'');
-      const descriptor=isPartial?' (säveliä puuttuu)':'';
-      const entry={name:display+descriptor,root:name,quality:parsed.quality,rootBass:!inversion,missing:missing.length,notes:[...expected]};
+      const descriptor=isPartial?' (vajaasointu)':'';
+      const entry={name:display+descriptor,root:name,quality:parsed.quality,rootBass:!inversion,missing:missing.length,missingNames:missing.map(n=>labels[n]),notes:[...expected]};
       (exact?matches:partial).push(entry);
     }
-    const score = e => (e.rootBass?100:0) - e.missing*15 - (e.quality === '5'?12:0);
+    const score = e => (e.rootBass?100:0) - e.missing*35 - (e.quality === '5'?12:0) + (e.quality===''||e.quality==='m'?8:0);
     for (const list of [matches,partial]) list.sort((a,b)=>score(b)-score(a)||a.name.length-b.name.length||a.name.localeCompare(b.name));
     return {status:matches.length?'exact':partial.length?'partial':'unknown',notes:names,bass:labels[bass],matches,partial};
   }
