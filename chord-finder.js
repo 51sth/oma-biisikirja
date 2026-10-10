@@ -4,7 +4,8 @@
   'use strict';
   const tuning = [40, 45, 50, 55, 59, 64];
   const roots = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
-  const qualities = ['', 'm', '7', 'maj7', 'm7', 'sus2', 'sus4', '7sus4', 'add9', '6', 'm6', '9', 'maj9', 'm9', 'dim', 'dim7', 'm7b5', 'aug', '5'];
+  // Single source of truth: the exact same qualities used by the song chord engine.
+  const qualities = global.ChordEngine.qualities;
   const pitchOfNatural = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
   const letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const pc = value => (value % 12 + 12) % 12;
@@ -58,7 +59,7 @@
       const entry={name:display+descriptor,root:name,quality:parsed.quality,rootBass:!inversion,missing:missing.length,missingNames:missing.map(n=>labels[n]),notes:[...expected]};
       (exact?matches:partial).push(entry);
     }
-    const score = e => (e.rootBass?100:0) - e.missing*35 - (e.quality === '5'?12:0) + (e.quality===''||e.quality==='m'?8:0);
+    const score = e => (e.rootBass?100:0) - e.missing*35 - (e.quality === '5'?12:0) + (e.quality===''||e.quality==='m'?8:0) - (e.quality.includes('no5')?4:0);
     for (const list of [matches,partial]) list.sort((a,b)=>score(b)-score(a)||a.name.length-b.name.length||a.name.localeCompare(b.name));
     return {status:matches.length?'exact':partial.length?'partial':'unknown',notes:names,bass:labels[bass],matches,partial};
   }
