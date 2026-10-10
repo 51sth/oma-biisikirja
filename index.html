@@ -107,6 +107,17 @@ main{max-width:1040px}
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],cursor={line:0,pos:0},selectedChord=null;
 // Uusi asennus käynnistyy tyhjällä kirjastolla. Vanhoja paikallisia kappaleita ei poisteta.
 const LEGACY_SONG_ID='oma-biisi-pilven-luonto-20261010';
+// Restore compatibility with a malformed chord-only header in an old user backup.
+// Only the exact legacy notation is migrated; no other lyrics or chords are changed.
+function repairLegacyChordHeader(song){
+  if(!song || song.title!=='Siemen' || typeof song.body!=='string')return false;
+  const fixed=song.body.replace(/^\[Em7\]   \[Cmaj\] 7(?=\r?\n|$)/,'[Em7]    [Cmaj7]');
+  if(fixed===song.body)return false;
+  song.body=fixed;return true;
+}
+let repairedLegacySong=false;
+for(const song of songs)if(repairLegacyChordHeader(song))repairedLegacySong=true;
+if(repairedLegacySong)localStorage.setItem(K,JSON.stringify(songs));
 for(const song of songs){
   if(song && song.id===LEGACY_SONG_ID && song.title==='Ei tiennyt pilven luontoa hän'){
     song.title='Pilven luonto';
@@ -130,7 +141,7 @@ return null;
 function parseChordRow(row){let chords=[];for(const m of row.matchAll(/\S+/g)){let name=m[0];if(!/^[A-Ga-g](?:#|b|♯|♭)?(?:[a-zA-Z0-9#♭♯°ø+()\-]*)?(?:\/[A-Ga-g](?:#|b|♯|♭)?)?$/.test(name))return {chords:[],error:'Tarkista sointumerkintä ”'+name+'”. Kirjoita esim. Am7, F#m7b5 tai C/E.'};chords.push({pos:m.index,name})}return {chords,error:''}}
 function validateLines(){for(let i=0;i<editLines.length;i++){let line=editLines[i];if(line.legacyOverlap)return 'Rivillä '+(i+1)+' oli alun perin päällekkäisiä sointuja. Muokkaa ne vanhassa tallennusmuodossa.';let res=parseChordRow(line.chordRow||'');if(res.error)return 'Rivi '+(i+1)+': '+res.error;}return ''}
 function syncRaw(){let error=validateLines();$('editStatus').textContent=error||'Soinnut kirjoitetaan yläriville. Tallennus tunnistaa ne ilman hakasulkeita.';$('editStatus').classList.toggle('error',!!error);if(!error)$('editor').value=serializeBody(editLines);return !error}
-function loadBody(body){editLines=parseBody(body);for(const line of editLines)if(line.chordRow===null){line.legacyOverlap=true;line.chordRow='';}syncRaw();renderVisualEditor()}
+function loadBody(body){$('editor').value=String(body);editLines=parseBody(body);for(const line of editLines)if(line.chordRow===null){line.legacyOverlap=true;line.chordRow='';}syncRaw();renderVisualEditor()}
 function widthFor(line){return Math.max(30,line.text.length+3,(line.chordRow||'').length+3)}
 function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){let out=editLines.map((l,i)=>{let max=widthFor(l);return `<div class="edit-line ${l.legacyOverlap?'problem':''}" data-row="${i}"><span class="edit-line-number">${i+1}</span><div class="edit-line-scroll"><div class="edit-line-inner"><input data-chord-row="${i}" class="chord-row-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" value="${safe(l.chordRow)}" aria-label="Rivin ${i+1} soinnut" placeholder="Soinnut ↑" style="width:${max}ch"><input data-lyric-row="${i}" class="lyric-row-input" type="text" spellcheck="false" autocomplete="off" value="${safe(l.text)}" aria-label="Rivin ${i+1} sanat" placeholder="Laulun sanat" style="width:${max}ch"></div></div><button type="button" class="line-add" data-add-after="${i}" title="Lisää rivi tämän jälkeen" aria-label="Lisää rivi ${i+1} jälkeen">+</button></div>`}).join('');$('visualEditor').innerHTML=out;if(focusLine>=0){const e=$('visualEditor').querySelector(`[data-${focusType==='chord'?'chord':'lyric'}-row="${focusLine}"]`);if(e){e.focus();e.setSelectionRange(focusPos,focusPos)}}}
 function expandInputWidth(row){let elem=$('visualEditor').querySelector(`[data-row="${row}"]`),line=editLines[row];if(!elem||!line)return;let size=widthFor(line)+'ch';elem.querySelectorAll('input').forEach(x=>x.style.width=size)}
@@ -421,6 +432,7 @@ $('restore').onchange=async e=>{
     const file=e.target.files && e.target.files[0];if(!file)return;
     const incoming=JSON.parse(await file.text());
     if(!Array.isArray(incoming)||incoming.length>10000||!incoming.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000)) throw Error('Tiedosto ei kelpaa');
+    incoming.forEach(repairLegacyChordHeader);
     const mode=$('restoreMode').value;
     if(mode==='replace'){
       if(!confirm('KORVATAANKO KOKO KIRJASTO? Kaikki nykyiset kappaleet poistuvat kirjastosta. Varmuuskopio ladataan ensin.'))return;
