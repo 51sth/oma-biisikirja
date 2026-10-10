@@ -125,8 +125,12 @@ main{max-width:1040px}
 .finder .finder-match.chosen{background:#087c55;color:white}
 .finder .finder-info{font-size:11px;color:#5b7366;line-height:1.5;margin-top:5px}
 @media(min-width:701px){.layout{grid-template-columns:278px minmax(0,1fr)}}
+
+.finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
+.finder .finder-insert:hover{background:#086845}
+#editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
 </style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
-<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>? = sovellus päättelee</b>, ○ = avoin, × = vaimennettu. Painamalla ?/○/× vaihdat kielen tilaa.</p>
+<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>? = sovellus ehdottaa avoimia tai vaimennettuja kieliä</b>, ○ = avoin, × = vaimennettu. Painamalla ?/○/× vaihdat kielen tilaa.</p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kuusi kieltä, E A D G B e"></div>
 <div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
@@ -141,6 +145,7 @@ main{max-width:1040px}
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <div class="row"><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div>
 <details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js"></script><script src="chord-finder.js"></script><script>
+let finderPending=null, finderQueuedVoicings=[];
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],cursor={line:0,pos:0},selectedChord=null;
 // Uusi asennus käynnistyy tyhjällä kirjastolla. Vanhoja paikallisia kappaleita ei poisteta.
 const LEGACY_SONG_ID='oma-biisi-pilven-luonto-20261010';
@@ -165,8 +170,19 @@ for(const song of songs){
 const chordDB={C:['x32010','x35553','875558'],Cm:['x35543'],D:['xx0232','x57775'],Dm:['xx0231'],E:['022100','x79997'],Em:['022000'],F:['133211','xx3211','x87565'],Fm:['133111'],G:['320003','320033','355433'],Gm:['355333'],A:['x02220'],Am:['x02210','577555'],B:['x24442'],Bm:['x24432'],B7:['x21202'],C7:['x32310'],D7:['xx0212'],E7:['020100'],A7:['x02020'],G7:['320001'],Fmaj7:['xx3210'],Cmaj7:['x32000'],Am7:['x02010'],Em7:['022030'],Dsus4:['xx0233'],Asus2:['x02200'],Gsus4:['330013']};
 function persist(){localStorage.setItem(K,JSON.stringify(songs))}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function list(){let q=$('search').value.toLowerCase();$('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>`<button class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}">${safe(s.title)}</button>`).join('')||'<small>Ei kappaleita</small>'}
-function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
-function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);if(s){s.title=title;s.body=body;s.capo=capo}else songs.push({id:current,title,body,capo});$('capoDisplay').textContent=capo?'· capo '+capo+'. nauha':'';persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);if(s){s.title=title;s.body=body;s.capo=capo}else songs.push({id:current,title,body,capo});
+  s=songs.find(x=>x.id===current);
+  if(finderQueuedVoicings.length&&s){
+    s.voicings ||= {};
+    const lines=parseBody(body);
+    for(const v of finderQueuedVoicings){
+      const ix=lines[v.line]?.chords.findIndex(c=>c.pos===v.pos&&c.name===v.name)??-1;
+      if(ix>=0&&ChordEngine.valid(v.name,v.shape))s.voicings[v.line+':'+ix]=v.shape.join(',');
+    }
+    finderQueuedVoicings=[];
+  }
+  $('capoDisplay').textContent=capo?'· capo '+capo+'. nauha':'';persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
 // Ylärivin soinnut ovat tavallista tekstiä: sijainti = tekstisarakkeen numero.
 // Tallennus säilyy yhteensopivana aiempien ChordPro-kappaleiden kanssa.
 function parseBody(body){return String(body).split('\n').map(raw=>{let text='',chords=[],last=0,re=/\[([^\]\n]+)\]/g,m;while((m=re.exec(raw))){text+=raw.slice(last,m.index);chords.push({pos:text.length,name:m[1]});last=re.lastIndex}text+=raw.slice(last);let chordRow=chordsToRow(chords);if(chordRow===null&&!text.trim()){ // Pelkistä soinnuista koostuvilla riveillä voi olla peräkkäisiä merkintöjä.
@@ -183,7 +199,32 @@ function widthFor(line){return Math.max(30,line.text.length+3,(line.chordRow||''
 function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){let out=editLines.map((l,i)=>{let max=widthFor(l);return `<div class="edit-line ${l.legacyOverlap?'problem':''}" data-row="${i}"><span class="edit-line-number">${i+1}</span><div class="edit-line-scroll"><div class="edit-line-inner"><input data-chord-row="${i}" class="chord-row-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" value="${safe(l.chordRow)}" aria-label="Rivin ${i+1} soinnut" placeholder="Soinnut ↑" style="width:${max}ch"><input data-lyric-row="${i}" class="lyric-row-input" type="text" spellcheck="false" autocomplete="off" value="${safe(l.text)}" aria-label="Rivin ${i+1} sanat" placeholder="Laulun sanat" style="width:${max}ch"></div></div><button type="button" class="line-add" data-add-after="${i}" title="Lisää rivi tämän jälkeen" aria-label="Lisää rivi ${i+1} jälkeen">+</button></div>`}).join('');$('visualEditor').innerHTML=out;if(focusLine>=0){const e=$('visualEditor').querySelector(`[data-${focusType==='chord'?'chord':'lyric'}-row="${focusLine}"]`);if(e){e.focus();e.setSelectionRange(focusPos,focusPos)}}}
 function expandInputWidth(row){let elem=$('visualEditor').querySelector(`[data-row="${row}"]`),line=editLines[row];if(!elem||!line)return;let size=widthFor(line)+'ch';elem.querySelectorAll('input').forEach(x=>x.style.width=size)}
 $('visualEditor').addEventListener('input',e=>{let chordInput=e.target.closest('[data-chord-row]'),lyricInput=e.target.closest('[data-lyric-row]');if(!chordInput&&!lyricInput)return;let i=Number((chordInput||lyricInput).dataset[chordInput?'chordRow':'lyricRow']),line=editLines[i];if(chordInput){line.chordRow=chordInput.value;let result=parseChordRow(line.chordRow);if(!result.error){line.chords=result.chords;line.legacyOverlap=false}}else line.text=lyricInput.value;expandInputWidth(i);if(syncRaw())preview()});
-$('visualEditor').addEventListener('click',e=>{let add=e.target.closest('[data-add-after]');if(!add)return;let i=Number(add.dataset.addAfter)+1;editLines.splice(i,0,{text:'',chords:[],chordRow:''});syncRaw();renderVisualEditor(i,'lyric');preview()});
+function applyFinderChord(lineNumber, position){
+  if(!finderPending)return;
+  const line=editLines[lineNumber];if(!line)return;
+  const name=finderPending.name;
+  const chosen=parseChordRow(line.chordRow||'');
+  if(chosen.error){$('editStatus').textContent=chosen.error;$('editStatus').classList.add('error');return;}
+  const chords=chosen.chords.map(c=>({...c}));
+  const existing=chords.find(c=>c.pos===position);
+  if(existing)existing.name=name;
+  else chords.push({pos:position,name});
+  const newRow=chordsToRow(chords);
+  if(newRow===null){
+    $('editStatus').textContent='Sointu ei mahdu tähän kohtaan toisen soinnun päälle. Valitse kohta hieman kauempaa.';
+    $('editStatus').classList.add('error');return;
+  }
+  line.chords=chords;line.chordRow=newRow;line.legacyOverlap=false;
+  finderQueuedVoicings.push({line:lineNumber,pos:position,name,shape:finderPending.shape.slice()});
+  finderPending=null;
+  syncRaw();renderVisualEditor(lineNumber,'lyric',position);preview();
+  $('editStatus').textContent='Sointu '+name+' lisätty rivin '+(lineNumber+1)+' kohdalle. Paina Tallenna säilyttääksesi muutoksen ja valitsemasi otteen.';
+  $('editStatus').classList.add('finder-pending');
+}
+$('visualEditor').addEventListener('click',e=>{
+  const lyrics=e.target.closest('[data-lyric-row]');
+  if(lyrics&&finderPending){applyFinderChord(Number(lyrics.dataset.lyricRow),lyrics.selectionStart||0);return;}
+  let add=e.target.closest('[data-add-after]');if(!add)return;let i=Number(add.dataset.addAfter)+1;editLines.splice(i,0,{text:'',chords:[],chordRow:''});syncRaw();renderVisualEditor(i,'lyric');preview()});
 $('visualEditor').addEventListener('keydown',e=>{let chord=e.target.closest('[data-chord-row]'),lyric=e.target.closest('[data-lyric-row]');if(!chord&&!lyric)return;let i=Number((chord||lyric).dataset[chord?'chordRow':'lyricRow']);if(e.key==='Enter'){e.preventDefault();if(chord){const next=$('visualEditor').querySelector(`[data-lyric-row="${i}"]`);next?.focus();return;}let pos=lyric.selectionStart,line=editLines[i];let after={text:line.text.slice(pos),chords:[],chordRow:''};line.text=line.text.slice(0,pos);let left=[],right=[];for(const c of line.chords){if(c.pos>=pos)right.push({...c,pos:c.pos-pos});else left.push(c)}line.chords=left;line.chordRow=chordsToRow(left)||'';after.chords=right;after.chordRow=chordsToRow(right)||'';editLines.splice(i+1,0,after);syncRaw();renderVisualEditor(i+1,'lyric');preview()}});
 $('addLine').onclick=()=>{let i=editLines.length;editLines.push({text:'',chords:[],chordRow:''});syncRaw();renderVisualEditor(i,'lyric');preview()};
 $('editor').addEventListener('input',()=>{const raw=$('editor').value;editLines=parseBody(raw);for(const l of editLines)if(l.chordRow===null){l.legacyOverlap=true;l.chordRow=''}renderVisualEditor();preview()});
@@ -404,7 +445,7 @@ function showMode(mode){
 }
 $('songs').onclick=e=>{let b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
-$('new').onclick=()=>{current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
+$('new').onclick=()=>{finderQueuedVoicings=[];current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
 $('save').onclick=save;
 $('delete').onclick=()=>{if(current&&confirm('Poistetaanko kappale?')){songs=songs.filter(s=>s.id!==current);persist();$('new').click()}};
 $('previewBtn').onclick=()=>{if(!syncRaw())return;preview();showMode('play');$('previewPanel').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -490,17 +531,19 @@ function renderFinder(){
   const out=$('finderResult');
   if(!finderTouched){out.innerHTML='<small>Paina nauhoja. Valitsemattomien kielten soiminen päätellään automaattisesti.</small>';return}
   if(result.status==='empty'||result.status==='waiting'){out.innerHTML='<small>Valitse vähintään yksi painettu nauha tai avoin kieli.</small>';return}
-  const notes='<small>'+(result.inferred?'Ehdotetun otteen sävelet: ':'Soivat sävelet: ')+result.notes.join(' · ')+'</small>';
+  const notes='<small>'+(result.inferred?'Ehdotetun otteen sävelet: ':'Soivat sävelet: ')+result.notes.join(' · ').replace(/\bB\b/g,'B (H)')+'</small>';
   if(result.status==='few'){out.innerHTML='<small>Valitse vähintään kaksi eri säveltä.</small>'+notes;return}
   if(result.status==='ambiguous'){
     const opts=result.options.slice(0,8);
     out.innerHTML='<span class="finder-panel-label">Mahdollisia sointuja</span><strong>'+safe(opts[0].name)+'</strong>'+notes+
       '<div class="finder-matches">'+opts.map((x,i)=>'<button type="button" class="finder-match '+(i===0?'chosen':'')+'" data-finder-suggestion="'+i+'">'+safe(x.name)+'</button>').join('')+'</div>'+
+      '<button type="button" class="finder-insert" data-finder-insert="0">↳ Lisää ensimmäinen ehdotus biisiin</button>'+
       '<small>Useampi tulkinta on mahdollinen. Voit rajata niitä merkitsemällä avoimet (○) ja vaimennetut (×) kielet itse.</small>';
   }else if(result.status==='exact'){
-    const names=[...new Set(result.matches.map(x=>x.name))];
-    const alternatives=names.length>1?'<div class="finder-alternatives"><b>Myös mahdollisia:</b> '+names.slice(1,5).map(safe).join(', ')+'</div>':'';
-    out.innerHTML='<span class="finder-panel-label">Tunnistettu sointu</span><strong>'+safe(names[0])+'</strong>'+notes+alternatives;
+    const options=result.options||result.matches;
+    const alternatives=options.length>1?'<div class="finder-alternatives"><b>Valitse nimitys:</b></div>':'';
+    out.innerHTML='<span class="finder-panel-label">'+(result.inferred?'Ehdotettu sointu':'Tunnistettu sointu')+'</span><strong>'+safe(options[0].name)+'</strong>'+notes+alternatives+
+      options.slice(0,5).map((x,i)=>'<button type="button" class="finder-insert" data-finder-insert="'+i+'">↳ '+safe(x.name)+' biisiin</button>').join('');
   }else if(result.status==='partial'){
     const best=result.partial[0];
     const missing=best.missingNames?.length?'<small>Puuttuvia säveliä: '+best.missingNames.map(safe).join(', ')+'. Tämä EI ole vielä täsmällinen sointu.</small>':'';
@@ -508,11 +551,22 @@ function renderFinder(){
   }else out.innerHTML='<small>Merkityillä nauhoilla ei löytynyt tämän sointukirjaston mukaista sointua. Tarkista painetut nauhat tai täsmennä kielten ○/×-tiloja.</small>'+notes;
 }
 $('finderResult').addEventListener('click',e=>{
+  const insert=e.target.closest('[data-finder-insert]');
   const suggestion=e.target.closest('[data-finder-suggestion]');
-  if(!suggestion)return;
+  if(!insert&&!suggestion)return;
   const result=ChordFinder.identifyFlexible(finderShape);
-  const entry=result.options?.[Number(suggestion.dataset.finderSuggestion)];
-  if(entry){finderShape.splice(0,6,...entry.shape);finderTouched=true;renderFinder();}
+  const entry=result.options?.[Number((insert||suggestion).dataset[insert?'finderInsert':'finderSuggestion'])];
+  if(!entry)return;
+  if(suggestion){finderShape.splice(0,6,...entry.shape);finderTouched=true;renderFinder();return;}
+  if(!ChordEngine.parse(entry.name) || !ChordEngine.valid(entry.name,entry.shape)){
+    $('finderResult').insertAdjacentHTML('beforeend','<small>Otteelle ei saatu vahvistettua sointunimeä. Täsmennä kielten tilat.</small>');return;
+  }
+  finderPending={name:entry.name,shape:entry.shape.slice()};
+  if(!current){$('new').click();}
+  else{showMode('edit');$('editorPanel').scrollIntoView({behavior:'smooth',block:'start'});}
+  $('editStatus').classList.remove('error');
+  $('editStatus').textContent='Valittu '+entry.name+'. Klikkaa nyt haluamaasi kohtaa sanoitusrivillä – sointu lisätään sen yläpuolelle. Tallennus säilyttää myös otteen.';
+
 });
 $('finderGrid').addEventListener('click',e=>{
   const open=e.target.closest('[data-finder-open]');
