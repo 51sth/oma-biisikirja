@@ -92,34 +92,33 @@ main{max-width:1040px}
 #chordSearchResults{display:flex;gap:5px;flex-wrap:wrap;padding:8px 0 0}
 .search-choice{margin:0;padding:7px 9px;background:#e5f2ea;color:#17513a;font-size:13px;border-radius:8px}
 @media(max-width:500px){.chord-popover{width:min(350px,calc(100vw - 14px));padding:11px}.chord-popover .mini-fretboard{height:135px}.voicing-choice .mini-fretboard{height:88px}}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><button class="secondary" id="backup">Vie varmuuskopio</button><label style="display:block;margin:10px 0">Tuo varmuuskopio <input id="restore" type="file" accept="application/json,.json" style="width:100%"></label></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
+
+/* Turvallisempi tuonti: toimintatapa näkyy jo ennen tiedoston valintaa. */
+.backup-area{display:grid;gap:8px;margin-top:12px}.backup-area select{width:100%;background:#fff;color:#193328}.import-label{background:#e5f2ea;color:#164b38;border:1px solid #b9cfc3;border-radius:9px;text-align:center;padding:12px 8px;cursor:pointer;font-weight:650}.backup-area input[type=file]{font-size:12px;width:100%;min-width:0;padding:5px}.backup-note{font-size:12px;color:#577568;line-height:1.5;margin-top:10px}
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><button class="secondary" id="backup" type="button">↓ Vie varmuuskopio (kaikki biisit)</button>
+<div class="backup-area"><label for="restoreMode">Tuonnin toimintatapa</label><select id="restoreMode"><option value="merge">Yhdistä nykyisiin biiseihin</option><option value="replace">Korvaa koko kirjasto</option></select>
+<label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"></div>
+<p class="backup-note">Yhdistä säilyttää vanhat biisit. Samannimisten ristiriitaiset versiot tuodaan erillisinä. Korvaaminen poistaa nykyisen kirjaston biisit, joten sovellus lataa niistä ensin varmuuskopion.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
 <div id="editStatus" class="edit-status" aria-live="polite"></div>
-<div id="restoreOriginalPanel" class="hidden" style="margin-bottom:12px"><button id="restoreOriginal" class="secondary" type="button">↺ Kohdista tämän biisin soinnut alkuperäisen kuvan mukaan</button><small>Tekee vanhasta versiosta ensin varmuuskopion biisikirjastoon.</small></div>
+
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <div class="row"><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div>
-<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita</h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js"></script><script>
+<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js"></script><script>
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],cursor={line:0,pos:0},selectedChord=null;
-const STARTER_SONG={"id": "oma-biisi-pilven-luonto-20261010", "title": "Ei tiennyt pilven luontoa hän", "body": "                [F]     [C]\n\n[C]Hajosi pi[E]lvi satee[Am]ksi, joki siitä s[F]uruksi virtas[C]i.\nMiksi [E]kävi tämä näin? [Am]Kaikki kaunis [F]meni toisip[C]äin.\nYksin virtaa [E]  luona puid[Am]en, muistellen pehm[F]eyttä kauneud[C]en.\nNäinkö meitä [E]luonto kuritt[Am]aa, repii auki, p[F]isaroiksi hajottaa?\n\n[C]Ei tiennyt [E]pilven luontoa h[Am]än, ei tiennyt pi[F]lven luontoa hä[C]n.\nEi tiennyt [E]pilven luontoa h[Am]än, ei tiennyt pi[F]lven luontoa hä[C]n.\n\n[C]  Kerran sivul[E]lensa katsoi, [Am] kun pisara vierest[F]ä haihtui[C].\nToinen lehden [E]päältä vieri, j[Am]okeen itsensä [F]sulatti.\n\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt p[G]ilven luontoa hä[C]n.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt p[G]ilven luontoa hä[C]n.\n\n[C]  [G]  [F]  [F]\n[C]  [G]  [F]  [F]\n\n[C]Niin pis[E]ara löysi itse[Am]nsä, suure[F]n joen sis[C]ältä.\n[C]Niin joki[E] löysi pilvest[Am]ä piene[F]n pisaran sis[C]ältä.\n\n[C]Han[G]nan[F]a..[G].  [C]\n[C]   [G]   [F]   [G]   [C]\n\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt p[G]ilven luontoa hä[C]n.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt p[G]ilven luontoa hä[C]n.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt  [G]                [C]"};
-const OLD_STARTER_BODY="[F]     [C]\n\n[C]Hajosi [E]pilvi [Am]sateeksi, joki [F]siitä suruksi [C]virtasi.\nMiksi [E]kävi tämä näin? [Am]Kaikki kaunis [F]meni [C]toisipäin.\nYksin virtaa [E]luona [Am]puiden, muistellen [F]pehmeyttä [C]kauneuden.\nNäinkö meitä [E]luonto [Am]kurittaa, repii auki, [F]pisaroiksi hajottaa?\n\n[C]Ei tiennyt [E]pilven luontoa [Am]hän, ei tiennyt [F]pilven luontoa [C]hän.\n[C]Ei tiennyt [E]pilven luontoa [Am]hän, ei tiennyt [F]pilven luontoa [C]hän.\n\n[C]  Kerran sivullensa [E]katsoi, [Am]kun pisara [F]vierestä [C]haihtui.\nToinen lehden [E]päältä vieri, [Am]jokeen itsensä [F]sulatti.\n\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt [G]pilven luontoa [C]hän.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt [G]pilven luontoa [C]hän.\n\n[C] [G] [F] [F]\n[C] [G] [F] [F]\n\n[C]Niin [E]pisara löysi [Am]itsensä, [F]suuren joen [C]sisältä.\n[C]Niin joki [E]löysi pilvestä [Am]pienen [F]pisaran [C]sisältä.\n\n[C] [G] [F] [G] [C]\nHannana...\n[C] [G] [F] [G] [C]\n\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt [G]pilven luontoa [C]hän.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei tiennyt [G]pilven luontoa [C]hän.\n[C]Ei tiennyt [G]pilven luontoa hän, [F]ei [G]tiennyt [C]";
-const correctedStarter=songs.find(x=>x.id===STARTER_SONG.id);
-if(correctedStarter && correctedStarter.body===OLD_STARTER_BODY){
-  try{localStorage.setItem('oma-biisikirja-backup-ennen-sointikorjausta',JSON.stringify(correctedStarter));}catch{}
-  correctedStarter.body=STARTER_SONG.body;
-  localStorage.setItem(K,JSON.stringify(songs));
-}
-const starterKey='oma-biisikirja-starter-pilvi-v1';
-if(!localStorage.getItem(starterKey)){
-  if(!songs.some(x=>x.id===STARTER_SONG.id || (x.title===STARTER_SONG.title && x.body===STARTER_SONG.body))){
-    songs.push({...STARTER_SONG});localStorage.setItem(K,JSON.stringify(songs));
+// Uusi asennus käynnistyy tyhjällä kirjastolla. Vanhoja paikallisia kappaleita ei poisteta.
+const LEGACY_SONG_ID='oma-biisi-pilven-luonto-20261010';
+for(const song of songs){
+  if(song && song.id===LEGACY_SONG_ID && song.title==='Ei tiennyt pilven luontoa hän'){
+    song.title='Pilven luonto';
+    localStorage.setItem(K,JSON.stringify(songs));
   }
-  localStorage.setItem(starterKey,'1');
 }
 
 const chordDB={C:['x32010','x35553','875558'],Cm:['x35543'],D:['xx0232','x57775'],Dm:['xx0231'],E:['022100','x79997'],Em:['022000'],F:['133211','xx3211','x87565'],Fm:['133111'],G:['320003','320033','355433'],Gm:['355333'],A:['x02220'],Am:['x02210','577555'],B:['x24442'],Bm:['x24432'],B7:['x21202'],C7:['x32310'],D7:['xx0212'],E7:['020100'],A7:['x02020'],G7:['320001'],Fmaj7:['xx3210'],Cmaj7:['x32000'],Am7:['x02010'],Em7:['022030'],Dsus4:['xx0233'],Asus2:['x02200'],Gsus4:['330013']};
 function persist(){localStorage.setItem(K,JSON.stringify(songs))}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function list(){let q=$('search').value.toLowerCase();$('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>`<button class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}">${s.id===STARTER_SONG.id?"🎵 ":""}${safe(s.title)}</button>`).join('')||'<small>Ei kappaleita</small>'}
-function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;current=id;$('title').value=s.title;loadBody(s.body);$('restoreOriginalPanel').classList.toggle('hidden',id!==STARTER_SONG.id||s.body===STARTER_SONG.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
-function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value;if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);if(s){s.title=title;s.body=body}else songs.push({id:current,title,body});persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function list(){let q=$('search').value.toLowerCase();$('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>`<button class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}">${safe(s.title)}</button>`).join('')||'<small>Ei kappaleita</small>'}
+function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);if(s){s.title=title;s.body=body;s.capo=capo}else songs.push({id:current,title,body,capo});$('capoDisplay').textContent=capo?'· capo '+capo+'. nauha':'';persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
 // Ylärivin soinnut ovat tavallista tekstiä: sijainti = tekstisarakkeen numero.
 // Tallennus säilyy yhteensopivana aiempien ChordPro-kappaleiden kanssa.
 function parseBody(body){return String(body).split('\n').map(raw=>{let text='',chords=[],last=0,re=/\[([^\]\n]+)\]/g,m;while((m=re.exec(raw))){text+=raw.slice(last,m.index);chords.push({pos:text.length,name:m[1]});last=re.lastIndex}text+=raw.slice(last);let chordRow=chordsToRow(chords);if(chordRow===null&&!text.trim()){ // Pelkistä soinnuista koostuvilla riveillä voi olla peräkkäisiä merkintöjä.
@@ -350,16 +349,6 @@ function preview(){
     return `<div class="notation-line" style="width:${Math.max(maxCol,1)}ch"><div class="notation-chords">${chordMarks}</div><div class="notation-lyrics">${line.text?safe(line.text):'&nbsp;'}</div></div>`;
   }).join('');
 }
-$('restoreOriginal').onclick=()=>{
-  if(current!==STARTER_SONG.id)return;
-  if(!confirm('Palautetaanko tämän kappaleen sointien paikat alkuperäisen kuvasi mukaan? Nykyinen versio kopioidaan ensin talteen erilliseksi kappaleeksi.'))return;
-  let currentSong=songs.find(x=>x.id===current);
-  if(!currentSong)return;
-  let oldTitle=currentSong.title;
-  songs.push({id:'varmuuskopio-'+Date.now(),title:oldTitle+' (ennen sointikorjausta)',body:currentSong.body});
-  currentSong.body=STARTER_SONG.body;
-  persist();openSong(current);
-};
 function showMode(mode){
   stopScroll();closeChordPopover(true);
   $('editorPanel').classList.toggle('hidden',mode!=='edit');
@@ -367,7 +356,7 @@ function showMode(mode){
 }
 $('songs').onclick=e=>{let b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
-$('new').onclick=()=>{current=null;$('title').value='';loadBody('');list();preview();showMode('edit');$('title').focus()};
+$('new').onclick=()=>{current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
 $('save').onclick=save;
 $('delete').onclick=()=>{if(current&&confirm('Poistetaanko kappale?')){songs=songs.filter(s=>s.id!==current);persist();$('new').click()}};
 $('previewBtn').onclick=()=>{if(!syncRaw())return;preview();showMode('play');$('previewPanel').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -420,6 +409,44 @@ $('scrollToggle').onclick=()=>{
   frameId=requestAnimationFrame(scrollStep);
 };
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopScroll()});
-$('backup').onclick=()=>{let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(songs,null,2)],{type:'application/json'}));a.download='biisikirja-varmuuskopio.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};$('restore').onchange=async e=>{try{let a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a)||!a.every(x=>typeof x.id==='string'&&typeof x.title==='string'&&typeof x.body==='string'))throw Error();if(confirm('Korvataanko nykyinen kirjasto varmuuskopiolla?')){songs=a;persist();current=null;list();if(songs.length)openSong(songs[0].id);else $('new').click()}}catch{alert('Tiedosto ei kelpaa')}e.target.value=''};
+function downloadBackup(data, filename='biisikirja-varmuuskopio.json'){
+  const a=document.createElement('a');
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+$('backup').onclick=()=>downloadBackup(songs);
+$('restore').onchange=async e=>{
+  try{
+    const file=e.target.files && e.target.files[0];if(!file)return;
+    const incoming=JSON.parse(await file.text());
+    if(!Array.isArray(incoming)||incoming.length>10000||!incoming.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000)) throw Error('Tiedosto ei kelpaa');
+    const mode=$('restoreMode').value;
+    if(mode==='replace'){
+      if(!confirm('KORVATAANKO KOKO KIRJASTO? Kaikki nykyiset kappaleet poistuvat kirjastosta. Varmuuskopio ladataan ensin.'))return;
+      downloadBackup(songs,'biisikirja-ennen-korvaamista.json');
+      songs=incoming.map(x=>({...x}));
+    }else{
+      if(!confirm('Yhdistetäänkö '+incoming.length+' varmuuskopion kappaletta nykyiseen kirjastoon? Olemassa olevia kappaleita ei poisteta.'))return;
+      const ids=new Set(songs.map(x=>x.id));
+      const exact=new Set(songs.map(x=>x.title+'\u0000'+x.body));
+      let added=0, skipped=0;
+      for(const song of incoming){
+        const signature=song.title+'\u0000'+song.body;
+        if(exact.has(signature)){skipped++;continue;}
+        const copy={...song};
+        if(ids.has(copy.id)){
+          copy.id=(crypto.randomUUID?crypto.randomUUID():'tuotu-'+Date.now()+'-'+Math.random());
+          copy.title=copy.title+' (tuotu versio)';
+        }
+        // Säilytä varmuuskopion muut tiedot, kuten sointujen valitut otteet.
+        songs.push(copy);ids.add(copy.id);exact.add(signature);added++;
+      }
+      alert('Yhdistäminen valmis: '+added+' lisätty, '+skipped+' jo löytyi kirjastosta.');
+    }
+    persist();current=null;list();if(songs.length)openSong(songs[0].id);else $('new').click();
+  }catch(err){console.error(err);alert('Varmuuskopio ei kelpaa. Valitse sovelluksen viemä JSON-tiedosto.');}
+  finally{e.target.value='';}
+};
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
