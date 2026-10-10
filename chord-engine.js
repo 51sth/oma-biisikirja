@@ -22,14 +22,44 @@ const types={
  dim:{tones:[0,3,6],essential:[0,3,6]},
  dim7:{tones:[0,3,6,9],essential:[0,3,6,9]},
  m7b5:{tones:[0,3,6,10],essential:[0,3,6,10]},
- aug:{tones:[0,4,8],essential:[0,4,8]}
+ aug:{tones:[0,4,8],essential:[0,4,8]},
+ // Extended/altered chords share the same pitch-class model as normal chord diagrams.
+ // Qualifiers such as (no5) mean exactly that the fifth is intentionally absent.
+ '13':{tones:[0,2,4,7,9,10],essential:[0,2,4,7,9,10]},
+ 'maj7#11':{tones:[0,4,6,7,11],essential:[0,4,6,7,11]},
+ 'maj7#11(no5)':{tones:[0,4,6,11],essential:[0,4,6,11]},
+ '7#11':{tones:[0,4,6,7,10],essential:[0,4,6,7,10]},
+ '7#11(no5)':{tones:[0,4,6,10],essential:[0,4,6,10]},
+ 'add#11':{tones:[0,4,6,7],essential:[0,4,6,7]},
+ 'add#11(no5)':{tones:[0,4,6],essential:[0,4,6]},
+ '7b9':{tones:[0,1,4,7,10],essential:[0,1,4,7,10]},
+ '7#9':{tones:[0,3,4,7,10],essential:[0,3,4,7,10]},
+ '7b5':{tones:[0,4,6,10],essential:[0,4,6,10]},
+ '7#5':{tones:[0,4,8,10],essential:[0,4,8,10]},
+ 'mmaj7':{tones:[0,3,7,11],essential:[0,3,7,11]},
+ 'madd9':{tones:[0,2,3,7],essential:[0,2,3,7]},
+ 'm7add11':{tones:[0,3,5,7,10],essential:[0,3,5,7,10]},
+ 'add11':{tones:[0,4,5,7],essential:[0,4,5,7]},
+ '6/9':{tones:[0,2,4,7,9],essential:[0,2,4,7,9]},
+ '7sus2':{tones:[0,2,7,10],essential:[0,2,7,10]},
+ 'maj7sus2':{tones:[0,2,7,11],essential:[0,2,7,11]},
+ 'maj7sus4':{tones:[0,5,7,11],essential:[0,5,7,11]},
+ 'm11':{tones:[0,2,3,5,7,10],essential:[0,2,3,5,7,10]},
+ 'maj13':{tones:[0,2,4,7,9,11],essential:[0,2,4,7,9,11]}
 };
+// A missing fifth must not be silently drawn as a full chord. Explicit (no5)
+// names provide accurate labels for less common, deliberately sparse voicings.
+for(const q of ['7','maj7','m7','9','maj9','m9','add9','6','m6','7b9','7#9','7#11','m7add11','13','maj13']){
+ const src=types[q];if(!src||!src.tones.includes(7))continue;
+ const remaining=src.tones.filter(n=>n!==7);
+ types[q+'(no5)']={tones:remaining,essential:remaining.slice()};
+}
 const pc=n=>(n%12+12)%12;
 function pitch(name,accidental){return pc(roots[name]+(accidental==='#'?1:accidental==='b'?-1:0))}
 function parse(name){
- const m=String(name).trim().match(/^([A-G])([#b]?)(maj9|maj7|m7b5|7sus4|sus2|sus4|add9|dim7|maj7|m9|m7|m6|dim|aug|maj|m|9|7|6|5)?(?:\/([A-G])([#b]?))?$/);
+ const m=String(name).trim().match(/^([A-G])([#b]?)(.*?)(?:\/([A-G])([#b]?))?$/);
  if(!m)return null;
- const quality=m[3]==='maj'?'':(m[3]||'');if(!types[quality])return null;
+ const quality=m[3]==='maj'?'':(m[3]||'');if(!Object.prototype.hasOwnProperty.call(types,quality))return null;
  return {name: String(name).trim(), root:pitch(m[1],m[2]),quality,bass:m[4]?pitch(m[4],m[5]):null,...types[quality]};
 }
 function pitches(shape){return shape.flatMap((f,i)=>f<0?[]:[pc(tuning[i]+f)])}
@@ -180,5 +210,5 @@ function searchNames(query){
  for(const root of rootNames)for(const quality of ['','m','7','maj7','m7','sus2','sus4','7sus4','add9','6','m6','9','maj9','m9','dim','dim7','m7b5','aug','5']){const n=root+quality;if(!q||n.toLowerCase().includes(q.toLowerCase()))names.push(n)}
  return names.slice(0,120);
 }
-global.ChordEngine={parse,valid,voicings,pitches,score,inferKey,substitutions,searchNames,noteName,fingeringCost};
+global.ChordEngine={parse,valid,voicings,pitches,score,inferKey,substitutions,searchNames,noteName,fingeringCost,qualities:Object.keys(types)};
 })(window);
