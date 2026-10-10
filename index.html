@@ -110,7 +110,7 @@ main{max-width:1040px}
 .finder-cell{height:27px;font-size:12px;display:grid;place-items:center}
 .finder button.finder-cell.active{background:#0b7851;border-color:#086e48;color:white}
 .finder button.finder-cell.muted{color:#89978d;background:#eef2ee}
-.finder button.finder-cell.opened{background:#d7f1e1;color:#065738;border-color:#6fbb91}
+.finder button.finder-cell.opened{background:#d7f1e1;color:#065738;border-color:#6fbb91}.finder button.finder-cell.muted{background:#f2f2f2;color:#6e7570}.finder-result small{line-height:1.45}
 .finder-actions{display:flex;gap:6px;margin-top:9px}
 .finder .finder-actions button{padding:7px 8px;flex:1;font-size:12px}
 .finder-result{min-height:64px;background:white;border:1px solid #d8e8dc;border-radius:9px;padding:9px;margin-top:9px;line-height:1.35}
@@ -120,10 +120,10 @@ main{max-width:1040px}
 .finder-panel-label{font-size:11px;color:#617c6d;margin-bottom:5px}
 @media(min-width:701px){.layout{grid-template-columns:278px minmax(0,1fr)}}
 </style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
-<p class="finder-hint">Napauta otelaudasta painettuja nauhoja. × = vaimennettu, ○ = avoin kieli.</p>
+<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>○ = avoin, soiva kieli (oletus)</b>; <b>× = vaimennettu</b>. Klikkaa ○/×-ruutua vaihtaaksesi.</p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kuusi kieltä, E A D G B e"></div>
-<div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Tyhjennä</button></div>
+<div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
 <div id="finderResult" class="finder-result" role="status" aria-live="polite"><small>Valitse soitettavat kielet.</small></div>
 <p class="finder-hint" style="margin-bottom:0">Vakioviritys E–A–D–G–B–e, ei capoa. Tunnistus perustuu soiviin säveliin.</p></details>
 <hr><button class="secondary" id="backup" type="button">↓ Vie varmuuskopio (kaikki biisit)</button>
@@ -458,7 +458,10 @@ function downloadBackup(data, filename='biisikirja-varmuuskopio.json'){
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 // Kitarasointujen tunnistin. Sama ChordEngine.parse ja sävelkorkeusmalli kuin sointukirjastossa.
-const finderShape=Array(6).fill(-1);
+// Avoimia kieliä ei saa oletuksena käsitellä vaimennettuina.
+// Oletusarvo 0 tarkoittaa soivaa avointa kieltä. Vaimenna tarvittavat kielet erikseen ×-painikkeella.
+const finderShape=Array(6).fill(0);
+let finderTouched=false;
 const finderStringNames=['E','A','D','G','B','e'];
 let finderBase=1;
 function renderFinder(){
@@ -477,6 +480,7 @@ function renderFinder(){
    }).join('');
   const result=ChordFinder.identify(finderShape);
   const out=$('finderResult');
+  if(!finderTouched){out.innerHTML='<small>Merkitse painetut nauhat. Muut kielet soivat avoimina (○), ellei niitä vaimenneta (×).</small>';return}
   if(result.status==='empty'){out.innerHTML='<small>Merkitse ensin soivat kielet.</small>';return}
   const notes='<small>Soivat sävelet: '+result.notes.join(' · ')+'</small>';
   if(result.status==='few'){out.innerHTML='<small>Valitse vähintään kaksi eri säveltä.</small>'+notes;return}
@@ -485,20 +489,21 @@ function renderFinder(){
     const alternatives=names.length>1?'<div class="finder-alternatives"><b>Myös mahdollisia:</b> '+names.slice(1,5).map(safe).join(', ')+'</div>':'';
     out.innerHTML='<span class="finder-panel-label">Tunnistettu sointu</span><strong>'+safe(names[0])+'</strong>'+notes+alternatives;
   }else if(result.status==='partial'){
-    const names=[...new Set(result.partial.map(x=>x.name))];
-    out.innerHTML='<span class="finder-panel-label">Mahdollinen vajaasointu</span><strong>'+safe(names[0])+'</strong>'+notes+'<small>Merkintä on suuntaa antava: kaikkia soinnun säveliä ei soiteta.</small>';
-  }else out.innerHTML='<small>Ei täsmällistä sointuvastaavuutta. Tarkista otteesi.</small>'+notes;
+    const best=result.partial[0];
+    const missing=best.missingNames?.length?'<small>Puuttuvia säveliä: '+best.missingNames.map(safe).join(', ')+'. Tämä EI ole vielä täsmällinen sointu.</small>':'';
+    out.innerHTML='<span class="finder-panel-label">Mahdollinen vajaasointu</span><strong>'+safe(best.name)+'</strong>'+notes+missing+'<small>Tarkista, mitkä kielet soivat avoimina (○) tai vaimennetaan (×).</small>';
+  }else out.innerHTML='<small>Soivista sävelistä ei tunnistettu täsmällistä sointua. Tarkista avoimet (○) ja vaimennetut (×) kielet tai kokeile toista otetta.</small>'+notes;
 }
 $('finderGrid').addEventListener('click',e=>{
   const open=e.target.closest('[data-finder-open]');
   const fret=e.target.closest('[data-finder-string]');
-  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===0?-1:0;renderFinder()}
-  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?-1:n;renderFinder()}
+  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===-1?0:-1;finderTouched=true;renderFinder()}
+  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?0:n;finderTouched=true;renderFinder()}
 });
 $('finderPrev').onclick=()=>{finderBase=Math.max(1,finderBase-3);renderFinder()};
 $('finderNext').onclick=()=>{finderBase=Math.min(11,finderBase+3);renderFinder()};
-$('finderClear').onclick=()=>{finderShape.fill(-1);finderBase=1;renderFinder()};
-$('finderExample').onclick=()=>{finderShape.splice(0,6,-1,3,2,0,1,0);finderBase=1;renderFinder()};
+$('finderClear').onclick=()=>{finderShape.fill(0);finderTouched=false;finderBase=1;renderFinder()};
+$('finderExample').onclick=()=>{finderShape.splice(0,6,-1,3,2,0,1,0);finderTouched=true;finderBase=1;renderFinder()};
 renderFinder();
 
 $('backup').onclick=()=>downloadBackup(songs);
