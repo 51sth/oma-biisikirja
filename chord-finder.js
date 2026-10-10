@@ -62,5 +62,56 @@
     for (const list of [matches,partial]) list.sort((a,b)=>score(b)-score(a)||a.name.length-b.name.length||a.name.localeCompare(b.name));
     return {status:matches.length?'exact':partial.length?'partial':'unknown',notes:names,bass:labels[bass],matches,partial};
   }
-  global.ChordFinder={identify,tuning:tuning.slice(),roots:roots.slice(),qualities:qualities.slice()};
+  // UI:n automaattiset kielet (-2) eivät ole oletusarvoisesti avoimia eivätkä
+  // vaimennettuja. Muodostetaan niiden mielekkäät vaihtoehdot, eikä arvata
+  // sellaisen kielen soivan, jota soittaja ei ole määrittänyt.
+  // Tulkinnat ovat aina ChordEngine.parse-mallin tarkistamia säveljoukkoja.
+  function identifyFlexible(input) {
+    if (!Array.isArray(input) || input.length !== 6 ||
+        input.some(f => !Number.isInteger(f) || f < -2 || f > 15)) {
+      return {status:'invalid',matches:[],notes:[],partial:[],options:[]};
+    }
+    const auto=[];
+    for(let i=0;i<6;i++) if(input[i]===-2) auto.push(i);
+    const hasUserNotes=input.some(f=>f>0 || f===0);
+    if(!hasUserNotes) return {status:'waiting',matches:[],notes:[],partial:[],options:[]};
+    if(!auto.length) {
+      const result=identify(input);
+      return {...result,options:result.matches.map(match=>({...match,shape:input.slice(),inferred:0}))};
+    }
+    const possibles=new Map();
+    const partials=new Map();
+    for(let mask=0;mask<(1<<auto.length);mask++) {
+      const resolved=input.slice();
+      let open=0,muted=0;
+      auto.forEach((i,j)=>{
+        if(mask&(1<<j)){resolved[i]=0;open++}else{resolved[i]=-1;muted++}
+      });
+      const result=identify(resolved);
+      for(const m of result.matches){
+        const rank=(m.rootBass?80:0) + open*6 - muted*7 +
+          (m.quality===''||m.quality==='m'?7:0) -
+          ((m.quality||'').length>3?2:0);
+        const found=possibles.get(m.name);
+        if(!found || rank>found.rank) possibles.set(m.name,{...m,shape:resolved.slice(),inferred:auto.length,autoOpen:open,rank});
+      }
+      // Vajaasoinnut jätetään selvästi erilleen, ei ylennetä täsmällisiksi.
+      if (!result.matches.length) for(const m of result.partial){
+        const rank=(m.rootBass?30:0) + open*3 - muted*6 - 15*m.missing;
+        const found=partials.get(m.name);
+        if(!found||rank>found.rank) partials.set(m.name,{...m,shape:resolved.slice(),rank});
+      }
+    }
+    const options=[...possibles.values()].sort((a,b)=>b.rank-a.rank || a.name.length-b.name.length || a.name.localeCompare(b.name));
+    const closest=[...partials.values()].sort((a,b)=>b.rank-a.rank).slice(0,6);
+    if(options.length){
+      const first=options[0];
+      return {status:options.length===1?'exact':'ambiguous',matches:options,options,
+        notes:identify(first.shape).notes,bass:identify(first.shape).bass,
+        partial:[],inferred:true};
+    }
+    return {status:closest.length?'partial':'unknown',matches:[],options:[],partial:closest,
+      notes:identify(input.map(x=>x===-2?-1:x)).notes,inferred:true};
+  }
+  global.ChordFinder={identify,identifyFlexible,tuning:tuning.slice(),roots:roots.slice(),qualities:qualities.slice()};
 })(window);
