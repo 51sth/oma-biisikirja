@@ -95,6 +95,7 @@ main{max-width:1040px}
 
 /* Turvallisempi tuonti: toimintatapa näkyy jo ennen tiedoston valintaa. */
 .backup-area{display:grid;gap:8px;margin-top:12px}.backup-area select{width:100%;background:#fff;color:#193328}.import-label{background:#e5f2ea;color:#164b38;border:1px solid #b9cfc3;border-radius:9px;text-align:center;padding:12px 8px;cursor:pointer;font-weight:650}.backup-area input[type=file]{font-size:12px;width:100%;min-width:0;padding:5px}.backup-note{font-size:12px;color:#577568;line-height:1.5;margin-top:10px}
+
 /* Pieni kitarasointujen tunnistin vasemmassa sivupalkissa. */
 .finder{border:1px solid #d7e7dc;border-radius:13px;padding:10px;margin:14px 0;background:#f5faf7;min-width:0}
 .finder summary{font-size:15px;color:#123f2d;font-weight:750;cursor:pointer;list-style-position:inside;padding:2px 0 6px}
@@ -118,15 +119,20 @@ main{max-width:1040px}
 .finder-result small{display:block;color:#5c7566;margin-top:3px;font-size:11px;overflow-wrap:anywhere}
 .finder-alternatives{font-size:12px;margin-top:7px;color:#334e3d;overflow-wrap:anywhere}
 .finder-panel-label{font-size:11px;color:#617c6d;margin-bottom:5px}
+.finder button.finder-cell.automatic{background:#eef3f1;color:#647d6e;border-style:dashed}
+.finder .finder-matches{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}
+.finder .finder-match{background:#e2f4e9;color:#086544;padding:5px 7px;border:1px solid #b3dac2;font-size:12px}
+.finder .finder-match.chosen{background:#087c55;color:white}
+.finder .finder-info{font-size:11px;color:#5b7366;line-height:1.5;margin-top:5px}
 @media(min-width:701px){.layout{grid-template-columns:278px minmax(0,1fr)}}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
-<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>○ = avoin, soiva kieli (oletus)</b>; <b>× = vaimennettu</b>. Klikkaa ○/×-ruutua vaihtaaksesi.</p>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
+<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>? = sovellus päättelee</b>, ○ = avoin, × = vaimennettu. Painamalla ?/○/× vaihdat kielen tilaa.</p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kuusi kieltä, E A D G B e"></div>
 <div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
 <div id="finderResult" class="finder-result" role="status" aria-live="polite"><small>Valitse soitettavat kielet.</small></div>
-<p class="finder-hint" style="margin-bottom:0">Vakioviritys E–A–D–G–B–e, ei capoa. Tunnistus perustuu soiviin säveliin.</p></details>
-<hr><button class="secondary" id="backup" type="button">↓ Vie varmuuskopio (kaikki biisit)</button>
+<p class="finder-hint" style="margin-bottom:0">Vakioviritys E–A–D–G–B–e, ei capoa. ?-kielten soiminen päätellään, joten useampi sointu voi olla mahdollinen.</p></details>
+<button class="secondary" id="backup" type="button">↓ Vie varmuuskopio (kaikki biisit)</button>
 <div class="backup-area"><label for="restoreMode">Tuonnin toimintatapa</label><select id="restoreMode"><option value="merge">Yhdistä nykyisiin biiseihin</option><option value="replace">Korvaa koko kirjasto</option></select>
 <label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"></div>
 <p class="backup-note">Yhdistä säilyttää vanhat biisit. Samannimisten ristiriitaiset versiot tuodaan erillisinä. Korvaaminen poistaa nykyisen kirjaston biisit, joten sovellus lataa niistä ensin varmuuskopion.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
@@ -457,10 +463,11 @@ function downloadBackup(data, filename='biisikirja-varmuuskopio.json'){
   a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
+
 // Kitarasointujen tunnistin. Sama ChordEngine.parse ja sävelkorkeusmalli kuin sointukirjastossa.
 // Avoimia kieliä ei saa oletuksena käsitellä vaimennettuina.
 // Oletusarvo 0 tarkoittaa soivaa avointa kieltä. Vaimenna tarvittavat kielet erikseen ×-painikkeella.
-const finderShape=Array(6).fill(0);
+const finderShape=Array(6).fill(-2);
 let finderTouched=false;
 const finderStringNames=['E','A','D','G','B','e'];
 let finderBase=1;
@@ -474,17 +481,23 @@ function renderFinder(){
    finderStringNames.map((name,i)=>{
      const active=finderShape[i];
      const head='<span class="finder-name">'+name+'</span>';
-     const toggle='<button type="button" class="finder-cell '+(active===0?'opened':active===-1?'muted':'')+'" data-finder-open="'+i+'" aria-label="'+name+'-kieli, '+(active===0?'avoin':'vaihda avoimeksi')+'" aria-pressed="'+(active===0)+'">'+(active===0?'○':'×')+'</button>';
+     const state=active===-2?'automaattinen':active===0?'avoin':active===-1?'vaimennettu':'painettu';
+     const toggle='<button type="button" class="finder-cell '+(active===-2?'automatic':active===0?'opened':active===-1?'muted':'')+'" data-finder-open="'+i+'" aria-label="'+name+'-kieli, '+state+', muuta tilaa" title="'+name+': '+state+'" aria-pressed="'+(active===0)+'">'+(active===-2?'?':active===0?'○':active===-1?'×':'↺')+'</button>';
      const frets=cols.map(f=>'<button type="button" class="finder-cell '+(active===f?'active':'')+'" data-finder-string="'+i+'" data-finder-fret="'+f+'" aria-label="'+name+'-kieli, nauha '+f+'" aria-pressed="'+(active===f)+'">'+(active===f?'●':'·')+'</button>').join('');
      return head+toggle+frets;
    }).join('');
-  const result=ChordFinder.identify(finderShape);
+  const result=ChordFinder.identifyFlexible(finderShape);
   const out=$('finderResult');
-  if(!finderTouched){out.innerHTML='<small>Merkitse painetut nauhat. Muut kielet soivat avoimina (○), ellei niitä vaimenneta (×).</small>';return}
-  if(result.status==='empty'){out.innerHTML='<small>Merkitse ensin soivat kielet.</small>';return}
-  const notes='<small>Soivat sävelet: '+result.notes.join(' · ')+'</small>';
+  if(!finderTouched){out.innerHTML='<small>Paina nauhoja. Valitsemattomien kielten soiminen päätellään automaattisesti.</small>';return}
+  if(result.status==='empty'||result.status==='waiting'){out.innerHTML='<small>Valitse vähintään yksi painettu nauha tai avoin kieli.</small>';return}
+  const notes='<small>'+(result.inferred?'Ehdotetun otteen sävelet: ':'Soivat sävelet: ')+result.notes.join(' · ')+'</small>';
   if(result.status==='few'){out.innerHTML='<small>Valitse vähintään kaksi eri säveltä.</small>'+notes;return}
-  if(result.status==='exact'){
+  if(result.status==='ambiguous'){
+    const opts=result.options.slice(0,8);
+    out.innerHTML='<span class="finder-panel-label">Mahdollisia sointuja</span><strong>'+safe(opts[0].name)+'</strong>'+notes+
+      '<div class="finder-matches">'+opts.map((x,i)=>'<button type="button" class="finder-match '+(i===0?'chosen':'')+'" data-finder-suggestion="'+i+'">'+safe(x.name)+'</button>').join('')+'</div>'+
+      '<small>Useampi tulkinta on mahdollinen. Voit rajata niitä merkitsemällä avoimet (○) ja vaimennetut (×) kielet itse.</small>';
+  }else if(result.status==='exact'){
     const names=[...new Set(result.matches.map(x=>x.name))];
     const alternatives=names.length>1?'<div class="finder-alternatives"><b>Myös mahdollisia:</b> '+names.slice(1,5).map(safe).join(', ')+'</div>':'';
     out.innerHTML='<span class="finder-panel-label">Tunnistettu sointu</span><strong>'+safe(names[0])+'</strong>'+notes+alternatives;
@@ -492,17 +505,24 @@ function renderFinder(){
     const best=result.partial[0];
     const missing=best.missingNames?.length?'<small>Puuttuvia säveliä: '+best.missingNames.map(safe).join(', ')+'. Tämä EI ole vielä täsmällinen sointu.</small>':'';
     out.innerHTML='<span class="finder-panel-label">Mahdollinen vajaasointu</span><strong>'+safe(best.name)+'</strong>'+notes+missing+'<small>Tarkista, mitkä kielet soivat avoimina (○) tai vaimennetaan (×).</small>';
-  }else out.innerHTML='<small>Soivista sävelistä ei tunnistettu täsmällistä sointua. Tarkista avoimet (○) ja vaimennetut (×) kielet tai kokeile toista otetta.</small>'+notes;
+  }else out.innerHTML='<small>Merkityillä nauhoilla ei löytynyt tämän sointukirjaston mukaista sointua. Tarkista painetut nauhat tai täsmennä kielten ○/×-tiloja.</small>'+notes;
 }
+$('finderResult').addEventListener('click',e=>{
+  const suggestion=e.target.closest('[data-finder-suggestion]');
+  if(!suggestion)return;
+  const result=ChordFinder.identifyFlexible(finderShape);
+  const entry=result.options?.[Number(suggestion.dataset.finderSuggestion)];
+  if(entry){finderShape.splice(0,6,...entry.shape);finderTouched=true;renderFinder();}
+});
 $('finderGrid').addEventListener('click',e=>{
   const open=e.target.closest('[data-finder-open]');
   const fret=e.target.closest('[data-finder-string]');
-  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===-1?0:-1;finderTouched=true;renderFinder()}
-  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?0:n;finderTouched=true;renderFinder()}
+  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===-2?0:finderShape[i]===0?-1:-2;finderTouched=true;renderFinder()}
+  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?-2:n;finderTouched=true;renderFinder()}
 });
 $('finderPrev').onclick=()=>{finderBase=Math.max(1,finderBase-3);renderFinder()};
 $('finderNext').onclick=()=>{finderBase=Math.min(11,finderBase+3);renderFinder()};
-$('finderClear').onclick=()=>{finderShape.fill(0);finderTouched=false;finderBase=1;renderFinder()};
+$('finderClear').onclick=()=>{finderShape.fill(-2);finderTouched=false;finderBase=1;renderFinder()};
 $('finderExample').onclick=()=>{finderShape.splice(0,6,-1,3,2,0,1,0);finderTouched=true;finderBase=1;renderFinder()};
 renderFinder();
 
