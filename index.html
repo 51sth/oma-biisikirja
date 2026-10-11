@@ -659,6 +659,7 @@ const guitarMidiTuning=[40,45,50,55,59,64];
 let chordAudioContext=null,chordAudioMaster=null,chordAudioOscillators=new Set();
 let chordAudioTimer=null,chordAudioPlaying=false,chordAudioPaused=false,chordAudioEvents=[],chordAudioIndex=0;
 let chordAudioFrame=0,chordAudioElapsed=0,chordAudioStartMs=0,chordAudioSignature='',chordTimelineHighlighted=-1;
+let chordPreviousInterval=0;
 const chordTempoKey='biisikirja-chord-tempo',chordBeatsKey='biisikirja-chord-beats';
 const savedChordTempo=Number(localStorage.getItem(chordTempoKey));
 if(Number.isFinite(savedChordTempo)&&savedChordTempo>=40&&savedChordTempo<=200)$('chordTempo').value=savedChordTempo;
@@ -764,6 +765,7 @@ function updateChordTimeline(scrollToActive=false){
   chordTimelineHighlighted=active;
 }
 function refreshChordTimeline(){
+  if(!chordPreviousInterval)chordPreviousInterval=chordDurationSeconds();
   const chordItems=collectSongChords($('editor').value).filter(item=>ChordEngine.parse(item.name));
   const signature=chordItems.map(item=>[item.name,item.line,item.index,item.pos].join(':')).join('|');
   if(signature!==chordAudioSignature){
@@ -826,7 +828,6 @@ function scheduleChordAtPosition(){
   const total=chordTotalSeconds(),position=chordElapsedNow();
   if(position>=total-.004){
     stopChordPlayback('Sointujen toisto päättyi.');
-    $('chordAudioStatus')?.remove?.();
     return;
   }
   const duration=chordDurationSeconds(),i=Math.min(chordAudioEvents.length-1,Math.floor(position/duration));
@@ -871,16 +872,29 @@ $('chordTimeline').addEventListener('click',e=>{
 });
 $('chordPosition').addEventListener('input',e=>seekChordAudio(Number(e.target.value)));
 $('chordStop').onclick=()=>stopChordPlayback();
-function changeChordPlaybackSpeed(){
-  // Keskeytä ennen kuin muutat aikajanan asteikkoa; käyttäjä voi jatkaa samasta soinnusta.
-  const durationBefore=chordDurationSeconds();
-  const index=chordAudioEvents.length?
-    Math.min(chordAudioEvents.length-1,Math.floor(chordElapsedNow()/Math.max(.01,durationBefore))):0;
-  if(chordAudioPlaying)pauseChordPlayback();
-  const pos=chordAudioEvents.length?index*chordDurationSeconds():0;
-  chordAudioElapsed=pos;
+function onChordSettingsChanged(){
+  // User changes the musical time scale explicitly. Pause rather than silently
+  // changing the tempo of already sounding notes or drifting out of sync.
+  const previous=chordPreviousInterval||chordDurationSeconds();
+  const position=chordAudioPlaying?Math.max(0,(performance.now()-chordAudioStartMs)/1000):chordAudioElapsed;
+  const count=chordAudioEvents.length;
+  const oldIndex=count?Math.min(count-1,Math.floor(position/previous)):0;
+  const offset=count?Math.max(0,Math.min(1,(position-oldIndex*previous)/previous)):0;
+  if(chordAudioPlaying){
+    chordAudioPlaying=false;chordAudioPaused=true;chordCancelTimers();
+    $('chordPlayToggle').textContent='▶ Jatka';
+    $('chordPlayToggle').classList.remove('playing');
+  }
+  const duration=chordDurationSeconds();
+  chordPreviousInterval=duration;
+  chordAudioElapsed=count?Math.min(chordTotalSeconds(),(oldIndex+offset)*duration):0;
+  $('chordPlayStatus').textContent='Tempo tai kesto muuttui. Paina Jatka, kun haluat jatkaa.';
   updateChordTimeline();
 }
+const oldTempoChange=$('chordTempo').onchange;
+$('chordTempo').onchange=()=>{oldTempoChange();onChordSettingsChanged()};
+const oldBeatsChange=$('chordBeats').onchange;
+$('chordBeats').onchange=()=>{oldBeatsChange();onChordSettingsChanged()};
 $('chordPlayToggle').onclick=async()=>{
   if(chordAudioPlaying){pauseChordPlayback();return}
   refreshChordTimeline();
