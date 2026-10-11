@@ -782,14 +782,14 @@ $('restore').onchange=async e=>{
     // Show real file contents BEFORE importing, so a one-song backup cannot be mistaken for 11 songs.
     const names=incoming.map(x=>x.title);
     const titles=names.slice(0,15).map(x=>'• '+x).join('\n');
-    const summary='Tiedosto: '+file.name+'\nSisältää '+incoming.length+' kappaletta:\n'+titles+
+    const summary='Tiedosto: '+file.name+'\nSisältää '+incoming.length+' '+(incoming.length===1?'kappaleen':'kappaletta')+':\n'+titles+
       (names.length>15?'\n… ja '+(names.length-15)+' muuta':'');
-    status.textContent='Valittu tiedosto: '+file.name+' — '+incoming.length+' kappaletta.';
+    status.textContent='Valittu tiedosto: '+file.name+' — '+incoming.length+' '+(incoming.length===1?'kappale':'kappaletta')+'.';
     const mode=$('restoreMode').value;
     const prompt=mode==='replace'?
       summary+'\n\nHUOM! Tämä KORVAA kaikki nykyiset '+songs.length+' kappaletta. Jatketaanko?':
       summary+'\n\nYhdistetäänkö nämä kappaleet nykyiseen '+songs.length+' kappaleen kirjastoon?';
-    if(!confirm(prompt)){status.textContent='Tuonti peruutettu. '+file.name+' sisältää '+incoming.length+' kappaletta.';return}
+    if(!confirm(prompt)){status.textContent='Tuonti peruutettu. '+file.name+' sisältää '+incoming.length+' '+(incoming.length===1?'kappaleen':'kappaletta')+'.';return}
     incoming.forEach(repairLegacyChordHeader);
     let added=0,skipped=0;
     if(mode==='replace'){
@@ -817,7 +817,7 @@ $('restore').onchange=async e=>{
       throw Error('Tallennettujen kappaleiden lukumäärää ei voitu vahvistaa');
     current=null;list();
     if(songs.length)openSong(songs[0].id);else $('new').click();
-    const result='Tuonti valmis. Tiedostossa '+incoming.length+' kappaletta; '+
+    const result='Tuonti valmis. Tiedostossa '+incoming.length+' '+(incoming.length===1?'kappale':'kappaletta')+'; '+
       'lisätty '+added+', jo ennestään '+skipped+', kirjastossa nyt '+songs.length+'.';
     status.textContent=result;
     alert(result);
