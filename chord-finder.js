@@ -27,6 +27,20 @@
     return parsed ? {name, parsed, tones:new Set(parsed.tones.map(n=>pc(parsed.root + n)))} : null;
   }).filter(Boolean));
   const labels = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  // Spell exact chord tones relative to their harmonic root. The third of A7 is C#, not Db.
+  function spellChordTone(note, rootName, parsed) {
+    const interval = pc(note - parsed.root);
+    let degree = digitDegree[interval];
+    if (interval === 6 && parsed.quality.includes('#11')) degree = 3;
+    if (interval === 3 && parsed.quality.includes('#9')) degree = 1;
+    if (degree === undefined) return global.ChordEngine.noteName(note);
+    const letter = letters[(letters.indexOf(rootName[0]) + degree) % 7];
+    const natural = pitchOfNatural[letter];
+    const difference = pc(note - natural);
+    const alteration = difference > 6 ? difference - 12 : difference;
+    if (alteration < -2 || alteration > 2) return global.ChordEngine.noteName(note);
+    return letter + (alteration === 2 ? '##' : alteration === 1 ? '#' : alteration === -1 ? 'b' : alteration === -2 ? 'bb' : '');
+  }
   function identify(shape) {
     if (!Array.isArray(shape) || shape.length !== 6 || shape.some(n=>!Number.isInteger(n)||n < -1||n > 15)) {
       return {status:'invalid', notes:[], matches:[], partial:[]};
@@ -61,7 +75,15 @@
     }
     const score = e => (e.rootBass?100:0) - e.missing*35 - (e.quality === '5'?12:0) + (e.quality===''||e.quality==='m'?8:0) - (e.quality.includes('no5')?4:0);
     for (const list of [matches,partial]) list.sort((a,b)=>score(b)-score(a)||a.name.length-b.name.length||a.name.localeCompare(b.name));
-    return {status:matches.length?'exact':partial.length?'partial':'unknown',notes:names,bass:labels[bass],matches,partial};
+    const preferred = matches[0];
+    let displayNotes = names;
+    if (preferred) {
+      const rootName = preferred.root.match(/^[A-G][#b]?/)[0];
+      const parsed = global.ChordEngine.parse(preferred.root);
+      displayNotes = [...tones].sort((a,b)=>pc(a-parsed.root)-pc(b-parsed.root))
+        .map(note=>spellChordTone(note,rootName,parsed));
+    }
+    return {status:matches.length?'exact':partial.length?'partial':'unknown',notes:displayNotes,bass:labels[bass],matches,partial};
   }
   // UI:n automaattiset kielet (-2) eivät ole oletusarvoisesti avoimia eivätkä
   // vaimennettuja. Muodostetaan niiden mielekkäät vaihtoehdot, eikä arvata
