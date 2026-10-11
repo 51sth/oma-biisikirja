@@ -292,7 +292,7 @@ function persist(){localStorage.setItem(K,JSON.stringify(songs))}function safe(s
 function list(){
   const q=$('search').value.toLowerCase();
   $('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>
-    `<div class="song-entry" role="listitem" data-song-entry="${safe(s.id)}"><span class="song-drag" draggable="true" role="button" tabindex="0" data-song-drag="${safe(s.id)}" title="Vedä kappale toiseen kohtaan tai siirrä nuolinäppäimillä" aria-label="Siirrä kappaletta ${safe(s.title)} nuolinäppäimillä tai hiirellä">⠿</span><button type="button" class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}">${safe(s.title)}</button><button type="button" class="song-remove" data-remove-song="${safe(s.id)}" title="Poista kappale" aria-label="Poista kappale ${safe(s.title)}">×</button></div>`
+    `<div class="song-entry" role="listitem" data-song-entry="${safe(s.id)}"><span class="song-drag" draggable="true" role="button" tabindex="0" data-song-drag="${safe(s.id)}" title="Vedä kappale toiseen kohtaan tai siirrä nuolinäppäimillä" aria-label="Siirrä kappaletta ${safe(s.title)} nuolinäppäimillä tai hiirellä">⠿</span><button type="button" class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}" data-song-drag="${safe(s.id)}" draggable="true">${safe(s.title)}</button><button type="button" class="song-remove" data-remove-song="${safe(s.id)}" title="Poista kappale" aria-label="Poista kappale ${safe(s.title)}">×</button></div>`
   ).join('')||'<small>Ei kappaleita. Aloita lisäämällä uusi kappale tai tuo varmuuskopio.</small>';
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
@@ -361,8 +361,19 @@ $('songs').addEventListener('dragover',e=>{
   if(!songDragId)return;
   e.preventDefault();
   if(e.dataTransfer)e.dataTransfer.dropEffect='move';
-  const entry=e.target.closest('[data-song-entry]');
+  let entry=e.target.closest('[data-song-entry]');
   clearSongDropMarker();
+  if(!entry){
+    // Vapaaseen tilaan tai rivien väliin pudotettaessa valitaan lähin näkyvä kappale.
+    const visible=[...$('songs').querySelectorAll('[data-song-entry]')];
+    let closestDistance=Infinity;
+    for(const candidate of visible){
+      const box=candidate.getBoundingClientRect();
+      const distance=e.clientY<box.top?box.top-e.clientY:
+                     e.clientY>box.bottom?e.clientY-box.bottom:0;
+      if(distance<closestDistance){closestDistance=distance;entry=candidate}
+    }
+  }
   if(!entry||entry.dataset.songEntry===songDragId)return;
   const rect=entry.getBoundingClientRect();
   songDropAfter=e.clientY>rect.top+rect.height/2;
