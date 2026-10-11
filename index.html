@@ -129,7 +129,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.2</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.3</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -146,8 +146,17 @@ main{max-width:1040px}
 </div>
 <p id="backupStatus" class="backup-note" role="status" aria-live="polite"></p>
 <div class="backup-area"><label for="restoreMode">Tuonnin toimintatapa</label><select id="restoreMode"><option value="merge">Yhdistä nykyisiin biiseihin</option><option value="replace">Korvaa koko kirjasto</option></select>
-<label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"><p id="importStatus" class="backup-note" role="status" aria-live="polite"></p></div>
-<p class="backup-note">Yhdistä säilyttää vanhat biisit. Samannimisten ristiriitaiset versiot tuodaan erillisinä. Korvaaminen poistaa nykyisen kirjaston biisit, joten sovellus lataa niistä ensin varmuuskopion.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
+<label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"><p id="importStatus" class="backup-note" role="status" aria-live="polite"></p>
+<div id="importPicker" class="backup-picker hidden" aria-label="Valitse tuotavat kappaleet">
+  <strong id="importPickerTitle">Valitse varmuuskopiosta tuotavat kappaleet</strong>
+  <p class="backup-note" id="importPickerDescription"></p>
+  <div class="backup-select-actions"><button type="button" id="importSelectAll" class="secondary">Valitse kaikki</button><button type="button" id="importSelectNone" class="secondary">Tyhjennä valinnat</button></div>
+  <div id="importSongChoices" class="backup-song-choices"></div>
+  <p id="importModeNote" class="backup-note"></p>
+  <button type="button" id="importSelected" disabled>↑ Tuo valitut (0)</button>
+  <button type="button" id="importCancel" class="secondary">Peruuta</button>
+</div></div>
+<p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
 <div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
 <div id="editStatus" class="edit-status" aria-live="polite"></div>
 
@@ -769,64 +778,123 @@ $('backupDownload').onclick=()=>{
   closeBackupPicker();
 };
 
+// Tuonti käyttää valintaruutujen todellista tilaa kuten vienti. Valinta indekseillä
+// säilyttää myös varmuuskopioiden kappaleet, joissa on samat ID-arvot.
+let pendingImport=null;
+function chosenImportIndices(){
+  if(!pendingImport)return [];
+  return [...$('importSongChoices').querySelectorAll('input[data-import-index]:checked')]
+    .map(node=>Number(node.dataset.importIndex))
+    .filter(i=>Number.isInteger(i)&&i>=0&&i<pendingImport.entries.length);
+}
+function updateImportSelection(){
+  const amount=chosenImportIndices().length;
+  $('importSelected').textContent='↑ Tuo valitut ('+amount+')';
+  $('importSelected').disabled=amount===0;
+  const replace=$('restoreMode').value==='replace';
+  $('importModeNote').textContent=replace?
+    'VAROITUS: Korvaa koko kirjasto poistaa kaikki '+songs.length+' nykyistä kappaletta ja jättää tilalle vain valitsemasi '+amount+' kappaletta.':
+    'Yhdistäminen säilyttää nykyiset '+songs.length+' kappaletta ja lisää valitut, joita kirjastossa ei vielä ole.';
+  return amount;
+}
+function showImportPicker(fileName,entries){
+  pendingImport={fileName,entries};
+  $('importPickerTitle').textContent='Valitse tuotavat kappaleet ('+entries.length+')';
+  $('importPickerDescription').textContent='Tiedosto: '+fileName+'. Kaikki kappaleet on valittu aluksi.';
+  $('importSongChoices').innerHTML=entries.map((song,i)=>
+    '<label class="backup-song-choice"><input type="checkbox" data-import-index="'+i+'" checked><span>'+safe(song.title)+'</span></label>'
+  ).join('');
+  $('importPicker').classList.remove('hidden');
+  $('importStatus').textContent='Tiedostosta löytyi '+entries.length+' '+(entries.length===1?'kappale':'kappaletta')+'. Valitse tuotavat.';
+  updateImportSelection();
+}
+function closeImportPicker(){
+  pendingImport=null;
+  $('importPicker').classList.add('hidden');
+  $('importSongChoices').innerHTML='';
+  $('restore').value='';
+}
 $('restore').onchange=async e=>{
-  const status=$('importStatus');
+  const input=e.target;
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  closeImportPicker(); // Vanha tiedosto ei saa jäädä voimaan uuden tiedoston lukuvirheessä.
   try{
-    const file=e.target.files && e.target.files[0];
-    if(!file)return;
-    const incoming=JSON.parse(await file.text());
-    if(!Array.isArray(incoming)||incoming.length===0||incoming.length>10000||
-       !incoming.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&
-         typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000))
-      throw Error('Vääränmuotoinen tai tyhjä JSON-tiedosto');
-    // Show real file contents BEFORE importing, so a one-song backup cannot be mistaken for 11 songs.
-    const names=incoming.map(x=>x.title);
-    const titles=names.slice(0,15).map(x=>'• '+x).join('\n');
-    const summary='Tiedosto: '+file.name+'\nSisältää '+incoming.length+' '+(incoming.length===1?'kappaleen':'kappaletta')+':\n'+titles+
-      (names.length>15?'\n… ja '+(names.length-15)+' muuta':'');
-    status.textContent='Valittu tiedosto: '+file.name+' — '+incoming.length+' '+(incoming.length===1?'kappale':'kappaletta')+'.';
-    const mode=$('restoreMode').value;
-    const prompt=mode==='replace'?
-      summary+'\n\nHUOM! Tämä KORVAA kaikki nykyiset '+songs.length+' kappaletta. Jatketaanko?':
-      summary+'\n\nYhdistetäänkö nämä kappaleet nykyiseen '+songs.length+' kappaleen kirjastoon?';
-    if(!confirm(prompt)){status.textContent='Tuonti peruutettu. '+file.name+' sisältää '+incoming.length+' '+(incoming.length===1?'kappaleen':'kappaletta')+'.';return}
-    incoming.forEach(repairLegacyChordHeader);
-    let added=0,skipped=0;
+    const entries=JSON.parse(await file.text());
+    if(!Array.isArray(entries)||entries.length===0||entries.length>10000||
+       !entries.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&
+       typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000))
+      throw Error('Tiedosto on tyhjä tai virheellisen muotoinen');
+    showImportPicker(file.name,entries);
+  }catch(err){
+    console.error(err);
+    $('importStatus').textContent='Tuontia ei aloitettu: '+err.message+'. Valitse biisikirjan JSON-varmuuskopio.';
+  }finally{input.value=''}
+};
+$('importSongChoices').addEventListener('change',updateImportSelection);
+$('importSelectAll').onclick=()=>{
+  $('importSongChoices').querySelectorAll('input[data-import-index]').forEach(input=>{input.checked=true});
+  updateImportSelection();
+};
+$('importSelectNone').onclick=()=>{
+  $('importSongChoices').querySelectorAll('input[data-import-index]').forEach(input=>{input.checked=false});
+  updateImportSelection();
+};
+$('restoreMode').addEventListener('change',updateImportSelection);
+$('importCancel').onclick=()=>{
+  closeImportPicker();
+  $('importStatus').textContent='Tuonti peruutettu. Kirjastoa ei muutettu.';
+};
+$('importSelected').onclick=()=>{
+  const status=$('importStatus');
+  if(!pendingImport)return;
+  const indices=[...new Set(chosenImportIndices())];
+  const selected=indices.map(i=>pendingImport.entries[i]);
+  if(!selected.length){status.textContent='Valitse vähintään yksi kappale.';return}
+  const mode=$('restoreMode').value;
+  const oldCount=songs.length;
+  const fileName=pendingImport.fileName;
+  const prompt=mode==='replace'?
+    'KORVATAANKO KOKO KIRJASTO?\n\nNykyiset '+oldCount+' kappaletta poistetaan ja tilalle jää vain '+selected.length+' valittua kappaletta tiedostosta ”'+fileName+'”.\n\nSovellus yrittää ensin ladata vanhan kirjaston varmuuskopion. Jatketaanko?':
+    'Tuodaanko '+selected.length+' valittua kappaletta tiedostosta ”'+fileName+'”?\n\nNykyiset '+oldCount+' kappaletta säilyvät.';
+  if(!confirm(prompt)){status.textContent='Tuontia ei tehty. Voit muuttaa valintoja.';return}
+  try{
+    const imported=selected.map(x=>({...x}));
+    imported.forEach(repairLegacyChordHeader);
+    let nextSongs=[],added=0,skipped=0;
     if(mode==='replace'){
-      // Create a safety copy first, but never say it succeeded before the browser confirms download.
       if(songs.length)downloadBackup(songs,'biisikirja-ennen-korvaamista.json');
-      songs=incoming.map(x=>({...x}));
-      added=songs.length;
+      nextSongs=imported;added=imported.length;
     }else{
+      nextSongs=songs.slice();
       const ids=new Set(songs.map(x=>x.id));
       const exact=new Set(songs.map(x=>x.title+'\u0000'+x.body));
-      for(const song of incoming){
-        const signature=song.title+'\u0000'+song.body;
-        if(exact.has(signature)){skipped++;continue;}
-        const copy={...song};
+      for(const incoming of imported){
+        const signature=incoming.title+'\u0000'+incoming.body;
+        if(exact.has(signature)){skipped++;continue}
+        const copy={...incoming};
         if(ids.has(copy.id)){
           copy.id=(crypto.randomUUID?crypto.randomUUID():'tuotu-'+Date.now()+'-'+Math.random());
           copy.title=copy.title+' (tuotu versio)';
         }
-        songs.push(copy);ids.add(copy.id);exact.add(signature);added++;
+        nextSongs.push(copy);ids.add(copy.id);exact.add(signature);added++;
       }
     }
-    persist();
+    // Tallennetaan ennen kuin päivitetään käyttöliittymän lista.
+    localStorage.setItem(K,JSON.stringify(nextSongs));
     const verified=JSON.parse(localStorage.getItem(K)||'[]');
-    if(!Array.isArray(verified)||verified.length!==songs.length)
-      throw Error('Tallennettujen kappaleiden lukumäärää ei voitu vahvistaa');
+    if(!Array.isArray(verified)||verified.length!==nextSongs.length)throw Error('Tallennusta ei voitu vahvistaa');
+    songs=nextSongs;
     current=null;list();
     if(songs.length)openSong(songs[0].id);else $('new').click();
-    const result='Tuonti valmis. Tiedostossa '+incoming.length+' '+(incoming.length===1?'kappale':'kappaletta')+'; '+
-      'lisätty '+added+', jo ennestään '+skipped+', kirjastossa nyt '+songs.length+'.';
-    status.textContent=result;
-    alert(result);
+    closeImportPicker();
+    status.textContent='Tuonti valmis: '+selected.length+' valittua, '+added+' lisätty, '+skipped+' jo kirjastossa. Kirjastossa nyt '+songs.length+' kappaletta.';
+    alert(status.textContent);
   }catch(err){
     console.error(err);
-    status.textContent='Tuonti epäonnistui: '+err.message+
-      '. Tarkista, että tiedosto on biisikirjan JSON-varmuuskopio.';
+    status.textContent='Tuonti epäonnistui: '+err.message+'. Vanhoja kappaleita ei tarkoituksella poistettu.';
     alert(status.textContent);
-  }finally{e.target.value=''}
+  }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=25',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=26',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
