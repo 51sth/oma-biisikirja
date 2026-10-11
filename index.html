@@ -129,7 +129,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.6</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -165,24 +165,16 @@ main{max-width:1040px}
 let finderPending=null, finderQueuedVoicings=[];
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],editorRowOrigins=[],cursor={line:0,pos:0},selectedChord=null;
 let editorHistory=[],editorHistoryIndex=-1,editorHistoryTyping=null;
-// Uusi asennus käynnistyy tyhjällä kirjastolla. Vanhoja paikallisia kappaleita ei poisteta.
-const LEGACY_SONG_ID='oma-biisi-pilven-luonto-20261010';
-// Restore compatibility with a malformed chord-only header in an old user backup.
-// Only the exact legacy notation is migrated; no other lyrics or chords are changed.
+// Tyhjä peruskirjasto: kappaleita ei toimiteta sovelluksen mukana.
+// Omat kappaleet tulevat vain tämän selaimen paikallisesta tallennuksesta
+// tai käyttäjän valitsemasta JSON-varmuuskopiosta.
+// Vanhoissa varmuuskopioissa ollut yksittäinen sointumerkintäkorjaus säilyy
+// ainoastaan tuonnin yhteydessä; lataaminen ei muokkaa nykyisiä kappaleita.
 function repairLegacyChordHeader(song){
   if(!song || song.title!=='Siemen' || typeof song.body!=='string')return false;
   const fixed=song.body.replace(/^\[Em7\]   \[Cmaj\] 7(?=\r?\n|$)/,'[Em7]    [Cmaj7]');
   if(fixed===song.body)return false;
   song.body=fixed;return true;
-}
-let repairedLegacySong=false;
-for(const song of songs)if(repairLegacyChordHeader(song))repairedLegacySong=true;
-if(repairedLegacySong)localStorage.setItem(K,JSON.stringify(songs));
-for(const song of songs){
-  if(song && song.id===LEGACY_SONG_ID && song.title==='Ei tiennyt pilven luontoa hän'){
-    song.title='Pilven luonto';
-    localStorage.setItem(K,JSON.stringify(songs));
-  }
 }
 
 const chordDB={C:['x32010','x35553','875558'],Cm:['x35543'],D:['xx0232','x57775'],Dm:['xx0231'],E:['022100','x79997'],Em:['022000'],F:['133211','xx3211','x87565'],Fm:['133111'],G:['320003','320033','355433'],Gm:['355333'],A:['x02220'],Am:['x02210','577555'],B:['x24442'],Bm:['x24432'],B7:['x21202'],C7:['x32310'],D7:['xx0212'],E7:['020100'],A7:['x02020'],G7:['320001'],Fmaj7:['xx3210'],Cmaj7:['x32000'],Am7:['x02010'],Em7:['022030'],Dsus4:['xx0233'],Asus2:['x02200'],Gsus4:['330013']};
@@ -191,7 +183,7 @@ function list(){
   const q=$('search').value.toLowerCase();
   $('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>
     `<div class="song-entry"><button type="button" class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}">${safe(s.title)}</button><button type="button" class="song-remove" data-remove-song="${safe(s.id)}" title="Poista kappale" aria-label="Poista kappale ${safe(s.title)}">×</button></div>`
-  ).join('')||'<small>Ei kappaleita</small>';
+  ).join('')||'<small>Ei kappaleita. Aloita lisäämällä uusi kappale tai tuo varmuuskopio.</small>';
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
 function removeSong(id){
@@ -896,5 +888,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=29',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=30',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
