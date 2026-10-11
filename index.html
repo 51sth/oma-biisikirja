@@ -1,6 +1,29 @@
 <!doctype html><html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#172c27"><link rel="manifest" href="manifest.webmanifest"><title>Oma biisikirja</title><style>body{font:16px system-ui;margin:0;background:#edf3ef;color:#18312a}header{background:#172c27;color:white;padding:22px}main{max-width:950px;margin:auto;padding:16px}.panel{background:white;border-radius:16px;padding:18px;margin-bottom:15px}input,textarea,button,select{font:inherit;padding:10px;border-radius:9px;border:1px solid #b9cfc3}textarea{width:100%;box-sizing:border-box;min-height:250px;font:15px/1.7 monospace}button{background:#087c55;color:white;border:0;margin:4px;cursor:pointer}.secondary{background:#e5f2ea;color:#164b38}.danger{background:#a43f3f}input{max-width:100%;box-sizing:border-box}.layout{display:grid;grid-template-columns:260px 1fr;gap:16px}@media(max-width:700px){.layout{grid-template-columns:1fr}}.song{display:block;width:100%;text-align:left;background:#f1f7f3;color:#18312a;margin:5px 0}.song.active{background:#c5e9d7}.song-entry{display:flex;align-items:stretch;gap:5px;margin:5px 0}.song-entry .song{flex:1;min-width:0;width:auto;margin:0;overflow-wrap:anywhere}.song-remove{width:36px;flex:0 0 36px;margin:0;padding:3px;background:#fff1ef;border:1px solid #efc9c6;color:#9c3838;font-size:18px}.song-remove:hover{background:#ffe3df}.song-remove:focus-visible{outline:2px solid #a43f3f;outline-offset:2px}.editor-toolbar{position:sticky;top:0;z-index:13;background:white;padding:7px 0 10px;box-shadow:0 4px 6px #172c270d}.editor-toolbar .row{gap:5px}.editor-toolbar button{font-size:13px;margin:0;padding:8px}.backup-picker{margin:8px 0 12px;padding:12px;border:1px solid #c6ded0;border-radius:12px;background:#f8fbf9}.backup-picker strong{font-size:14px}.backup-select-actions{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0}.backup-select-actions button{padding:5px 7px;margin:0;font-size:12px}.backup-song-choices{max-height:250px;overflow:auto;display:flex;flex-direction:column;gap:4px;padding:3px 0 9px}.backup-song-choice{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;background:white;border:1px solid #e0ebe5;border-radius:7px;font-size:13px;overflow-wrap:anywhere;cursor:pointer}.backup-song-choice input{margin:2px 0 0;accent-color:#087c55;flex:0 0 auto}.backup-picker>button{font-size:13px;margin:3px 3px 0 0;padding:8px}.backup-picker button:disabled{opacity:.4;cursor:not-allowed}.line{white-space:pre-wrap;font:16px/1.8 monospace}.chord{color:#07855b;font-weight:bold;cursor:pointer}.preview{overflow:auto}.diagram{display:inline-block;margin:8px;vertical-align:top;text-align:center}.diagram svg{display:block}small{color:#688077}.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.hidden{display:none}.scrollbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:#eaf4ee;border-radius:12px;padding:12px;margin:12px 0}.scrollbar input{flex:1;min-width:110px;accent-color:#087c55}.scrollbar label{font-weight:650}.scrollbar output{min-width:25px;text-align:center}.scrollbar button{min-width:115px}.playing{background:#a43f3f}.preview{padding-bottom:20px}.lyric-line{display:flex;flex-wrap:wrap;align-items:flex-end;font:15px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;margin:7px 0 11px;row-gap:5px;column-gap:0}.lyric-line.blank{height:18px}.fragment{display:inline-flex;flex-direction:column;max-width:100%;vertical-align:bottom}.fragment .chord-space,.fragment .chord{display:block;min-height:23px;line-height:23px}.fragment .chord{width:max-content;padding:0 3px;border-radius:4px;background:#e3f5e9;color:#076645}.fragment .chord:hover{background:#c5e9d7}.fragment .words{display:block;white-space:pre;max-width:100%}@media(max-width:420px){.lyric-line{font-size:13px}.panel{padding:13px}.fragment .words{white-space:pre-wrap}}
 .editor-guide{color:#465e53;font-size:14px;line-height:1.5}.chord-tools{background:#eaf5ee;border:1px solid #c6dfd1;padding:12px;border-radius:13px;margin:12px 0 18px;position:sticky;top:0;z-index:3}.chord-tools label{font-size:14px;font-weight:650}.chord-tools .row{margin-top:8px}.toolbar-title{font-weight:700;font-size:14px}.visual-editor{border:1px solid #d7e5db;background:#fbfdfa;border-radius:13px;padding:9px 8px;max-height:65vh;overflow-y:auto;overscroll-behavior:contain}.edit-line{padding:9px 0;border-bottom:1px solid #e4ede6;display:flex;align-items:start;gap:7px}.edit-line:last-child{border-bottom:none}.edit-line.active{background:#f0f9f2}.edit-line-number{color:#84978c;flex:0 0 22px;font:12px ui-monospace,monospace;padding-top:34px;text-align:right}.edit-line-scroll{overflow-x:auto;flex:1;min-width:0;scrollbar-width:thin}.edit-line-inner{position:relative;min-height:59px;font:16px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre;letter-spacing:0;tab-size:4}.chord-track{position:relative;height:29px;white-space:nowrap}.editable-lyrics{display:block;font:inherit;font-size:16px;letter-spacing:0;line-height:24px;min-height:28px;height:29px;border:0;border-bottom:1px dashed #b7cfc0;border-radius:0;padding:1px 0 2px;background:transparent;color:#142a21;outline-offset:2px;max-width:none;min-width:0;box-sizing:content-box;white-space:pre}.editable-lyrics:focus{border-bottom:2px solid #087c55;outline:none}.chord-chip{position:absolute;top:0;font:700 13px/23px system-ui,-apple-system,sans-serif;white-space:nowrap;background:#d2ebdc;color:#075d3e;padding:0 5px;border:1px solid #b1d3bf;border-radius:5px;min-height:24px;margin:0;z-index:1;box-shadow:0 1px 2px #0001}.chord-chip:hover,.chord-chip.selected{background:#087c55;color:white}.line-actions{display:flex;flex:0 0 auto;flex-direction:column;justify-content:center;gap:5px}.line-add{background:transparent;color:#087c55;border:1px solid #c9dfd0;font-size:14px;padding:3px;width:30px;height:28px;margin:0;flex:0 0 auto}.line-remove{background:#fff4f1;color:#9c3838;border:1px solid #efc6c1;font-size:16px;padding:3px;width:30px;height:28px;margin:0;flex:0 0 auto}.line-remove:hover{background:#ffe3df;border-color:#dc9f99}.raw-mode{margin-top:16px;color:#496355}.raw-mode summary{cursor:pointer;padding:9px}.raw-mode textarea{font-size:13px;min-height:130px}.chord-tools button{margin:3px 0}.chord-tools input{background:#fff}.chord-tools .hidden{display:none}@media(max-width:580px){.chord-tools{position:static}.edit-line-inner,.editable-lyrics{font-size:15px}.visual-editor{max-height:58vh}.chord-chip{font-size:12px}}
 
+.section-toolbar-label{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:12px;font-weight:650;color:#456654}
+.section-toolbar-label select{font-size:13px;padding:7px 9px;margin:0;min-width:115px;max-width:170px}
+.section-help{margin:2px 0 8px;font-size:12px;line-height:1.5;color:#537161}
+.section-edit-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px 8px;margin:10px 0 7px;border:1px solid #c9e0d3;border-left:4px solid #488266;border-radius:9px;background:#f1f8f3}
+.section-edit-row.section-kind-chorus{background:#f7f1fb;border-color:#ddcce9;border-left-color:#9566b2}
+.section-edit-row.section-kind-intro,.section-edit-row.section-kind-outro{background:#f0f5f9;border-color:#d4e1eb;border-left-color:#6688a4}
+.section-edit-row.section-kind-bridge,.section-edit-row.section-kind-interlude{background:#f9f5ed;border-color:#ebdfc6;border-left-color:#a38c5c}
+.section-edit-row.section-kind-other{background:#f4f5f3;border-color:#d4d9d1;border-left-color:#7e8a7b}
+.section-edit-row .section-edit-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:750;color:#456957;flex:0 0 auto}
+.section-edit-row select{font-size:13px;min-width:100px;max-width:120px;margin:0;padding:7px}
+.section-edit-row input{font-size:14px;font-weight:650;min-width:140px;flex:1 1 150px;max-width:100%;margin:0;padding:7px}
+.section-edit-row .section-editor-actions{display:flex;gap:4px;margin-left:auto}
+.section-edit-row .section-editor-actions button{margin:0;padding:5px 8px;font-size:12px;border-radius:7px}
+.section-edit-row .section-editor-actions .section-remove{background:#fff4f1;color:#9c3838;border-color:#ebc8c0}
+.song-section-heading{display:flex;align-items:center;gap:10px;padding:9px 11px;margin:19px 0 11px;background:#eff6f1;border-left:4px solid #4c8b6e;border-radius:5px;color:#286345;font:700 12px/1.4 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;min-width:0}
+.song-section-heading .section-heading-label{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.song-section-heading .section-heading-rule{height:1px;background:currentColor;opacity:.24;flex:1;min-width:12px}
+.song-section-heading.section-kind-chorus{background:#f4ecf8;border-left-color:#9464ad;color:#72478a}
+.song-section-heading.section-kind-intro,.song-section-heading.section-kind-outro{background:#edf3f7;border-left-color:#6d8ea7;color:#4a6d87}
+.song-section-heading.section-kind-bridge,.song-section-heading.section-kind-interlude{background:#f8f3e9;border-left-color:#aa8c53;color:#816733}
+.song-section-heading.section-kind-other{background:#f1f3f0;border-left-color:#859280;color:#51644e}
+@media(max-width:580px){.section-edit-row{gap:6px}.section-edit-row .section-editor-actions{width:100%;justify-content:flex-end}.section-toolbar-label{width:auto}.song-section-heading{margin:15px 0 9px}}
+
 /* Kaksirivinen editori: soinnut ovat samassa monospace-ruudukossa sanojen kanssa. */
 .edit-status{font-size:13px;color:#5a7465;margin:0 0 9px}.edit-status.error{color:#a43f3f;font-weight:700}
 .visual-editor{padding:7px 8px;max-height:70vh}
@@ -132,7 +155,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.9</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.0</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -167,11 +190,11 @@ main{max-width:1040px}
   <button type="button" id="importCancel" class="secondary">Peruuta</button>
 </div></div>
 <p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkät rivit rivittyvät soittonäkymässä automaattisesti, jotta sanat ja soinnut näkyvät kokonaan.</p>
-<div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
-<div id="editStatus" class="edit-status" aria-live="polite"></div>
+<div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><label class="section-toolbar-label" for="sectionKind">Osion tyyppi <select id="sectionKind" aria-label="Lisättävän osion tyyppi"><option value="verse">Säkeistö</option><option value="chorus">Kertosäe</option><option value="intro">Intro</option><option value="interlude">Väliosa</option><option value="bridge">Bridge</option><option value="outro">Outro</option><option value="other">Muu osio</option></select></label><button id="addSection" type="button" class="secondary">+ Lisää osio</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
+<div id="editStatus" class="edit-status" aria-live="polite"></div><p class="section-help">Lisää osio valitun rivin yläpuolelle tai kappaleen loppuun. Otsikon nimeä voi muokata vapaasti, ja sen poistaminen säilyttää sanoitukset.</p>
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
-<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
+<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
 let finderPending=null, finderQueuedVoicings=[];
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);
 const EMPTY_BASE_FLAG='oma-biisikirja-tyhja-pohja-v38';
@@ -207,7 +230,7 @@ try{
   console.error(error);
 }
 let current=null;let editLines=[],editorRowOrigins=[],cursor={line:0,pos:0},selectedChord=null;
-let editorHistory=[],editorHistoryIndex=-1,editorHistoryTyping=null;
+let editorHistory=[],editorHistoryIndex=-1,editorHistoryTyping=null,lastEditorRow=-1;
 // Tyhjä peruskirjasto: kappaleita ei toimiteta sovelluksen mukana.
 // Omat kappaleet tulevat vain tämän selaimen paikallisesta tallennuksesta
 // tai käyttäjän valitsemasta JSON-varmuuskopiosta.
@@ -275,14 +298,69 @@ function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe 
   $('capoDisplay').textContent=capo?'· capo '+capo+'. nauha':'';persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
 // Ylärivin soinnut ovat tavallista tekstiä: sijainti = tekstisarakkeen numero.
 // Tallennus säilyy yhteensopivana aiempien ChordPro-kappaleiden kanssa.
-function parseBody(body){return String(body).split('\n').map(raw=>{let text='',chords=[],last=0,re=/\[([^\]\n]+)\]/g,m;while((m=re.exec(raw))){text+=raw.slice(last,m.index);chords.push({pos:text.length,name:m[1]});last=re.lastIndex}text+=raw.slice(last);let chordRow=chordsToRow(chords);if(chordRow===null&&!text.trim()){ // Pelkistä soinnuista koostuvilla riveillä voi olla peräkkäisiä merkintöjä.
-let next=0;for(const c of chords){c.pos=Math.max(c.pos,next);next=c.pos+c.name.length+1;}text='';chordRow=chordsToRow(chords)}return {text,chords,chordRow}})}
-function serializeBody(lines){return lines.map(l=>{let positions=new Map();for(const c of l.chords){let pos=Math.max(0,c.pos);if(!positions.has(pos))positions.set(pos,[]);positions.get(pos).push(c.name)}let result='';for(let i=0;i<=Math.max(l.text.length,...l.chords.map(c=>c.pos));i++){ for(let c of positions.get(i)||[])result+='['+c+']';if(i<l.text.length)result+=l.text[i];else if(i<Math.max(l.text.length,...l.chords.map(c=>c.pos)))result+=' '}return result}).join('\n')}
+const SECTION_TYPES={verse:'Säkeistö',chorus:'Kertosäe',intro:'Intro',interlude:'Väliosa',bridge:'Bridge',outro:'Outro',other:'Muu osio'};
+function defaultSectionTitle(type,lines=editLines){
+  if(type==='verse')return 'Säkeistö '+(lines.filter(l=>l.isSection&&l.sectionType==='verse').length+1);
+  return SECTION_TYPES[type]||'Muu osio';
+}
+function newSectionLine(type,lines=editLines){
+  const chosen=Object.prototype.hasOwnProperty.call(SECTION_TYPES,type)?type:'other';
+  return {isSection:true,sectionType:chosen,sectionTitle:defaultSectionTitle(chosen,lines),text:'',chords:[],chordRow:''};
+}
+function readSectionLine(raw){
+  const m=String(raw).match(/^\{bk-section:(verse|chorus|intro|interlude|bridge|outro|other):([^}\r\n]*)\}$/);
+  if(!m)return null;
+  let title;
+  try{title=decodeURIComponent(m[2])}catch{title=m[2]}
+  return {isSection:true,sectionType:m[1],sectionTitle:title,text:'',chords:[],chordRow:''};
+}
+function parseBody(body){
+  return String(body).split('\n').map(raw=>{
+    const section=readSectionLine(raw);
+    if(section)return section;
+    let text='',chords=[],last=0,re=/\[([^\]\n]+)\]/g,m;
+    while((m=re.exec(raw))){
+      text+=raw.slice(last,m.index);
+      chords.push({pos:text.length,name:m[1]});
+      last=re.lastIndex;
+    }
+    text+=raw.slice(last);
+    let chordRow=chordsToRow(chords);
+    if(chordRow===null&&!text.trim()){
+      let next=0;
+      for(const c of chords){c.pos=Math.max(c.pos,next);next=c.pos+c.name.length+1}
+      text='';chordRow=chordsToRow(chords);
+    }
+    return {text,chords,chordRow};
+  });
+}
+function serializeBody(lines){
+  return lines.map(l=>{
+    if(l.isSection){
+      const type=Object.prototype.hasOwnProperty.call(SECTION_TYPES,l.sectionType)?l.sectionType:'other';
+      const title=String(l.sectionTitle||SECTION_TYPES[type]).trim().slice(0,120);
+      return '{bk-section:'+type+':'+encodeURIComponent(title)+'}';
+    }
+    let positions=new Map();
+    for(const c of l.chords){
+      let pos=Math.max(0,c.pos);
+      if(!positions.has(pos))positions.set(pos,[]);
+      positions.get(pos).push(c.name);
+    }
+    let result='';
+    for(let i=0;i<=Math.max(l.text.length,...l.chords.map(c=>c.pos));i++){
+      for(let c of positions.get(i)||[])result+='['+c+']';
+      if(i<l.text.length)result+=l.text[i];
+      else if(i<Math.max(l.text.length,...l.chords.map(c=>c.pos)))result+=' ';
+    }
+    return result;
+  }).join('\n');
+}
 function chordsToRow(chords){let s='';for(const c of [...chords].sort((a,b)=>a.pos-b.pos)){if(s.length&&s.length>=c.pos){ // Harvinainen vanha päällekkäinen merkintä näytetään erikseen, ei hävitetä.
 return null;
 } s=s.padEnd(c.pos,' ')+c.name;}return s}
 function parseChordRow(row){let chords=[];for(const m of row.matchAll(/\S+/g)){let name=m[0];if(!/^[A-Ga-g](?:#|b|♯|♭)?(?:[a-zA-Z0-9#♭♯°ø+()\-]*)?(?:\/[A-Ga-g](?:#|b|♯|♭)?)?$/.test(name))return {chords:[],error:'Tarkista sointumerkintä ”'+name+'”. Kirjoita esim. Am7, F#m7b5 tai C/E.'};chords.push({pos:m.index,name})}return {chords,error:''}}
-function validateLines(){for(let i=0;i<editLines.length;i++){let line=editLines[i];if(line.legacyOverlap)return 'Rivillä '+(i+1)+' oli alun perin päällekkäisiä sointuja. Muokkaa ne vanhassa tallennusmuodossa.';let res=parseChordRow(line.chordRow||'');if(res.error)return 'Rivi '+(i+1)+': '+res.error;}return ''}
+function validateLines(){for(let i=0;i<editLines.length;i++){let line=editLines[i];if(line.isSection)continue;if(line.legacyOverlap)return 'Rivillä '+(i+1)+' oli alun perin päällekkäisiä sointuja. Muokkaa ne vanhassa tallennusmuodossa.';let res=parseChordRow(line.chordRow||'');if(res.error)return 'Rivi '+(i+1)+': '+res.error;}return ''}
 function syncRaw(){let error=validateLines();$('editStatus').textContent=error||'Soinnut kirjoitetaan yläriville. Tallennus tunnistaa ne ilman hakasulkeita.';$('editStatus').classList.toggle('error',!!error);if(!error)$('editor').value=serializeBody(editLines);return !error}
 // Editor-only undo/redo. No per-keystroke localStorage writes and no changes to saved songs until Tallenna.
 function editorHistorySnapshot(){
@@ -317,7 +395,7 @@ function travelEditorHistory(delta){
   if(target<0||target>=editorHistory.length)return;
   editorHistoryIndex=target;editorHistoryTyping=null;
   const state=JSON.parse(editorHistory[target]);
-  editLines=state.lines;editorRowOrigins=state.origins;
+  editLines=state.lines;editorRowOrigins=state.origins;lastEditorRow=-1;
   finderQueuedVoicings=state.queue;finderPending=state.pending;
   $('title').value=state.title;$('capo').value=state.capo;$('editor').value=state.raw;
   renderVisualEditor();
@@ -339,11 +417,81 @@ document.addEventListener('keydown',e=>{
 });
 $('title').addEventListener('input',()=>recordEditorHistory('typing','title'));
 $('capo').addEventListener('input',()=>recordEditorHistory('typing','capo'));
-function loadBody(body){$('editor').value=String(body);editLines=parseBody(body);editorRowOrigins=editLines.map((_,i)=>i);for(const line of editLines)if(line.chordRow===null){line.legacyOverlap=true;line.chordRow='';}syncRaw();renderVisualEditor();resetEditorHistory()}
+function loadBody(body){lastEditorRow=-1;$('editor').value=String(body);editLines=parseBody(body);editorRowOrigins=editLines.map((_,i)=>i);for(const line of editLines)if(line.chordRow===null){line.legacyOverlap=true;line.chordRow='';}syncRaw();renderVisualEditor();resetEditorHistory()}
 function widthFor(line){return Math.max(30,line.text.length+3,(line.chordRow||'').length+3)}
-function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){let out=editLines.map((l,i)=>{let max=widthFor(l);return `<div class="edit-line ${l.legacyOverlap?'problem':''}" data-row="${i}"><span class="edit-line-number">${i+1}</span><div class="edit-line-scroll"><div class="edit-line-inner"><input data-chord-row="${i}" class="chord-row-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" value="${safe(l.chordRow)}" aria-label="Rivin ${i+1} soinnut" placeholder="Soinnut ↑" style="width:${max}ch"><input data-lyric-row="${i}" class="lyric-row-input" type="text" spellcheck="false" autocomplete="off" value="${safe(l.text)}" aria-label="Rivin ${i+1} sanat" placeholder="Laulun sanat" style="width:${max}ch"></div></div><div class="line-actions"><button type="button" class="line-add" data-add-after="${i}" title="Lisää rivi tämän jälkeen" aria-label="Lisää rivi ${i+1} jälkeen">+</button><button type="button" class="line-remove" data-remove-row="${i}" title="Poista tämä rivi" aria-label="Poista rivi ${i+1}">−</button></div></div>`}).join('');$('visualEditor').innerHTML=out;if(focusLine>=0){const e=$('visualEditor').querySelector(`[data-${focusType==='chord'?'chord':'lyric'}-row="${focusLine}"]`);if(e){e.focus();e.setSelectionRange(focusPos,focusPos)}}}
+function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){
+  const out=editLines.map((l,i)=>{
+    if(l.isSection){
+      const kind=Object.prototype.hasOwnProperty.call(SECTION_TYPES,l.sectionType)?l.sectionType:'other';
+      const typeOptions=Object.entries(SECTION_TYPES).map(([key,label])=>'<option value="'+key+'" '+(kind===key?'selected':'')+'>'+safe(label)+'</option>').join('');
+      return '<div class="section-edit-row section-kind-'+kind+'" data-row="'+i+'">'+
+        '<span class="section-edit-label">Osio</span>'+
+        '<select data-section-type="'+i+'" aria-label="Osion tyyppi">'+typeOptions+'</select>'+
+        '<input data-section-title="'+i+'" type="text" maxlength="120" value="'+safe(l.sectionTitle)+'" aria-label="Osion otsikko" placeholder="Osion nimi">'+
+        '<div class="section-editor-actions"><button type="button" class="secondary" data-add-after="'+i+'" title="Lisää sanoitusrivi tämän osion jälkeen">+ Rivi alle</button>'+
+        '<button type="button" class="section-remove" data-remove-section="'+i+'" aria-label="Poista osio-otsikko">− Poista otsikko</button></div></div>';
+    }
+    const max=widthFor(l);
+    return '<div class="edit-line '+(l.legacyOverlap?'problem':'')+'" data-row="'+i+'"><span class="edit-line-number">'+(i+1)+'</span>'+
+      '<div class="edit-line-scroll"><div class="edit-line-inner">'+
+      '<input data-chord-row="'+i+'" class="chord-row-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" value="'+safe(l.chordRow)+'" aria-label="Rivin '+(i+1)+' soinnut" placeholder="Soinnut ↑" style="width:'+max+'ch">'+
+      '<input data-lyric-row="'+i+'" class="lyric-row-input" type="text" spellcheck="false" autocomplete="off" value="'+safe(l.text)+'" aria-label="Rivin '+(i+1)+' sanat" placeholder="Laulun sanat" style="width:'+max+'ch"></div></div>'+
+      '<div class="line-actions"><button type="button" class="line-add" data-add-after="'+i+'" title="Lisää rivi tämän jälkeen" aria-label="Lisää rivi '+(i+1)+' jälkeen">+</button>'+
+      '<button type="button" class="line-remove" data-remove-row="'+i+'" title="Poista tämä rivi" aria-label="Poista rivi '+(i+1)+'">−</button></div></div>';
+  }).join('');
+  $('visualEditor').innerHTML=out;
+  if(focusLine>=0){
+    const kind=focusType==='section'?'section-title':focusType==='chord'?'chord-row':'lyric-row';
+    const target=$('visualEditor').querySelector('[data-'+kind+'="'+focusLine+'"]')||
+      $('visualEditor').querySelector('[data-section-title="'+focusLine+'"]');
+    if(target){
+      target.focus();
+      if(typeof target.setSelectionRange==='function'&&focusType!=='section')target.setSelectionRange(focusPos,focusPos);
+    }
+  }
+}
 function expandInputWidth(row){let elem=$('visualEditor').querySelector(`[data-row="${row}"]`),line=editLines[row];if(!elem||!line)return;let size=widthFor(line)+'ch';elem.querySelectorAll('input').forEach(x=>x.style.width=size)}
-$('visualEditor').addEventListener('input',e=>{let chordInput=e.target.closest('[data-chord-row]'),lyricInput=e.target.closest('[data-lyric-row]');if(!chordInput&&!lyricInput)return;let i=Number((chordInput||lyricInput).dataset[chordInput?'chordRow':'lyricRow']),line=editLines[i];if(chordInput){line.chordRow=chordInput.value;let result=parseChordRow(line.chordRow);if(!result.error){line.chords=result.chords;line.legacyOverlap=false}}else line.text=lyricInput.value;expandInputWidth(i);if(syncRaw())preview();recordEditorHistory('typing',(chordInput?'chord':'lyric')+':'+i);});
+// Osion lisääminen ei muokkaa sanoja eikä sointujen paikkoja. Row origin -kartta
+// varmistaa, että tallennetut kitarasormitukset liittyvät samoihin sointuihin.
+function insertEditorRow(i,row){
+  editLines.splice(i,0,row);
+  editorRowOrigins.splice(i,0,null);
+  finderQueuedVoicings=finderQueuedVoicings.map(v=>({...v,line:v.line>=i?v.line+1:v.line}));
+}
+function removeEditorRow(i){
+  editLines.splice(i,1);
+  editorRowOrigins.splice(i,1);
+  finderQueuedVoicings=finderQueuedVoicings.filter(v=>v.line!==i)
+    .map(v=>({...v,line:v.line>i?v.line-1:v.line}));
+  if(!editLines.length){editLines.push({text:'',chords:[],chordRow:''});editorRowOrigins.push(null)}
+}
+$('visualEditor').addEventListener('focusin',e=>{
+  const row=e.target.closest('[data-row]');
+  if(row)lastEditorRow=Number(row.dataset.row);
+});
+$('addSection').onclick=()=>{
+  const kind=$('sectionKind').value;
+  const at=lastEditorRow>=0&&lastEditorRow<editLines.length?lastEditorRow:editLines.length;
+  const section=newSectionLine(kind,editLines);
+  insertEditorRow(at,section);
+  lastEditorRow=at;
+  syncRaw();renderVisualEditor(at,'section');preview();recordEditorHistory();
+  $('editStatus').textContent='Osio "'+section.sectionTitle+'" lisätty. Voit muokata otsikkoa ja tallentaa kappaleen.';
+};
+$('visualEditor').addEventListener('change',e=>{
+  const select=e.target.closest('[data-section-type]');
+  if(!select)return;
+  const i=Number(select.dataset.sectionType),section=editLines[i];
+  if(!section?.isSection)return;
+  const oldType=section.sectionType,oldDefault=SECTION_TYPES[oldType]||'Muu osio';
+  const wasDefault=section.sectionTitle===oldDefault||
+    (oldType==='verse'&&/^Säkeistö \d+$/.test(section.sectionTitle));
+  section.sectionType=Object.prototype.hasOwnProperty.call(SECTION_TYPES,select.value)?select.value:'other';
+  if(wasDefault)section.sectionTitle=defaultSectionTitle(section.sectionType,editLines.filter((l,index)=>index!==i));
+  lastEditorRow=i;
+  syncRaw();renderVisualEditor(i,'section');preview();recordEditorHistory();
+});
+$('visualEditor').addEventListener('input',e=>{const sectionInput=e.target.closest('[data-section-title]');if(sectionInput){const i=Number(sectionInput.dataset.sectionTitle),section=editLines[i];if(!section?.isSection)return;section.sectionTitle=sectionInput.value;lastEditorRow=i;if(syncRaw())preview();recordEditorHistory('typing','section:'+i);return;}let chordInput=e.target.closest('[data-chord-row]'),lyricInput=e.target.closest('[data-lyric-row]');if(!chordInput&&!lyricInput)return;let i=Number((chordInput||lyricInput).dataset[chordInput?'chordRow':'lyricRow']),line=editLines[i];lastEditorRow=i;if(chordInput){line.chordRow=chordInput.value;let result=parseChordRow(line.chordRow);if(!result.error){line.chords=result.chords;line.legacyOverlap=false}}else line.text=lyricInput.value;expandInputWidth(i);if(syncRaw())preview();recordEditorHistory('typing',(chordInput?'chord':'lyric')+':'+i);});
 function applyFinderChord(lineNumber, position){
   if(!finderPending)return;
   const line=editLines[lineNumber];if(!line)return;
@@ -367,6 +515,15 @@ function applyFinderChord(lineNumber, position){
   $('editStatus').classList.add('finder-pending');
 }
 $('visualEditor').addEventListener('click',e=>{
+  const removeSection=e.target.closest('[data-remove-section]');
+  if(removeSection){
+    const i=Number(removeSection.dataset.removeSection),line=editLines[i];
+    if(!line?.isSection)return;
+    if(!confirm('Poistetaanko osion "'+line.sectionTitle+'" otsikko? Sanoitukset ja soinnut säilyvät.'))return;
+    removeEditorRow(i);lastEditorRow=-1;
+    syncRaw();renderVisualEditor();preview();recordEditorHistory();
+    return;
+  }
   const lyrics=e.target.closest('[data-lyric-row]');
   if(lyrics&&finderPending){applyFinderChord(Number(lyrics.dataset.lyricRow),lyrics.selectionStart||0);return;}
   const remove=e.target.closest('[data-remove-row]');
@@ -374,26 +531,21 @@ $('visualEditor').addEventListener('click',e=>{
     const i=Number(remove.dataset.removeRow),line=editLines[i];
     if(!Number.isInteger(i)||!line)return;
     if((line.text.trim()||line.chordRow.trim()||line.legacyOverlap)&&!confirm('Poistetaanko rivi '+(i+1)+' sekä sen sanat ja soinnut?'))return;
-    editLines.splice(i,1);
-    editorRowOrigins.splice(i,1);
-    finderQueuedVoicings=finderQueuedVoicings.filter(v=>v.line!==i).map(v=>({...v,line:v.line>i?v.line-1:v.line}));
-    if(!editLines.length){editLines.push({text:'',chords:[],chordRow:''});editorRowOrigins.push(null);}
+    removeEditorRow(i);lastEditorRow=-1;
     syncRaw();renderVisualEditor(Math.min(i,editLines.length-1),'lyric');preview();recordEditorHistory();
     return;
   }
   const add=e.target.closest('[data-add-after]');
   if(!add)return;
   const i=Number(add.dataset.addAfter)+1;
-  editLines.splice(i,0,{text:'',chords:[],chordRow:''});
-  editorRowOrigins.splice(i,0,null);
-  finderQueuedVoicings=finderQueuedVoicings.map(v=>({...v,line:v.line>=i?v.line+1:v.line}));
+  insertEditorRow(i,{text:'',chords:[],chordRow:''});lastEditorRow=i;
   syncRaw();renderVisualEditor(i,'lyric');preview();recordEditorHistory();
 });
 $('visualEditor').addEventListener('keydown',e=>{let chord=e.target.closest('[data-chord-row]'),lyric=e.target.closest('[data-lyric-row]');if(!chord&&!lyric)return;let i=Number((chord||lyric).dataset[chord?'chordRow':'lyricRow']);if(e.key==='Enter'){e.preventDefault();if(chord){const next=$('visualEditor').querySelector(`[data-lyric-row="${i}"]`);next?.focus();return;}let pos=lyric.selectionStart,line=editLines[i];let after={text:line.text.slice(pos),chords:[],chordRow:''};line.text=line.text.slice(0,pos);let left=[],right=[];for(const c of line.chords){if(c.pos>=pos)right.push({...c,pos:c.pos-pos});else left.push(c)}line.chords=left;line.chordRow=chordsToRow(left)||'';after.chords=right;after.chordRow=chordsToRow(right)||'';editLines.splice(i+1,0,after);
 finderQueuedVoicings=finderQueuedVoicings.map(v=>v.line>i?({...v,line:v.line+1}):(v.line===i&&v.pos>=pos?({...v,line:i+1,pos:v.pos-pos}):v));
-editorRowOrigins.splice(i+1,0,null);syncRaw();renderVisualEditor(i+1,'lyric');preview();recordEditorHistory()}});
-$('addLine').onclick=()=>{let i=editLines.length;editLines.push({text:'',chords:[],chordRow:''});editorRowOrigins.push(null);syncRaw();renderVisualEditor(i,'lyric');preview();recordEditorHistory()};
-$('editor').addEventListener('input',()=>{const raw=$('editor').value;editLines=parseBody(raw);editorRowOrigins=editLines.map((_,i)=>i);for(const l of editLines)if(l.chordRow===null){l.legacyOverlap=true;l.chordRow=''}renderVisualEditor();preview();recordEditorHistory('typing','raw');});
+editorRowOrigins.splice(i+1,0,null);lastEditorRow=i+1;syncRaw();renderVisualEditor(i+1,'lyric');preview();recordEditorHistory()}});
+$('addLine').onclick=()=>{let i=editLines.length;insertEditorRow(i,{text:'',chords:[],chordRow:''});lastEditorRow=i;syncRaw();renderVisualEditor(i,'lyric');preview();recordEditorHistory()};
+$('editor').addEventListener('input',()=>{lastEditorRow=-1;const raw=$('editor').value;editLines=parseBody(raw);editorRowOrigins=editLines.map((_,i)=>i);for(const l of editLines)if(l.chordRow===null){l.legacyOverlap=true;l.chordRow=''}renderVisualEditor();preview();recordEditorHistory('typing','raw');});
 
 // All displayed positions are calculated from standard tuning and validated pitch classes.
 // Shape choice changes finger placement only; replacement changes this chord occurrence only.
@@ -662,6 +814,12 @@ function preview(){
   const columns=notationColumnCount();
   const lines=parseBody($('editor').value);
   $('preview').innerHTML=lines.map((line,rowIndex)=>{
+    if(line.isSection){
+      const kind=Object.prototype.hasOwnProperty.call(SECTION_TYPES,line.sectionType)?line.sectionType:'other';
+      const title=(line.sectionTitle||SECTION_TYPES[kind]).trim();
+      return '<div class="song-section-heading section-kind-'+kind+'" role="heading" aria-level="3"><span class="section-heading-label">'+
+        safe(title||SECTION_TYPES[kind])+'</span><span class="section-heading-rule" aria-hidden="true"></span></div>';
+    }
     if(!line.text&&!line.chords.length)return '<div class="notation-empty"></div>';
     const parts=wrapNotationLine(line,columns);
     return parts.map((part,partIndex)=>{
@@ -1041,5 +1199,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=32',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=33',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
