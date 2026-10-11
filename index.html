@@ -130,12 +130,12 @@ main{max-width:1040px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
 </style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
-<p class="finder-hint">Merkitse sormilla painettavat nauhat. <b>? = sovellus ehdottaa avoimia tai vaimennettuja kieliä</b>, ○ = avoin, × = vaimennettu. Painamalla ?/○/× vaihdat kielen tilaa.</p>
+<p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. Näkymässä ohut e on ylimpänä.</p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
-<div id="finderGrid" class="finder-grid" aria-label="Kitaran kuusi kieltä, E A D G B e"></div>
+<div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
 <div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
 <div id="finderResult" class="finder-result" role="status" aria-live="polite"><small>Valitse soitettavat kielet.</small></div>
-<p class="finder-hint" style="margin-bottom:0">Vakioviritys E–A–D–G–B–e, ei capoa. ?-kielten soiminen päätellään, joten useampi sointu voi olla mahdollinen.</p></details>
+<p class="finder-hint" style="margin-bottom:0">Vakioviritys alhaalta ylös E–A–D–G–H–e, ei capoa. Sävellaskennassa kielet pysyvät samassa vakiovirityksessä, vaikka näyttöjärjestys on käännetty.</p></details>
 <button class="secondary" id="backup" type="button">↓ Vie varmuuskopio (kaikki biisit)</button>
 <div class="backup-area"><label for="restoreMode">Tuonnin toimintatapa</label><select id="restoreMode"><option value="merge">Yhdistä nykyisiin biiseihin</option><option value="replace">Korvaa koko kirjasto</option></select>
 <label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"></div>
@@ -506,11 +506,13 @@ function downloadBackup(data, filename='biisikirja-varmuuskopio.json'){
 }
 
 // Kitarasointujen tunnistin. Sama ChordEngine.parse ja sävelkorkeusmalli kuin sointukirjastossa.
-// Avoimia kieliä ei saa oletuksena käsitellä vaimennettuina.
-// Oletusarvo 0 tarkoittaa soivaa avointa kieltä. Vaimenna tarvittavat kielet erikseen ×-painikkeella.
-const finderShape=Array(6).fill(-2);
+// 0 = avoin (oletus), -1 = vaimennettu, -2 = valinnainen automaattitila.
+// Indeksit pidetään sointumoottorin mukaisina: paksu E, A, D, G, H, ohut e.
+// Vain näyttöjärjestys on käänteinen: ohut e on visuaalisesti ylimpänä.
+const finderShape=Array(6).fill(0);
 let finderTouched=false;
-const finderStringNames=['E','A','D','G','B','e'];
+const finderStringNames=['E','A','D','G','H','e'];
+const finderDisplayOrder=[5,4,3,2,1,0];
 let finderBase=1;
 function renderFinder(){
   const grid=$('finderGrid');
@@ -518,8 +520,9 @@ function renderFinder(){
   $('finderRange').textContent='Nauhat '+cols[0]+'–'+cols[4];
   $('finderPrev').disabled=finderBase===1;
   $('finderNext').disabled=finderBase===11;
-  grid.innerHTML='<span></span><span class="finder-head">×/○</span>'+cols.map(n=>'<span class="finder-head">'+n+'</span>').join('')+
-   finderStringNames.map((name,i)=>{
+  grid.innerHTML='<span></span><span class="finder-head">○/×</span>'+cols.map(n=>'<span class="finder-head">'+n+'</span>').join('')+
+   finderDisplayOrder.map(i=>{
+     const name=finderStringNames[i];
      const active=finderShape[i];
      const head='<span class="finder-name">'+name+'</span>';
      const state=active===-2?'automaattinen':active===0?'avoin':active===-1?'vaimennettu':'painettu';
@@ -529,7 +532,7 @@ function renderFinder(){
    }).join('');
   const result=ChordFinder.identifyFlexible(finderShape);
   const out=$('finderResult');
-  if(!finderTouched){out.innerHTML='<small>Paina nauhoja. Valitsemattomien kielten soiminen päätellään automaattisesti.</small>';return}
+  if(!finderTouched){out.innerHTML='<small>Kaikki kielet ovat aluksi avoimia (○). Valitse painettavat nauhat ja vaimenna tarvittavat kielet (×).</small>';return}
   if(result.status==='empty'||result.status==='waiting'){out.innerHTML='<small>Valitse vähintään yksi painettu nauha tai avoin kieli.</small>';return}
   const notes='<small>'+(result.inferred?'Ehdotetun otteen sävelet: ':'Soivat sävelet: ')+result.notes.join(' · ').replace(/\bB\b/g,'B (H)')+'</small>';
   if(result.status==='few'){out.innerHTML='<small>Valitse vähintään kaksi eri säveltä.</small>'+notes;return}
@@ -571,12 +574,12 @@ $('finderResult').addEventListener('click',e=>{
 $('finderGrid').addEventListener('click',e=>{
   const open=e.target.closest('[data-finder-open]');
   const fret=e.target.closest('[data-finder-string]');
-  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===-2?0:finderShape[i]===0?-1:-2;finderTouched=true;renderFinder()}
-  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?-2:n;finderTouched=true;renderFinder()}
+  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===0?-1:finderShape[i]===-1?-2:0;finderTouched=true;renderFinder()}
+  else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?0:n;finderTouched=true;renderFinder()}
 });
 $('finderPrev').onclick=()=>{finderBase=Math.max(1,finderBase-3);renderFinder()};
 $('finderNext').onclick=()=>{finderBase=Math.min(11,finderBase+3);renderFinder()};
-$('finderClear').onclick=()=>{finderShape.fill(-2);finderTouched=false;finderBase=1;renderFinder()};
+$('finderClear').onclick=()=>{finderShape.fill(0);finderTouched=false;finderBase=1;renderFinder()};
 $('finderExample').onclick=()=>{finderShape.splice(0,6,-1,3,2,0,1,0);finderTouched=true;finderBase=1;renderFinder()};
 renderFinder();
 
