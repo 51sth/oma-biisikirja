@@ -739,7 +739,7 @@ function updateChordTimeline(scrollToActive=false){
   const total=chordTotalSeconds(),position=Math.max(0,Math.min(total,chordElapsedNow()));
   const duration=chordDurationSeconds();
   const count=chordAudioEvents.length;
-  const active=count?Math.min(count-1,Math.floor(position/duration)):-1;
+  const active=count?Math.min(count-1,Math.floor((position+.001)/duration)):-1;
   $('chordPosition').max=String(Math.max(total,.01));
   $('chordPosition').value=String(position);
   $('chordPosition').disabled=!count;
@@ -830,7 +830,7 @@ function scheduleChordAtPosition(){
     stopChordPlayback('Sointujen toisto päättyi.');
     return;
   }
-  const duration=chordDurationSeconds(),i=Math.min(chordAudioEvents.length-1,Math.floor(position/duration));
+  const duration=chordDurationSeconds(),i=Math.min(chordAudioEvents.length-1,Math.floor((position+.001)/duration));
   const remaining=Math.max(.02,(i+1)*duration-position);
   chordAudioIndex=i;
   const item=chordAudioEvents[i],song=songs.find(s=>s.id===current);
