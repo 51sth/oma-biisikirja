@@ -15,6 +15,20 @@
 .section-edit-row .section-editor-actions{display:flex;gap:4px;margin-left:auto}
 .section-edit-row .section-editor-actions button{margin:0;padding:5px 8px;font-size:12px;border-radius:7px}
 .section-edit-row .section-editor-actions .section-remove{background:#fff4f1;color:#9c3838;border-color:#ebc8c0}
+.section-drag-handle{display:inline-flex;align-items:center;gap:4px;font-size:21px;line-height:1;cursor:grab;padding:9px 6px;border:1px solid #bfd4c6;border-radius:7px;background:#fff;color:#386f54;user-select:none;-webkit-user-select:none;flex:0 0 auto;touch-action:pan-y}
+.section-drag-handle:active{cursor:grabbing}
+.section-drag-handle:focus-visible{outline:2px solid #087c55;outline-offset:2px}
+.section-drag-handle small{font:650 11px system-ui,-apple-system,sans-serif}
+.section-edit-row .section-editor-actions .section-move-up,.section-edit-row .section-editor-actions .section-move-down{min-width:28px;padding:5px 6px}
+#visualEditor.dragging-section-mode [data-row]{position:relative}
+#visualEditor .section-dragging{opacity:.48;background:#e5ede8}
+#visualEditor .section-drop-before::before,#visualEditor .section-drop-after::after{content:"";position:absolute;left:0;right:0;height:4px;background:#087c55;z-index:5;pointer-events:none;border-radius:5px;box-shadow:0 0 0 2px #f8fbf9}
+#visualEditor .section-drop-before::before{top:-4px}
+#visualEditor .section-drop-after::after{bottom:-4px}
+#visualEditor .section-drop-before::after{content:"";position:absolute;z-index:6;top:-8px;left:-3px;border:6px solid #087c55;border-radius:50%;pointer-events:none}
+#visualEditor .section-drop-after::before{content:"";position:absolute;z-index:6;bottom:-8px;left:-3px;border:6px solid #087c55;border-radius:50%;pointer-events:none}
+#visualEditor .section-drop-disabled{cursor:not-allowed}
+@media(max-width:580px){.section-drag-handle{padding:8px 7px}.section-drag-handle small{display:none}}
 .song-section-heading{display:flex;align-items:center;gap:10px;padding:9px 11px;margin:19px 0 11px;background:#eff6f1;border-left:4px solid #4c8b6e;border-radius:5px;color:#286345;font:700 12px/1.4 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;min-width:0}
 .song-section-heading .section-heading-label{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .song-section-heading .section-heading-rule{height:1px;background:currentColor;opacity:.24;flex:1;min-width:12px}
@@ -155,7 +169,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.0</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.1</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -191,7 +205,7 @@ main{max-width:1040px}
 </div></div>
 <p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkät rivit rivittyvät soittonäkymässä automaattisesti, jotta sanat ja soinnut näkyvät kokonaan.</p>
 <div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><label class="section-toolbar-label" for="sectionKind">Osion tyyppi <select id="sectionKind" aria-label="Lisättävän osion tyyppi"><option value="verse">Säkeistö</option><option value="chorus">Kertosäe</option><option value="intro">Intro</option><option value="interlude">Väliosa</option><option value="bridge">Bridge</option><option value="outro">Outro</option><option value="other">Muu osio</option></select></label><button id="addSection" type="button" class="secondary">+ Lisää osio</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
-<div id="editStatus" class="edit-status" aria-live="polite"></div><p class="section-help">Lisää osio valitun rivin yläpuolelle tai kappaleen loppuun. Otsikon nimeä voi muokata vapaasti, ja sen poistaminen säilyttää sanoitukset.</p>
+<div id="editStatus" class="edit-status" aria-live="polite"></div><p class="section-help">Lisää osio valitun rivin yläpuolelle tai kappaleen loppuun. <strong>⠿ Vedä osio</strong> -kahvasta voit siirtää koko osion sanoineen ja sointuineen rivien väliin. ▲/▼-painikkeilla siirto onnistuu myös ilman hiirtä. Paina lopuksi Tallenna.</p>
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
@@ -425,10 +439,13 @@ function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){
       const kind=Object.prototype.hasOwnProperty.call(SECTION_TYPES,l.sectionType)?l.sectionType:'other';
       const typeOptions=Object.entries(SECTION_TYPES).map(([key,label])=>'<option value="'+key+'" '+(kind===key?'selected':'')+'>'+safe(label)+'</option>').join('');
       return '<div class="section-edit-row section-kind-'+kind+'" data-row="'+i+'">'+
+        '<span class="section-drag-handle" data-section-drag="'+i+'" draggable="true" tabindex="0" role="button" title="Tartu ja vedä koko osio uuteen kohtaan" aria-label="Vedä koko osio '+safe(l.sectionTitle)+' uuteen kohtaan">⠿ <small>Vedä</small></span>'+ 
         '<span class="section-edit-label">Osio</span>'+
         '<select data-section-type="'+i+'" aria-label="Osion tyyppi">'+typeOptions+'</select>'+
         '<input data-section-title="'+i+'" type="text" maxlength="120" value="'+safe(l.sectionTitle)+'" aria-label="Osion otsikko" placeholder="Osion nimi">'+
-        '<div class="section-editor-actions"><button type="button" class="secondary" data-add-after="'+i+'" title="Lisää sanoitusrivi tämän osion jälkeen">+ Rivi alle</button>'+
+        '<div class="section-editor-actions"><button type="button" class="secondary section-move-up" data-move-section="'+i+'" data-direction="up" title="Siirrä koko osio ylemmäksi" aria-label="Siirrä osio ylöspäin">▲</button>'+ 
+        '<button type="button" class="secondary section-move-down" data-move-section="'+i+'" data-direction="down" title="Siirrä koko osio alemmas" aria-label="Siirrä osio alaspäin">▼</button>'+ 
+        '<button type="button" class="secondary" data-add-after="'+i+'" title="Lisää sanoitusrivi tämän osion jälkeen">+ Rivi alle</button>'+
         '<button type="button" class="section-remove" data-remove-section="'+i+'" aria-label="Poista osio-otsikko">− Poista otsikko</button></div></div>';
     }
     const max=widthFor(l);
@@ -465,6 +482,128 @@ function removeEditorRow(i){
     .map(v=>({...v,line:v.line>i?v.line-1:v.line}));
   if(!editLines.length){editLines.push({text:'',chords:[],chordRow:''});editorRowOrigins.push(null)}
 }
+// Siirto käsittelee kokonaisen osion (otsikko + rivit seuraavaan osioon asti).
+// Alkuperäiset sointuindeksit ja jonossa olevat sormitukset järjestetään
+// samassa permutaatiossa. Varsinainen kappale tallentuu vasta Tallenna-painikkeella.
+function sectionEnd(start,lines=editLines){
+  let end=start+1;
+  while(end<lines.length&&!lines[end].isSection)end++;
+  return end;
+}
+function moveSectionBlock(from,to){
+  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||from>=editLines.length||
+     to<0||to>editLines.length||!editLines[from].isSection)return false;
+  const end=sectionEnd(from),count=end-from;
+  if(to>=from&&to<=end)return false;
+  const order=editLines.map((_,i)=>i);
+  const moved=order.splice(from,count);
+  const insertion=to>end?to-count:to;
+  order.splice(insertion,0,...moved);
+  const oldLines=editLines,oldOrigins=editorRowOrigins,oldQueue=finderQueuedVoicings;
+  editLines=order.map(i=>oldLines[i]);
+  editorRowOrigins=order.map(i=>oldOrigins[i]);
+  const newRowOfOld=new Map(order.map((oldRow,newRow)=>[oldRow,newRow]));
+  finderQueuedVoicings=oldQueue.map(v=>({...v,line:newRowOfOld.get(v.line)??v.line}));
+  lastEditorRow=insertion;
+  if(!syncRaw()){
+    editLines=oldLines;editorRowOrigins=oldOrigins;finderQueuedVoicings=oldQueue;
+    $('editStatus').textContent='Siirto peruutettiin, koska sointirivissä on korjattava virhe.';
+    return false;
+  }
+  const name=editLines[insertion].sectionTitle||'Osio';
+  renderVisualEditor(insertion,'section');
+  preview();
+  recordEditorHistory();
+  $('editStatus').textContent='Osio ”'+name+'” siirrettiin sanoituksineen ja sointuineen. Paina Tallenna säilyttääksesi järjestyksen.';
+  return true;
+}
+function moveSectionStep(from,direction){
+  if(!editLines[from]?.isSection)return false;
+  if(direction==='up'){
+    let previous=-1;
+    for(let i=from-1;i>=0;i--){if(editLines[i].isSection){previous=i;break}}
+    if(previous<0)previous=0;
+    return moveSectionBlock(from,previous);
+  }
+  if(direction==='down'){
+    const next=sectionEnd(from);
+    if(next>=editLines.length)return false;
+    return moveSectionBlock(from,sectionEnd(next));
+  }
+  return false;
+}
+let sectionDragFrom=-1,sectionDropAt=-1;
+function clearSectionDropMarker(){
+  const root=$('visualEditor');
+  root.querySelectorAll('.section-drop-before,.section-drop-after').forEach(el=>{
+    el.classList.remove('section-drop-before','section-drop-after');
+  });
+  sectionDropAt=-1;
+}
+function clearSectionDrag(){
+  clearSectionDropMarker();
+  $('visualEditor').classList.remove('dragging-section-mode');
+  $('visualEditor').querySelectorAll('.section-dragging').forEach(el=>el.classList.remove('section-dragging'));
+  sectionDragFrom=-1;
+}
+function positionSectionDrop(at){
+  clearSectionDropMarker();
+  if(sectionDragFrom<0||at<0||at>editLines.length)return false;
+  const end=sectionEnd(sectionDragFrom);
+  if(at>=sectionDragFrom&&at<=end)return false; // Ei pudoteta osion sisään.
+  const root=$('visualEditor');
+  const anchor=root.querySelector('[data-row="'+at+'"]');
+  const last=at===editLines.length?root.querySelector('[data-row="'+(at-1)+'"]'):null;
+  const marker=anchor||last;
+  if(!marker)return false;
+  marker.classList.add(anchor?'section-drop-before':'section-drop-after');
+  sectionDropAt=at;
+  return true;
+}
+$('visualEditor').addEventListener('dragstart',e=>{
+  const handle=e.target.closest('[data-section-drag]');
+  if(!handle)return;
+  const from=Number(handle.dataset.sectionDrag);
+  if(!Number.isInteger(from)||!editLines[from]?.isSection){e.preventDefault();return}
+  sectionDragFrom=from;
+  if(e.dataTransfer){
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain','oma-biisikirja-osio-'+from);
+    // Drag-ghost asettaa koko otsikkorivin näkyviin kahvan sijasta.
+    const row=handle.closest('[data-row]');
+    if(row&&typeof e.dataTransfer.setDragImage==='function'){
+      try{e.dataTransfer.setDragImage(row,20,20)}catch{}
+    }
+  }
+  $('visualEditor').classList.add('dragging-section-mode');
+  for(let i=from;i<sectionEnd(from);i++){
+    $('visualEditor').querySelector('[data-row="'+i+'"]')?.classList.add('section-dragging');
+  }
+});
+$('visualEditor').addEventListener('dragover',e=>{
+  if(sectionDragFrom<0)return;
+  e.preventDefault();
+  if(e.dataTransfer)e.dataTransfer.dropEffect='move';
+  const row=e.target.closest('[data-row]');
+  if(row){
+    const i=Number(row.dataset.row),bounds=row.getBoundingClientRect();
+    const after=e.clientY>bounds.top+bounds.height/2;
+    positionSectionDrop(i+(after?1:0));
+  }else{
+    positionSectionDrop(editLines.length);
+  }
+});
+$('visualEditor').addEventListener('drop',e=>{
+  if(sectionDragFrom<0)return;
+  e.preventDefault();
+  const from=sectionDragFrom,at=sectionDropAt;
+  clearSectionDrag();
+  if(at>=0)moveSectionBlock(from,at);
+});
+$('visualEditor').addEventListener('dragend',clearSectionDrag);
+$('visualEditor').addEventListener('dragleave',e=>{
+  if(sectionDragFrom>=0&&e.target===$('visualEditor'))clearSectionDropMarker();
+});
 $('visualEditor').addEventListener('focusin',e=>{
   const row=e.target.closest('[data-row]');
   if(row)lastEditorRow=Number(row.dataset.row);
@@ -515,6 +654,8 @@ function applyFinderChord(lineNumber, position){
   $('editStatus').classList.add('finder-pending');
 }
 $('visualEditor').addEventListener('click',e=>{
+  const move=e.target.closest('[data-move-section]');
+  if(move){moveSectionStep(Number(move.dataset.moveSection),move.dataset.direction);return;}
   const removeSection=e.target.closest('[data-remove-section]');
   if(removeSection){
     const i=Number(removeSection.dataset.removeSection),line=editLines[i];
@@ -1199,5 +1340,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=33',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=34',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
