@@ -548,7 +548,7 @@ function renderFinder(){
     const best=result.partial[0];
     const missing=best.missingNames?.length?'<small>Puuttuvia säveliä: '+best.missingNames.map(safe).join(', ')+'. Tämä EI ole vielä täsmällinen sointu.</small>':'';
     out.innerHTML='<span class="finder-panel-label">Mahdollinen vajaasointu</span><strong>'+safe(best.name)+'</strong>'+notes+missing+'<small>Tarkista, mitkä kielet soivat avoimina (○) tai vaimennetaan (×).</small>';
-  }else out.innerHTML='<small>Merkityillä nauhoilla ei löytynyt tämän sointukirjaston mukaista sointua. Tarkista painetut nauhat tai täsmennä kielten ○/×-tiloja.</small>'+notes;
+  }else out.innerHTML='<small>Soivia säveliä ei vielä tunnisteta tämän kirjaston sointutyypeiksi. Ote voi silti olla tarkoituksellinen – kyse ei välttämättä ole virheestä. Voit täsmentää kielten ○/×-tiloja.</small>'+notes;
 }
 $('finderResult').addEventListener('click',e=>{
   const insert=e.target.closest('[data-finder-insert]');
