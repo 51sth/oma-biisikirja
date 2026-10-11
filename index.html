@@ -129,7 +129,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.7</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.8</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -145,6 +145,13 @@ main{max-width:1040px}
   <button type="button" id="backupCancel" class="secondary">Sulje</button>
 </div>
 <p id="backupStatus" class="backup-note" role="status" aria-live="polite"></p>
+<div id="archivedSongsPanel" class="backup-picker hidden">
+  <p id="archivedSongsInfo" class="backup-note"></p>
+  <div class="backup-select-actions">
+    <button id="archivedSongsImport" type="button" class="secondary">↶ Valitse aiemmat kappaleet</button>
+    <button id="archivedSongsDownload" type="button" class="secondary">↓ Lataa palautuskopio (JSON)</button>
+  </div>
+</div>
 <div class="backup-area"><label for="restoreMode">Tuonnin toimintatapa</label><select id="restoreMode"><option value="merge">Yhdistä nykyisiin biiseihin</option><option value="replace">Korvaa koko kirjasto</option></select>
 <label class="import-label" for="restore">↑ Tuo varmuuskopio (JSON)</label><input id="restore" type="file" accept="application/json,.json" aria-label="Tuo varmuuskopio"><p id="importStatus" class="backup-note" role="status" aria-live="polite"></p>
 <div id="importPicker" class="backup-picker hidden" aria-label="Valitse tuotavat kappaleet">
@@ -163,7 +170,40 @@ main{max-width:1040px}
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
 let finderPending=null, finderQueuedVoicings=[];
-const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],editorRowOrigins=[],cursor={line:0,pos:0},selectedChord=null;
+const K='oma-biisikirja-v1', $=x=>document.getElementById(x);
+const EMPTY_BASE_FLAG='oma-biisikirja-tyhja-pohja-v38';
+const ARCHIVE_KEY='oma-biisikirja-talteen-ennen-tyhjennysta-v38';
+let songs=[],emptyBaseNotice='';
+try{
+  const parsed=JSON.parse(localStorage.getItem(K)||'[]');
+  songs=Array.isArray(parsed)?parsed:[];
+  // Tyhjennetään vanha selainkohtainen kirjasto kerran. Ennen tyhjentämistä
+  // tallennetaan jokainen kappale, sointu ja sormitus erilliseen palautuskopioon.
+  // Älä koskaan poista olemassa olevia kappaleita ilman onnistunutta arkistointia.
+  if(localStorage.getItem(EMPTY_BASE_FLAG)!=='yes'){
+    if(songs.length){
+      const snapshot=JSON.stringify(songs);
+      const previous=localStorage.getItem(ARCHIVE_KEY);
+      if(previous&&previous!==snapshot){
+        emptyBaseNotice='Tyhjennys keskeytettiin: aiempi palautuskopio poikkeaa nykyisestä kirjastosta. Biisejä ei poistettu.';
+      }else{
+        if(!previous)localStorage.setItem(ARCHIVE_KEY,snapshot);
+        if(localStorage.getItem(ARCHIVE_KEY)!==snapshot)throw Error('Palautuskopion tallennus epäonnistui');
+        localStorage.setItem(K,'[]');
+        if(localStorage.getItem(K)!=='[]')throw Error('Tyhjän kirjaston tallennus epäonnistui');
+        songs=[];
+        localStorage.setItem(EMPTY_BASE_FLAG,'yes');
+        emptyBaseNotice='Kappaleluettelo tyhjennettiin kerran. Vanhat kappaleet ovat palautettavissa alta.';
+      }
+    }else{
+      localStorage.setItem(EMPTY_BASE_FLAG,'yes');
+    }
+  }
+}catch(error){
+  emptyBaseNotice='Kappaleiden turvallinen tyhjennys ei onnistunut ('+(error?.message||'tallennusvirhe')+'). Vanhoja kappaleita ei tarkoituksella poisteta ilman palautuskopiota.';
+  console.error(error);
+}
+let current=null;let editLines=[],editorRowOrigins=[],cursor={line:0,pos:0},selectedChord=null;
 let editorHistory=[],editorHistoryIndex=-1,editorHistoryTyping=null;
 // Tyhjä peruskirjasto: kappaleita ei toimiteta sovelluksen mukana.
 // Omat kappaleet tulevat vain tämän selaimen paikallisesta tallennuksesta
@@ -837,6 +877,45 @@ $('importCancel').onclick=()=>{
   closeImportPicker();
   $('importStatus').textContent='Tuonti peruutettu. Kirjastoa ei muutettu.';
 };
+function archivedSongArray(){
+  const raw=localStorage.getItem(ARCHIVE_KEY);
+  if(!raw)return [];
+  const items=JSON.parse(raw);
+  if(!Array.isArray(items)||!items.every(song=>song&&typeof song.id==='string'&&typeof song.title==='string'&&typeof song.body==='string'))throw Error('Palautuskopio ei ole kelvollinen');
+  return items;
+}
+function showArchivedSongs(){
+  try{
+    const saved=archivedSongArray();
+    $('archivedSongsPanel').classList.toggle('hidden',!saved.length&&!emptyBaseNotice);
+    $('archivedSongsImport').disabled=!saved.length;
+    $('archivedSongsDownload').disabled=!saved.length;
+    $('archivedSongsImport').textContent='↶ Valitse aiemmat kappaleet ('+saved.length+')';
+    $('archivedSongsInfo').textContent=emptyBaseNotice||(saved.length?
+      'Aiemmat '+saved.length+' kappaletta ovat yhä tallessa selaimen erillisessä palautuskopiossa. Ne eivät ole nykyisessä kappaleluettelossa.':'');
+  }catch(error){
+    $('archivedSongsPanel').classList.remove('hidden');
+    $('archivedSongsInfo').textContent='Palautuskopion lukeminen epäonnistui. Nykyistä kirjastoa ei muutettu.';
+    $('archivedSongsImport').disabled=true;
+    $('archivedSongsDownload').disabled=true;
+  }
+}
+$('archivedSongsImport').onclick=()=>{
+  try{
+    const saved=archivedSongArray();
+    if(!saved.length)return;
+    $('restoreMode').value='merge';
+    showImportPicker('Selaimeen talteen otetut aiemmat kappaleet',saved);
+    $('importStatus').textContent='Valitse, mitkä aiemmat kappaleet haluat palauttaa.';
+  }catch(error){$('archivedSongsInfo').textContent='Palautuskopion avaaminen epäonnistui: '+error.message}
+};
+$('archivedSongsDownload').onclick=()=>{
+  try{
+    const saved=archivedSongArray();
+    if(!saved.length)return;
+    downloadBackup(saved,'biisikirja-vanhat-kappaleet-ennen-tyhjennysta.json');
+  }catch(error){$('archivedSongsInfo').textContent='Varmuuskopion lataus ei onnistunut: '+error.message}
+};
 $('importSelected').onclick=()=>{
   const status=$('importStatus');
   if(!pendingImport)return;
@@ -888,5 +967,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=30',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=31',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
