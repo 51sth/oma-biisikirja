@@ -40,6 +40,11 @@ const types={
  'madd9':{tones:[0,2,3,7],essential:[0,2,3,7]},
  'm7add11':{tones:[0,3,5,7,10],essential:[0,3,5,7,10]},
  'add11':{tones:[0,4,5,7],essential:[0,4,5,7]},
+ '7add11':{tones:[0,4,5,7,10],essential:[0,4,5,7,10]},
+ 'maj7add11':{tones:[0,4,5,7,11],essential:[0,4,5,7,11]},
+ 'madd11':{tones:[0,3,5,7],essential:[0,3,5,7]},
+ '7add13':{tones:[0,4,7,9,10],essential:[0,4,7,9,10]},
+ 'maj7add13':{tones:[0,4,7,9,11],essential:[0,4,7,9,11]},
  '6/9':{tones:[0,2,4,7,9],essential:[0,2,4,7,9]},
  '7sus2':{tones:[0,2,7,10],essential:[0,2,7,10]},
  'maj7sus2':{tones:[0,2,7,11],essential:[0,2,7,11]},
@@ -49,7 +54,7 @@ const types={
 };
 // A missing fifth must not be silently drawn as a full chord. Explicit (no5)
 // names provide accurate labels for less common, deliberately sparse voicings.
-for(const q of ['7','maj7','m7','9','maj9','m9','add9','6','m6','7b9','7#9','7#11','m7add11','13','maj13']){
+for(const q of ['7','maj7','m7','9','maj9','m9','add9','6','m6','7b9','7#9','7#11','7add11','maj7add11','m7add11','madd11','7add13','maj7add13','13','maj13']){
  const src=types[q];if(!src||!src.tones.includes(7))continue;
  const remaining=src.tones.filter(n=>n!==7);
  types[q+'(no5)']={tones:remaining,essential:remaining.slice()};
@@ -207,7 +212,7 @@ function searchNames(query){
  if(q){const exact=parse(q);if(exact)return [exact.name];}
  const rootNames=['C','C#','Db','D','Eb','E','F','F#','Gb','G','Ab','A','Bb','B'];
  const names=[];
- for(const root of rootNames)for(const quality of ['','m','7','maj7','m7','sus2','sus4','7sus4','add9','6','m6','9','maj9','m9','dim','dim7','m7b5','aug','5']){const n=root+quality;if(!q||n.toLowerCase().includes(q.toLowerCase()))names.push(n)}
+ for(const root of rootNames)for(const quality of ['','m','7','maj7','m7','sus2','sus4','7sus4','add9','add11','madd11','7add11','maj7add11','m7add11','7add13','maj7add13','6','m6','9','maj9','m9','dim','dim7','m7b5','aug','5']){const n=root+quality;if(!q||n.toLowerCase().includes(q.toLowerCase()))names.push(n)}
  return names.slice(0,120);
 }
 global.ChordEngine={parse,valid,voicings,pitches,score,inferKey,substitutions,searchNames,noteName,fingeringCost,qualities:Object.keys(types)};
