@@ -24,20 +24,23 @@
 @media(max-width:700px){.layout{grid-template-columns:minmax(0,1fr)}}
 /* 1.5: guitar-chord and lyric columns are mathematically identical in editor and read view. */
 .preview{overflow-x:auto;overflow-y:visible;overscroll-behavior-x:contain;padding-bottom:20px}
-.notation-line{position:relative;font:15px/1.5 ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;letter-spacing:0;white-space:pre;margin:7px 0 13px;min-width:1ch;max-width:none}
-.notation-chords{position:relative;height:24px;white-space:pre}
-.notation-lyrics{white-space:pre;height:23px;line-height:23px}
+.notation-line{position:relative;font:15px/1.5 ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;letter-spacing:0;white-space:pre;margin:7px 0 13px;min-width:1ch;max-width:100%;box-sizing:border-box}
+.notation-line.wrapped-before-next{margin-bottom:2px}
+.notation-line.continuation{margin-top:2px}
+.notation-chords{position:relative;white-space:pre;min-height:24px}
+.notation-no-chords .notation-chords{display:none}
+.notation-lyrics{white-space:pre;min-height:23px;line-height:23px}
 .notation-chord{position:absolute;top:0;margin:0;padding:0;border:0;background:#e3f5e9;color:#08704c;border-radius:3px;font:700 1em/23px ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;letter-spacing:0;min-width:1ch;cursor:pointer}
 .notation-chord:focus-visible{outline:2px solid #087c55;outline-offset:2px}
 .notation-empty{height:18px}
-/* Note: the entire music line scrolls horizontally instead of breaking an aligned chord pair. */
+.notation-measure{position:absolute;visibility:hidden;pointer-events:none;white-space:pre;font:15px/1.5 ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;letter-spacing:0}
 @media(max-width:580px){.notation-line{font-size:15px}}
 
 /* 1.6: one song view at a time; player controls stay visible during song scrolling. */
 .play-header{justify-content:space-between;margin-bottom:8px}
 .play-header h2{margin:0}
 .play-viewport{height:min(66dvh,690px);min-height:250px;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid #d4e5da;border-radius:12px;background:#fbfdfb;padding:12px 10px;box-sizing:border-box;scroll-behavior:auto}
-.play-viewport .preview{overflow:visible;width:max-content;min-width:100%;max-width:none;padding-bottom:28vh}
+.play-viewport .preview{overflow:visible;width:100%;min-width:0;max-width:100%;padding-bottom:28vh}
 #previewPanel{scroll-margin-top:12px}
 #editorPanel{scroll-margin-top:12px}
 @media(max-width:700px){.play-viewport{height:66dvh;min-height:280px}}
@@ -129,7 +132,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.8</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v3.9</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -163,7 +166,7 @@ main{max-width:1040px}
   <button type="button" id="importSelected" disabled>↑ Tuo valitut (0)</button>
   <button type="button" id="importCancel" class="secondary">Peruuta</button>
 </div></div>
-<p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkää riviä voi vierittää sivusuunnassa.</p>
+<p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkät rivit rivittyvät soittonäkymässä automaattisesti, jotta sanat ja soinnut näkyvät kokonaan.</p>
 <div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
 <div id="editStatus" class="edit-status" aria-live="polite"></div>
 
@@ -598,20 +601,85 @@ document.addEventListener('pointerdown',e=>{
 window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover()},{passive:true});
 window.addEventListener('resize',placeChordPopover);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChordPopover(true)});
+// Wrapping is visual only: keep the original lyrics, lines, and saved chord positions intact.
+function notationColumnCount(){
+  const viewport=$('playViewport');
+  if(!viewport||viewport.clientWidth<80)return 48;
+  const sample=document.createElement('span');
+  sample.className='notation-measure';sample.textContent='0000000000';
+  viewport.appendChild(sample);
+  const charWidth=sample.getBoundingClientRect().width/10||9.05;
+  sample.remove();
+  const style=window.getComputedStyle(viewport);
+  const padding=(parseFloat(style.paddingLeft)||0)+(parseFloat(style.paddingRight)||0);
+  return Math.max(16,Math.floor((viewport.clientWidth-padding-5)/charWidth));
+}
+function wrapNotationLine(line,maxCols){
+  const ordered=(line.chords||[]).map((c,index)=>({...c,index}))
+    .sort((a,b)=>a.pos-b.pos||a.index-b.index);
+  const endOfLine=Math.max(1,line.text.length,...ordered.map(c=>c.pos+c.name.length));
+  const parts=[];let start=0;
+  while(start<endOfLine){
+    let end=Math.min(start+maxCols,endOfLine);
+    if(end<endOfLine){
+      const softMin=start+Math.max(6,Math.floor(maxCols*.55));
+      for(let i=Math.min(end-1,line.text.length-1);i>=softMin;i--){
+        if(/\s/.test(line.text[i])){end=i+1;break}
+      }
+      // Do not split chord names across visible lines.
+      for(let tries=0;tries<ordered.length;tries++){
+        const crossing=ordered.find(c=>c.pos<end&&c.pos+c.name.length>end);
+        if(!crossing)break;
+        if(crossing.pos>start){
+          let better=crossing.pos;
+          for(let i=Math.min(crossing.pos-1,line.text.length-1);i>=start+Math.floor(maxCols*.4);i--){
+            if(/\s/.test(line.text[i])){better=i+1;break}
+          }
+          end=better;
+        }else{
+          end=Math.max(end,crossing.pos+crossing.name.length);
+        }
+      }
+    }
+    if(end<=start)end=Math.min(endOfLine,start+maxCols);
+    const lanes=[];
+    const chords=ordered.filter(c=>c.pos>=start&&c.pos<end).map(c=>{
+      const pos=c.pos-start;
+      let lane=lanes.findIndex(last=>last+1<=pos);
+      if(lane<0){lane=lanes.length;lanes.push(0)}
+      lanes[lane]=pos+c.name.length;
+      return {...c,pos,lane};
+    });
+    const text=line.text.slice(start,end);
+    parts.push({text,chords,lanes:Math.max(1,lanes.length),
+      width:Math.max(1,text.length,...chords.map(c=>c.pos+c.name.length))});
+    start=end;
+  }
+  return parts;
+}
 function preview(){
   closeChordPopover(true);
+  const columns=notationColumnCount();
   const lines=parseBody($('editor').value);
   $('preview').innerHTML=lines.map((line,rowIndex)=>{
     if(!line.text&&!line.chords.length)return '<div class="notation-empty"></div>';
-    const maxCol=Math.max(line.text.length,0,...line.chords.map(c=>c.pos+c.name.length));
-    const chordMarks=line.chords.map((c,chordIndex)=>`<button type="button" class="notation-chord" data-chord="${safe(c.name)}" data-line="${rowIndex}" data-chord-index="${chordIndex}" style="left:${c.pos}ch" aria-label="${safe(c.name)}: näytä sormitukset ja vaihda otetta">${safe(c.name)}</button>`).join('');
-    return `<div class="notation-line" style="width:${Math.max(maxCol,1)}ch"><div class="notation-chords">${chordMarks}</div><div class="notation-lyrics">${line.text?safe(line.text):'&nbsp;'}</div></div>`;
+    const parts=wrapNotationLine(line,columns);
+    return parts.map((part,partIndex)=>{
+      const chordMarks=part.chords.map(c=>
+        `<button type="button" class="notation-chord" data-chord="${safe(c.name)}" data-line="${rowIndex}" data-chord-index="${c.index}" style="left:${c.pos}ch;top:${c.lane*24}px" aria-label="${safe(c.name)}: näytä sormitukset ja vaihda otetta">${safe(c.name)}</button>`
+      ).join('');
+      const className='notation-line'+(partIndex>0?' continuation':'')+
+        (partIndex<parts.length-1?' wrapped-before-next':'')+
+        (!part.chords.length?' notation-no-chords':'');
+      return `<div class="${className}" style="width:${part.width}ch"><div class="notation-chords" style="height:${part.lanes*24}px">${chordMarks}</div><div class="notation-lyrics">${part.text?safe(part.text):'&nbsp;'}</div></div>`;
+    }).join('');
   }).join('');
 }
 function showMode(mode){
   stopScroll();closeChordPopover(true);
   $('editorPanel').classList.toggle('hidden',mode!=='edit');
   $('previewPanel').classList.toggle('hidden',mode==='edit');
+  if(mode==='play')preview();
 }
 $('songs').onclick=e=>{const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
@@ -620,6 +688,12 @@ $('save').onclick=save;
 $('delete').onclick=()=>{if(current)removeSong(current)};
 $('previewBtn').onclick=()=>{if(!syncRaw())return;preview();showMode('play');$('previewPanel').scrollIntoView({behavior:'smooth',block:'start'})};
 $('editBtn').onclick=()=>{showMode('edit');$('editorPanel').scrollIntoView({behavior:'smooth',block:'start'})};
+let notationResizeFrame=0;
+window.addEventListener('resize',()=>{
+  if($('previewPanel').classList.contains('hidden'))return;
+  cancelAnimationFrame(notationResizeFrame);
+  notationResizeFrame=requestAnimationFrame(()=>{notationResizeFrame=0;preview()});
+});
 
 let scrolling=false,lastFrame=0,frameId=0,virtualScrollY=0;
 const speedKey='biisikirja-scroll-speed';
@@ -967,5 +1041,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=31',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=32',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
