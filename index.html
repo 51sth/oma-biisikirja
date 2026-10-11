@@ -205,7 +205,7 @@ main{max-width:1040px}
 </div></div>
 <p class="backup-note">Yhdistä säilyttää vanhat biisit ja lisää vain valitsemasi. Korvaa koko kirjasto poistaa nykyiset biisit ja säilyttää vain tuonnissa valitut. Valitse ensin kappaleet tiedostosta; korvaaminen pyytää vielä erillisen vahvistuksen ja käynnistää turvakopion latauksen.</p></aside><section><div class="panel hidden" id="editorPanel"><div class="row"><input id="title" placeholder="Kappaleen nimi" style="flex:1"><label for="capo">Capo <input id="capo" type="number" min="0" max="15" step="1" value="0" style="width:64px" aria-label="Capo nauha"></label><button id="save">Tallenna</button><button class="danger" id="delete">Poista</button></div><p class="editor-guide"><b>Kirjoita soinnut yläriville ja sanat niiden alle.</b> Lisää välilyöntejä, kunnes sointu on juuri haluamasi tavun kohdalla. Sointujen ympärille ei kirjoiteta hakasulkeita. Tallentaminen tunnistaa ylärivin soinnut automaattisesti. Pitkät rivit rivittyvät soittonäkymässä automaattisesti, jotta sanat ja soinnut näkyvät kokonaan.</p>
 <div class="editor-toolbar"><div class="row"><button id="undoEdit" type="button" class="secondary" disabled title="Kumoa muokkaus (Ctrl+Z)">↶ Kumoa</button><button id="redoEdit" type="button" class="secondary" disabled title="Tee uudelleen (Ctrl+Y / Ctrl+Shift+Z)">↷ Tee uudelleen</button><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><label class="section-toolbar-label" for="sectionKind">Osion tyyppi <select id="sectionKind" aria-label="Lisättävän osion tyyppi"><option value="verse">Säkeistö</option><option value="chorus">Kertosäe</option><option value="intro">Intro</option><option value="interlude">Väliosa</option><option value="bridge">Bridge</option><option value="outro">Outro</option><option value="other">Muu osio</option></select></label><button id="addSection" type="button" class="secondary">+ Lisää osio</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div></div>
-<div id="editStatus" class="edit-status" aria-live="polite"></div><p class="section-help">Lisää osio valitun rivin yläpuolelle tai kappaleen loppuun. <strong>⠿ Vedä osio</strong> -kahvasta voit siirtää koko osion sanoineen ja sointuineen rivien väliin. ▲/▼-painikkeilla siirto onnistuu myös ilman hiirtä. Paina lopuksi Tallenna.</p>
+<div id="editStatus" class="edit-status" aria-live="polite"></div><p class="section-help">Lisää osio valitun rivin yläpuolelle tai kappaleen loppuun. <strong>⠿ Vedä osio</strong> -kahvasta voit siirtää koko osion sanoineen ja sointuineen toisten osioiden väliin tai kappaleen alkuun/loppuun. ▲/▼-painikkeilla siirto onnistuu myös ilman hiirtä. Paina lopuksi Tallenna.</p>
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
@@ -439,7 +439,7 @@ function renderVisualEditor(focusLine=-1,focusType='lyric',focusPos=0){
       const kind=Object.prototype.hasOwnProperty.call(SECTION_TYPES,l.sectionType)?l.sectionType:'other';
       const typeOptions=Object.entries(SECTION_TYPES).map(([key,label])=>'<option value="'+key+'" '+(kind===key?'selected':'')+'>'+safe(label)+'</option>').join('');
       return '<div class="section-edit-row section-kind-'+kind+'" data-row="'+i+'">'+
-        '<span class="section-drag-handle" data-section-drag="'+i+'" draggable="true" tabindex="0" role="button" title="Tartu ja vedä koko osio uuteen kohtaan" aria-label="Vedä koko osio '+safe(l.sectionTitle)+' uuteen kohtaan">⠿ <small>Vedä</small></span>'+ 
+        '<span class="section-drag-handle" data-section-drag="'+i+'" draggable="true" tabindex="0" role="button" title="Vedä osio tai siirrä nuolinäppäimillä" aria-label="Siirrä nuolinäppäimillä tai vedä koko osio '+safe(l.sectionTitle)+' uuteen kohtaan">⠿ <small>Vedä</small></span>'+ 
         '<span class="section-edit-label">Osio</span>'+
         '<select data-section-type="'+i+'" aria-label="Osion tyyppi">'+typeOptions+'</select>'+
         '<input data-section-title="'+i+'" type="text" maxlength="120" value="'+safe(l.sectionTitle)+'" aria-label="Osion otsikko" placeholder="Osion nimi">'+
@@ -546,9 +546,21 @@ function clearSectionDrag(){
   $('visualEditor').querySelectorAll('.section-dragging').forEach(el=>el.classList.remove('section-dragging'));
   sectionDragFrom=-1;
 }
+// Pudotus toisen osion sanojen keskelle kohdistetaan osion alkuun tai loppuun,
+// jotta olemassa olevan osion sanoitukset eivät vahingossa vaihda otsikkoa.
+function normalizedSectionDropIndex(at){
+  if(at<=0||at>=editLines.length||editLines[at].isSection)return at;
+  let sectionStart=at-1;
+  while(sectionStart>=0&&!editLines[sectionStart].isSection)sectionStart--;
+  if(sectionStart<0)return at; // Yksittäiset otsikoimattomat alkurivit.
+  const end=sectionEnd(sectionStart);
+  if(at>=end)return at;
+  return at-sectionStart<=end-at?sectionStart:end;
+}
 function positionSectionDrop(at){
   clearSectionDropMarker();
   if(sectionDragFrom<0||at<0||at>editLines.length)return false;
+  at=normalizedSectionDropIndex(at);
   const end=sectionEnd(sectionDragFrom);
   if(at>=sectionDragFrom&&at<=end)return false; // Ei pudoteta osion sisään.
   const root=$('visualEditor');
@@ -584,6 +596,10 @@ $('visualEditor').addEventListener('dragover',e=>{
   if(sectionDragFrom<0)return;
   e.preventDefault();
   if(e.dataTransfer)e.dataTransfer.dropEffect='move';
+  const editor=$('visualEditor'),edges=editor.getBoundingClientRect();
+  // Auto-scroll tall song editor while a section is being dragged.
+  if(e.clientY<edges.top+36)editor.scrollTop-=16;
+  else if(e.clientY>edges.bottom-36)editor.scrollTop+=16;
   const row=e.target.closest('[data-row]');
   if(row){
     const i=Number(row.dataset.row),bounds=row.getBoundingClientRect();
@@ -603,6 +619,18 @@ $('visualEditor').addEventListener('drop',e=>{
 $('visualEditor').addEventListener('dragend',clearSectionDrag);
 $('visualEditor').addEventListener('dragleave',e=>{
   if(sectionDragFrom>=0&&e.target===$('visualEditor'))clearSectionDropMarker();
+});
+$('visualEditor').addEventListener('keydown',e=>{
+  const handle=e.target.closest('[data-section-drag]');
+  if(!handle)return;
+  if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    e.preventDefault();
+    const from=Number(handle.dataset.sectionDrag);
+    moveSectionStep(from,e.key==='ArrowUp'?'up':'down');
+    const to=lastEditorRow;
+    const moved=$('visualEditor').querySelector('[data-section-drag="'+to+'"]');
+    moved?.focus();
+  }
 });
 $('visualEditor').addEventListener('focusin',e=>{
   const row=e.target.closest('[data-row]');
