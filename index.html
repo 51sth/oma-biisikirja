@@ -129,7 +129,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v2.7</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v2.8</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -233,13 +233,20 @@ $('editor').addEventListener('input',()=>{const raw=$('editor').value;editLines=
 // Shape choice changes finger placement only; replacement changes this chord occurrence only.
 const STANDARD_TUNING=[40,45,50,55,59,64];
 function miniDiagram(name,shape){
-  const frets=shape,played=frets.filter(f=>f>0),base=played.length?Math.max(1,Math.min(...played)):1;
+  // Kitaran sävelmalli käyttää järjestystä paksu E → ohut e. Kuvassa näytetään
+  // ohut e vasemmalla samoin kuin sointuetsimen ensimmäisellä (ylimmällä) rivillä.
+  // Vaihdetaan ainoastaan piirtämisen indeksit; soivia säveliä ei muuteta.
+  const frets=shape,played=frets.filter(f=>f>0);
+  const firstPlayed=played.length?Math.min(...played):1;
+  const hasOpen=frets.some(f=>f===0);
+  const base=hasOpen&&firstPlayed<=4?1:Math.max(1,firstPlayed);
   const rows=played.length?Math.max(4,Math.max(...played)-base+1):4;
-  let out='<svg class="mini-fretboard" viewBox="0 0 148 '+(50+25*rows)+'" role="img" aria-label="'+safe(name)+' - sointuote">';
-  const stringNames=['E','A','D','G','B','e'];
-  for(let i=0;i<6;i++){
-    const x=23+20*i,f=frets[i];
-    out+='<text x="'+x+'" y="10" text-anchor="middle" font-size="10" fill="#54665d">'+stringNames[i]+'</text>';
+  let out='<svg class="mini-fretboard" viewBox="0 0 148 '+(50+25*rows)+'" role="img" aria-label="'+safe(name)+' - sointuote, kielet vasemmalta e H G D A E">';
+  const stringNames=['e','H','G','D','A','E'];
+  const displayIndices=[5,4,3,2,1,0];
+  for(let visual=0;visual<6;visual++){
+    const i=displayIndices[visual],x=23+20*visual,f=frets[i];
+    out+='<text x="'+x+'" y="10" text-anchor="middle" font-size="10" fill="#54665d">'+stringNames[visual]+'</text>';
     out+='<line x1="'+x+'" x2="'+x+'" y1="38" y2="'+(38+rows*25)+'" stroke="#64776c" stroke-width="1.15"/>';
     if(f<1)out+='<text x="'+x+'" y="31" font-size="15" text-anchor="middle" fill="#142e22">'+(f===-1?'×':'○')+'</text>';
     if(f>0)out+='<circle cx="'+x+'" cy="'+(38+(f-base+.5)*25)+'" r="8.5" fill="#087c55"/>';
@@ -334,11 +341,11 @@ function renderChordPopover(){
    content='<p class="popover-no-voicing">Tälle soinnulle ei löytynyt tarkistettua otetta. Kaaviota ei arvata.</p>';
   }else{
    const form=forms[index];
-   content='<div class="current-shape">'+miniDiagram(name,form.shape)+'<div class="popover-meta">'+safe(shapeLabel(form.shape))+' · ote '+(index+1)+'/'+forms.length+'</div></div>'+
+   content='<div class="current-shape">'+miniDiagram(name,form.shape)+'<div class="popover-meta">'+safe(shapeLabel(form.shape))+' (E→e) · ote '+(index+1)+'/'+forms.length+'</div></div>'+
     '<div class="popover-controls"><button type="button" data-voicing-step="-1" aria-label="Edellinen ote">‹</button><strong>Vaihda otetta</strong><button type="button" data-voicing-step="1" aria-label="Seuraava ote">›</button></div>'+
     (popoverExpanded?'<label class="range-label">Otteet eri puolilla otelautaa<select id="fretRange"><option value="all" '+(voicingFilter==='all'?'selected':'')+'>Kaikki nauhavälit</option>'+[['low','Avoimet / 1–4'],['mid','5–8'],['high','9–12'],['highest','13–15']].map(([v,l])=>'<option value="'+v+'" '+(voicingFilter===v?'selected':'')+'>'+l+'</option>').join('')+'</select></label>':'<button type="button" class="popup-more" data-open-voicings>Näytä kaikki otteet</button>');
    const filtered=forms.map((f,i)=>({...f,index:i})).filter(f=>{const n=region(f.shape);return voicingFilter==='all'||(voicingFilter==='low'&&n<=4)||(voicingFilter==='mid'&&n>=5&&n<=8)||(voicingFilter==='high'&&n>=9&&n<=12)||(voicingFilter==='highest'&&n>=13)});
-   if(popoverExpanded)content+='<div class="popover-meta">'+filtered.length+' säveliltään tarkistettua otetta · EADGBe</div><div class="voicing-grid">'+filtered.slice(0,visibleVoicings).map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse ote '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+'</span></button>').join('')+'</div>';
+   if(popoverExpanded)content+='<div class="popover-meta">'+filtered.length+' säveliltään tarkistettua otetta · EADGBe</div><div class="voicing-grid">'+filtered.slice(0,visibleVoicings).map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse ote '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' E→e</span></button>').join('')+'</div>';
    if(popoverExpanded&&filtered.length>visibleVoicings)content+='<button type="button" class="popup-more" data-voicing-more>Näytä lisää ('+(filtered.length-visibleVoicings)+' jäljellä)</button>';
    if(popoverExpanded)content+='<p class="popover-note">Kaikki otteet on tarkistettu sävelistä. Kokeile niiden ergonomia käytännössä; vaikeat otteet voivat vaatia barré-tekniikkaa.</p>';
   }
@@ -617,5 +624,5 @@ $('restore').onchange=async e=>{
   }catch(err){console.error(err);alert('Varmuuskopio ei kelpaa. Valitse sovelluksen viemä JSON-tiedosto.');}
   finally{e.target.value='';}
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=20',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=21',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
