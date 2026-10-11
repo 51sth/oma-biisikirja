@@ -499,14 +499,14 @@ function moveSectionBlock(from,to){
   const moved=order.splice(from,count);
   const insertion=to>end?to-count:to;
   order.splice(insertion,0,...moved);
-  const oldLines=editLines,oldOrigins=editorRowOrigins,oldQueue=finderQueuedVoicings;
+  const oldLines=editLines,oldOrigins=editorRowOrigins,oldQueue=finderQueuedVoicings,previousFocusRow=lastEditorRow;
   editLines=order.map(i=>oldLines[i]);
   editorRowOrigins=order.map(i=>oldOrigins[i]);
   const newRowOfOld=new Map(order.map((oldRow,newRow)=>[oldRow,newRow]));
   finderQueuedVoicings=oldQueue.map(v=>({...v,line:newRowOfOld.get(v.line)??v.line}));
   lastEditorRow=insertion;
   if(!syncRaw()){
-    editLines=oldLines;editorRowOrigins=oldOrigins;finderQueuedVoicings=oldQueue;
+    editLines=oldLines;editorRowOrigins=oldOrigins;finderQueuedVoicings=oldQueue;lastEditorRow=previousFocusRow;
     $('editStatus').textContent='Siirto peruutettiin, koska sointirivissä on korjattava virhe.';
     return false;
   }
@@ -626,7 +626,7 @@ $('visualEditor').addEventListener('keydown',e=>{
   if(e.key==='ArrowUp'||e.key==='ArrowDown'){
     e.preventDefault();
     const from=Number(handle.dataset.sectionDrag);
-    moveSectionStep(from,e.key==='ArrowUp'?'up':'down');
+    if(!moveSectionStep(from,e.key==='ArrowUp'?'up':'down'))return;
     const to=lastEditorRow;
     const moved=$('visualEditor').querySelector('[data-section-drag="'+to+'"]');
     moved?.focus();
