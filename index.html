@@ -129,10 +129,10 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin</summary>
-<p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. Näkymässä ohut e on ylimpänä.</p>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><div id="songs"></div><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v2.6</small></summary>
+<p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Alhaalta ylöspäin: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
-<div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
+<div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: paksu E, A, D, G, H, ohut e"></div>
 <div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
 <div id="finderResult" class="finder-result" role="status" aria-live="polite"><small>Valitse soitettavat kielet.</small></div>
 <p class="finder-hint" style="margin-bottom:0">Vakioviritys alhaalta ylös E–A–D–G–H–e, ei capoa. Sävellaskennassa kielet pysyvät samassa vakiovirityksessä, vaikka näyttöjärjestys on käännetty.</p></details>
@@ -144,7 +144,7 @@ main{max-width:1040px}
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
 <div class="row"><button id="addLine" type="button" class="secondary">+ Lisää rivi loppuun</button><button class="secondary" id="previewBtn">Näytä soittonäkymä</button></div>
-<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js"></script><script src="chord-finder.js"></script><script>
+<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Tässä yhteensopivuusnäkymässä ne näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
 let finderPending=null, finderQueuedVoicings=[];
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);let songs=[];try{songs=JSON.parse(localStorage.getItem(K)||'[]');if(!Array.isArray(songs))songs=[]}catch{}let current=null;let editLines=[],cursor={line:0,pos:0},selectedChord=null;
 // Uusi asennus käynnistyy tyhjällä kirjastolla. Vanhoja paikallisia kappaleita ei poisteta.
@@ -512,7 +512,7 @@ function downloadBackup(data, filename='biisikirja-varmuuskopio.json'){
 const finderShape=Array(6).fill(0);
 let finderTouched=false;
 const finderStringNames=['E','A','D','G','H','e'];
-const finderDisplayOrder=[5,4,3,2,1,0];
+const finderDisplayOrder=[0,1,2,3,4,5];
 let finderBase=1;
 function renderFinder(){
   const grid=$('finderGrid');
@@ -617,5 +617,5 @@ $('restore').onchange=async e=>{
   }catch(err){console.error(err);alert('Varmuuskopio ei kelpaa. Valitse sovelluksen viemä JSON-tiedosto.');}
   finally{e.target.value='';}
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=19',{updateViaCache:'none'}).catch(()=>{});list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
