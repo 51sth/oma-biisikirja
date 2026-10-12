@@ -105,6 +105,14 @@
 /* 1.6: one song view at a time; player controls stay visible during song scrolling. */
 .play-header{justify-content:space-between;margin-bottom:8px}
 .play-header h2{margin:0}
+.transpose-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:3px 0 12px;padding:8px 10px;border-radius:10px;border:1px solid #bad8c6;background:#f0f8f3}
+.transpose-title{font-weight:750;color:#244d36;margin-right:3px;font-size:13px}
+.transpose-bar button{margin:0;padding:5px 12px;min-width:35px;min-height:36px;font-size:19px;line-height:1.1;border-radius:7px;touch-action:manipulation}
+.transpose-bar button#transposeReset{font-size:12px;min-width:auto;padding:8px 9px;font-weight:650}
+.transpose-bar button:disabled{opacity:.46;cursor:default}
+#transposeValue{min-width:43px;text-align:center;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:#1c6344}
+.transpose-info{font-size:11px;line-height:1.3;color:#50695c;flex:1 1 190px}
+@media(max-width:580px){.transpose-bar{gap:6px;padding:8px}.transpose-info{flex-basis:100%;margin-top:1px}.transpose-bar button{min-height:40px}}
 .play-viewport{height:min(66dvh,690px);min-height:250px;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid #d4e5da;border-radius:12px;background:#fbfdfb;padding:12px 10px;box-sizing:border-box;scroll-behavior:auto}
 .play-viewport .preview{overflow:visible;width:100%;min-width:0;max-width:100%;padding-bottom:28vh}
 #previewPanel{scroll-margin-top:12px}
@@ -198,7 +206,7 @@ main{max-width:1040px}
 .finder .finder-insert{width:100%;margin-top:9px;padding:10px 7px;background:#087c55;color:#fff;border-radius:8px;font-size:12px}
 .finder .finder-insert:hover{background:#086845}
 #editStatus.finder-pending{padding:9px;background:#eef8f0;border-radius:8px;color:#145f40}
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.4</small></summary>
+</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout"><aside class="panel"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.5</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -238,8 +246,10 @@ main{max-width:1040px}
 <div id="copyPlacementPanel" class="copy-placement-panel hidden" aria-label="Sijoita kopioitu osio"><div class="copy-placement-title"><strong id="copyPlacementTitle">Kopio luotu</strong><span class="copy-placement-note">Sanat ja soinnut siirtyvät kopion mukana.</span></div><div class="copy-placement-actions"><label for="copyDestination">Sijoita kopio <select id="copyDestination" aria-label="Kopion sijoituskohta"><option value="">Valitse uusi sijainti…</option></select></label><button type="button" id="moveCopiedSection" disabled>Siirrä kopio</button><button type="button" id="closeCopyPlacement" class="secondary">Valmis</button></div></div>
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
-<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
+<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="transpose-bar" role="group" aria-label="Kappaleen nopea transponointi"><span class="transpose-title">Transponoi</span><button id="transposeDown" type="button" aria-label="Transponoi alaspäin yksi puolisävelaskel" title="−1 puolisävelaskel">−</button><output id="transposeValue" aria-live="polite" aria-atomic="true">0</output><button id="transposeUp" type="button" aria-label="Transponoi ylöspäin yksi puolisävelaskel" title="+1 puolisävelaskel">+</button><button id="transposeReset" type="button" class="secondary" disabled>↶ Alkuperäinen</button><span id="transposeInfo" class="transpose-info">Soinnut vaihtuvat heti · ei muuta tallennettua biisiä</span></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
 let finderPending=null, finderQueuedVoicings=[], copiedSectionVoicings=[], copyPlacementStart=-1;
+let transposeOffset=0;
+const temporaryTransposedVoicings=new Map();
 const K='oma-biisikirja-v1', $=x=>document.getElementById(x);
 const EMPTY_BASE_FLAG='oma-biisikirja-tyhja-pohja-v38';
 const ARCHIVE_KEY='oma-biisikirja-talteen-ennen-tyhjennysta-v38';
@@ -419,7 +429,7 @@ function removeSong(id){
   else list();
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
-function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;resetTranspose();finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
 function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);
   // Säilytä tallennetut soitto-otteet vain samoille sointukohdille myös rivin poiston jälkeen.
   if(s&&s.voicings){
@@ -457,7 +467,7 @@ function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe 
     }
     finderQueuedVoicings=[];
   }
-  editorRowOrigins=editLines.map((_,i)=>i);copiedSectionVoicings=[];copyPlacementStart=-1;resetEditorHistory();
+  editorRowOrigins=editLines.map((_,i)=>i);copiedSectionVoicings=[];copyPlacementStart=-1;resetTranspose();resetEditorHistory();
   $('capoDisplay').textContent=capo?'· capo '+capo+'. nauha':'';persist();list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
 // Ylärivin soinnut ovat tavallista tekstiä: sijainti = tekstisarakkeen numero.
 // Tallennus säilyy yhteensopivana aiempien ChordPro-kappaleiden kanssa.
@@ -1032,7 +1042,9 @@ const chordCache=new Map();
 function voicingKey(button){return button.dataset.line+':'+button.dataset.chordIndex}
 function selectedVoicing(name,button){
  const forms=ChordEngine.voicings(name),song=songs.find(s=>s.id===current);
- const saved=song?.voicings?.[voicingKey(button)];
+ const saved=transposeOffset
+   ?temporaryTransposedVoicings.get(voicingKey(button))
+   :song?.voicings?.[voicingKey(button)];
  let index=0;
  if(typeof saved==='string'){const n=forms.findIndex(f=>f.shape.join(',')===saved);if(n>=0)index=n}
  else if(typeof saved==='number'&&Number.isInteger(saved)){
@@ -1044,6 +1056,12 @@ function selectedVoicing(name,button){
  return {forms,index};
 }
 function storeVoicing(button,form){
+ if(transposeOffset){
+   // Transponoidun soinnun oteen valinta on vain väliaikainen. Älä koskaan
+   // tallenneta sitä alkuperäisen eri soinnun sormitukseksi.
+   temporaryTransposedVoicings.set(voicingKey(button),form.shape.join(','));
+   return;
+ }
  const song=songs.find(s=>s.id===current);if(!song)return;
  song.voicings ||= {};song.voicings[voicingKey(button)]=form.shape.join(',');persist();
 }
@@ -1103,8 +1121,11 @@ function renderChordPopover(){
  const name=chordPopoverTarget.dataset.chord,popup=$('chordPopover'),oldTop=popup.scrollTop;
  popup.classList.toggle('compact',!popoverExpanded);
  const {forms,index}=selectedVoicing(name,chordPopoverTarget);
+ if(transposeOffset)popoverTab='voicings';
  const head='<div class="popover-head"><span>'+safe(name)+'</span><button type="button" class="popover-close" data-popup-close aria-label="Sulje">×</button></div>'+
- '<div class="popup-tabs"><button type="button" data-tab="voicings" class="'+(popoverTab==='voicings'?'active':'')+'">Otteet</button><button type="button" data-tab="replace" class="'+(popoverTab==='replace'?'active':'')+'">⇄ Korvaa sointu</button></div>';
+ '<div class="popup-tabs"><button type="button" data-tab="voicings" class="'+(popoverTab==='voicings'?'active':'')+'">Otteet</button>'+
+ (transposeOffset?'<span class="popover-meta" style="align-self:center">Muokkaa alkuperäisiä sointuja palauttamalla transponointi</span>':
+ '<button type="button" data-tab="replace" class="'+(popoverTab==='replace'?'active':'')+'">⇄ Korvaa sointu</button>')+'</div>';
  let content='';
  if(popoverTab==='voicings'){
   if(!forms.length){
@@ -1141,7 +1162,7 @@ function renderChordSearchResults(){
  node.innerHTML=visible.map(n=>'<button type="button" class="search-choice" data-replace="'+safe(n)+'">'+safe(n)+'</button>').join('')||'<p class="popover-no-voicing">Sointumerkintää ei tunnistettu. Tarkista kirjoitusasu.</p>';
 }
 function replaceChord(name){
- if(!chordPopoverTarget||!ChordEngine.parse(name))return;
+ if(transposeOffset||!chordPopoverTarget||!ChordEngine.parse(name))return;
  const l=Number(chordPopoverTarget.dataset.line),i=Number(chordPopoverTarget.dataset.chordIndex);
  const s=songs.find(x=>x.id===current),lines=parseBody($('editor').value);
  if(!s||!lines[l]||!lines[l].chords[i])return;
@@ -1162,7 +1183,7 @@ $('chordPopover').addEventListener('mouseleave',()=>delayCloseChordPopover());
 $('chordPopover').addEventListener('click',e=>{
  const button=e.target.closest('button');if(!button)return;
  if(button.hasAttribute('data-popup-close')){closeChordPopover(true);return}
- if(button.hasAttribute('data-tab')){popoverTab=button.dataset.tab;popoverExpanded=true;chordSearch='';$('chordPopover').scrollTop=0;renderChordPopover();popoverPinned=true;return}
+ if(button.hasAttribute('data-tab')){if(transposeOffset&&button.dataset.tab==='replace')return;popoverTab=button.dataset.tab;popoverExpanded=true;chordSearch='';$('chordPopover').scrollTop=0;renderChordPopover();popoverPinned=true;return}
  if(button.hasAttribute('data-replace')){replaceChord(button.dataset.replace);return}
  if(button.hasAttribute('data-voicing-more')){visibleVoicings+=16;renderChordPopover();return}
  if(button.hasAttribute('data-open-voicings')){popoverExpanded=true;popoverPinned=true;renderChordPopover();return}
@@ -1261,6 +1282,58 @@ function wrapNotationLine(line,maxCols){
   }
   return parts;
 }
+// Sointuja muutetaan vain soittonäkymää varten. Alkuperäinen ChordPro-teksti
+// ja kappaleen tallennetut otteet pysyvät koskemattomina.
+const transposeSharpNames=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const transposeFlatNames=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const transposeNaturalPitch={C:0,D:2,E:4,F:5,G:7,A:9,B:11,H:11};
+function transposeNote(letter,accidental,steps,preferFlat){
+  const source=transposeNaturalPitch[letter];
+  if(source===undefined)return letter+accidental;
+  const semitone=accidental==='#'||accidental==='♯'?1:accidental==='b'||accidental==='♭'?-1:0;
+  const pitch=(source+semitone+steps%12+120)%12;
+  return (preferFlat?transposeFlatNames:transposeSharpNames)[pitch];
+}
+function transposeChord(name,steps){
+  if(!steps)return name;
+  const match=String(name).trim().match(/^([A-GH])([#b♯♭]?)(.*?)(?:\/([A-GH])([#b♯♭]?))?$/);
+  if(!match)return name; // Tuntematon merkintä jätetään näkyviin muuttumattomana.
+  const [,letter,accidental,suffix,bass,bassAccidental]=match;
+  const preferFlat=accidental==='b'||accidental==='♭'||
+    (!accidental&&steps<0);
+  let result=transposeNote(letter,accidental,steps,preferFlat)+suffix;
+  if(bass){
+    const bassPreferFlat=bassAccidental==='b'||bassAccidental==='♭'||(preferFlat&&!bassAccidental);
+    result+='/'+transposeNote(bass,bassAccidental,steps,bassPreferFlat);
+  }
+  return result;
+}
+function refreshTransposeControls(){
+  $('transposeValue').textContent=transposeOffset>0?'+'+transposeOffset:String(transposeOffset);
+  $('transposeDown').disabled=transposeOffset<=-12;
+  $('transposeUp').disabled=transposeOffset>=12;
+  $('transposeReset').disabled=transposeOffset===0;
+  $('transposeInfo').textContent=transposeOffset===0
+    ?'Alkuperäiset soinnut · voit muuttaa puolisävelaskelin'
+    :'Vain soittonäkymä ('+(transposeOffset>0?'+':'')+transposeOffset+' puolisävelaskelta) · tallennettu biisi ennallaan';
+}
+function changeTranspose(steps){
+  const next=Math.max(-12,Math.min(12,transposeOffset+steps));
+  if(next===transposeOffset)return;
+  transposeOffset=next;
+  temporaryTransposedVoicings.clear();
+  refreshTransposeControls();
+  preview();
+}
+function resetTranspose(){
+  transposeOffset=0;
+  temporaryTransposedVoicings.clear();
+  refreshTransposeControls();
+}
+$('transposeDown').onclick=()=>changeTranspose(-1);
+$('transposeUp').onclick=()=>changeTranspose(1);
+$('transposeReset').onclick=()=>changeTranspose(-transposeOffset);
+refreshTransposeControls();
 function preview(){
   closeChordPopover(true);
   const columns=notationColumnCount();
@@ -1273,7 +1346,10 @@ function preview(){
         safe(title||SECTION_TYPES[kind])+'</span><span class="section-heading-rule" aria-hidden="true"></span></div>';
     }
     if(!line.text&&!line.chords.length)return '<div class="notation-empty"></div>';
-    const parts=wrapNotationLine(line,columns);
+    const displayedLine=transposeOffset
+      ?{...line,chords:line.chords.map(chord=>({...chord,name:transposeChord(chord.name,transposeOffset)}))}
+      :line;
+    const parts=wrapNotationLine(displayedLine,columns);
     return parts.map((part,partIndex)=>{
       const chordMarks=part.chords.map(c=>
         `<button type="button" class="notation-chord" data-chord="${safe(c.name)}" data-line="${rowIndex}" data-chord-index="${c.index}" style="left:${c.pos}ch;top:${c.lane*24}px" aria-label="${safe(c.name)}: näytä sormitukset ja vaihda otetta">${safe(c.name)}</button>`
@@ -1293,7 +1369,7 @@ function showMode(mode){
 }
 $('songs').onclick=e=>{const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
-$('new').onclick=()=>{finderQueuedVoicings=[];current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
+$('new').onclick=()=>{resetTranspose();finderQueuedVoicings=[];current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
 $('save').onclick=save;
 $('delete').onclick=()=>{if(current)removeSong(current)};
 $('previewBtn').onclick=()=>{if(!syncRaw())return;preview();showMode('play');$('previewPanel').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -1651,5 +1727,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=37',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=38',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
