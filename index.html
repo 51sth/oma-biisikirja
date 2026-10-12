@@ -459,7 +459,7 @@ function removeSong(id){
   else list();
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
-function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;resetTranspose();finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');window.scrollTo({top:0,behavior:'instant'})}
+function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;resetTranspose();finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');$('playViewport').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'})}
 function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);
   // Säilytä tallennetut soitto-otteet vain samoille sointukohdille myös rivin poiston jälkeen.
   if(s&&s.voicings){
@@ -1500,6 +1500,9 @@ function setSidebarCollapsed(collapsed,savePreference=true){
 }
 $('sidebarToggle').onclick=()=>{
   setSidebarCollapsed(!$('songSidebar').hidden);
+  // Hiirellä nuolta painaneen välilyönti ohjaa seuraavaksi soitinta,
+  // ei aktivoi samaa nuolinappia uudelleen.
+  if(!$('previewPanel').classList.contains('hidden'))$('playViewport').focus({preventScroll:true});
 };
 try{setSidebarCollapsed(localStorage.getItem(sidebarKey)==='1',false)}
 catch{setSidebarCollapsed(false,false)}
@@ -1564,16 +1567,21 @@ function toggleAutoScroll(){
 $('scrollToggle').onclick=toggleAutoScroll;
 // Välilyönti käynnistää tai pysäyttää; + ja − muuttavat samaa nopeutta kuin
 // soittonäkymän liukusäädin. Ei pikanäppäimiä editorissa tai kenttiä muokatessa.
-function isPlaybackShortcutTarget(target){
+function isPlaybackShortcutTarget(target,forSpeed=false){
   if(!target||target.isContentEditable)return false;
-  return !target.closest?.('input,textarea,select,button,a,summary,[contenteditable],[role="button"],[role="slider"],[role="combobox"],[role="textbox"]');
+  // + ja − toimivat myös käynnistyspainikkeen klikkauksen jälkeen. Välilyönti
+  // taas jätetään painikkeelle, jotta se voi tehdä normaalin klikkaustoiminnon.
+  const excluded='input,textarea,select,a,summary,[contenteditable],[role="slider"],[role="combobox"],[role="textbox"]';
+  return !target.closest?.(forSpeed?excluded:excluded+',button,[role="button"]');
 }
 document.addEventListener('keydown',e=>{
   if($('previewPanel').classList.contains('hidden')||e.ctrlKey||e.metaKey||e.altKey||
-     e.isComposing||!isPlaybackShortcutTarget(e.target))return;
+     e.isComposing)return;
   const space=e.code==='Space'||e.key===' '||e.key==='Spacebar';
   const faster=e.key==='+'||e.code==='NumpadAdd';
   const slower=e.key==='-'||e.key==='−'||e.code==='NumpadSubtract';
+  if(space&&!isPlaybackShortcutTarget(e.target,false))return;
+  if((faster||slower)&&!isPlaybackShortcutTarget(e.target,true))return;
   if(space){
     e.preventDefault(); // Älä samalla vieritä sivua välilyönnillä.
     if(!e.repeat)toggleAutoScroll();
@@ -1882,5 +1890,5 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=40',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=41',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 </script></body></html>
