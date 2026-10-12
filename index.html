@@ -1294,7 +1294,7 @@ const transposeSharpNames=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 const transposeFlatNames=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 const transposeNaturalPitch={C:0,D:2,E:4,F:5,G:7,A:9,B:11,H:11};
 function transposeNote(letter,accidental,steps,preferFlat){
-  const source=transposeNaturalPitch[letter];
+  const source=transposeNaturalPitch[String(letter).toUpperCase()];
   if(source===undefined)return letter+accidental;
   const semitone=accidental==='#'||accidental==='♯'?1:accidental==='b'||accidental==='♭'?-1:0;
   const pitch=(source+semitone+steps%12+120)%12;
@@ -1302,7 +1302,7 @@ function transposeNote(letter,accidental,steps,preferFlat){
 }
 function transposeChord(name,steps){
   if(!steps)return name;
-  const match=String(name).trim().match(/^([A-GH])([#b♯♭]?)(.*?)(?:\/([A-GH])([#b♯♭]?))?$/);
+  const match=String(name).trim().match(/^([A-GHa-gh])([#b♯♭]?)(.*?)(?:\/([A-GHa-gh])([#b♯♭]?))?$/);
   if(!match)return name; // Tuntematon merkintä jätetään näkyviin muuttumattomana.
   const [,letter,accidental,suffix,bass,bassAccidental]=match;
   const preferFlat=accidental==='b'||accidental==='♭'||
