@@ -1912,7 +1912,8 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-// Preview does not register the production service worker.showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js?v=42',{updateViaCache:'none'}).catch(console.error);
+showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 window.bkGetSongs=()=>songs;
 window.bkSetSongs=value=>{songs=Array.isArray(value)?value:[];current=null;list();if(songs.length)openSong(songs[0].id);else $('new').click();};
 </script></div><script type="module" src="./private-library.js?v=verification-status3"></script></body></html>
