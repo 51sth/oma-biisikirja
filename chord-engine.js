@@ -135,6 +135,26 @@ function voicings(name){
  const list=[...results.values()].sort((a,b)=>a.rank-b.rank||a.shape.join().localeCompare(b.shape.join()));
  cache.set(name,list);return list;
 }
+// Heuristic movement cost: this is not a fingering prescription.
+// It considers fret-hand position, matching notes on strings and stretch.
+function transitionCost(from,to){
+ if(!Array.isArray(from)||!Array.isArray(to)||from.length!==6||to.length!==6)return Infinity;
+ const validShape=s=>s.every(n=>Number.isInteger(n)&&n>=-1&&n<=15);
+ if(!validShape(from)||!validShape(to))return Infinity;
+ const fretted=s=>s.filter(n=>n>0);
+ const pos=s=>{const f=fretted(s);return f.length?Math.min(...f):0};
+ const a=pos(from),b=pos(to);
+ let changes=0,travel=0,held=0;
+ for(let i=0;i<6;i++){
+  if(from[i]===to[i]){if(from[i]>0)held++;continue}
+  changes++;
+  if(from[i]>0&&to[i]>0)travel+=Math.abs(from[i]-to[i])*.32;
+ }
+ const current=fingeringCost(to);
+ const span=fretted(to);
+ const stretch=span.length?Math.max(...span)-Math.min(...span):0;
+ return Number((Math.abs(a-b)*2.8+changes*.85+travel+Math.max(0,stretch-2)*.5+current.barres*.5-held*.35).toFixed(2));
+}
 function sameTones(a,b){return a.filter(n=>b.includes(n)).length}
 const canonicalSharps=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const canonicalFlats=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
@@ -215,5 +235,5 @@ function searchNames(query){
  for(const root of rootNames)for(const quality of ['','m','7','maj7','m7','sus2','sus4','7sus4','add9','add11','madd11','7add11','maj7add11','m7add11','7add13','maj7add13','6','m6','9','maj9','m9','dim','dim7','m7b5','aug','5']){const n=root+quality;if(!q||n.toLowerCase().includes(q.toLowerCase()))names.push(n)}
  return names.slice(0,120);
 }
-global.ChordEngine={parse,valid,voicings,pitches,score,inferKey,substitutions,searchNames,noteName,fingeringCost,qualities:Object.keys(types)};
+global.ChordEngine={parse,valid,voicings,pitches,score,inferKey,substitutions,searchNames,noteName,fingeringCost,transitionCost,qualities:Object.keys(types)};
 })(window);
