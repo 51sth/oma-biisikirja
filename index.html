@@ -1260,6 +1260,11 @@ function fullFretboardSvg(name,shape){
  // Tumma ruusupuu: tekstuuri piirretään suoraan SVG:hen.
  lines.push('<defs><linearGradient id="rosewood" x1="0" y1="0" x2="0.15" y2="1"><stop offset="0" stop-color="#4e2920"/><stop offset=".46" stop-color="#713d2b"/><stop offset="1" stop-color="#321a18"/></linearGradient><linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#ac977e"/><stop offset=".45" stop-color="#f5e4c8"/><stop offset="1" stop-color="#9b866d"/></linearGradient></defs>');
  lines.push('<rect x="'+left+'" y="'+(top-14)+'" width="'+(w-right-left)+'" height="'+(5*row+28)+'" rx="8" fill="url(#rosewood)" stroke="#301b17" stroke-width="3"/>');
+ // Erottele jokainen nauhaväli puun pinnasta, jotta rajat näkyvät myös pienessä paneelissa.
+ for(let fret=1;fret<=fretboardRange;fret++){
+  const x=fretX(fret-1),width=fretX(fret)-x;
+  lines.push('<rect x="'+(x+2)+'" y="'+(top-12)+'" width="'+Math.max(0,width-4)+'" height="'+(5*row+24)+'" fill="'+(fret%2?'#f3c393':'#160c09')+'" opacity="'+(fret%2?'.08':'.12')+'"/>');
+ }
  for(let g=0;g<21;g++){const gy=top-10+g*8.5;lines.push('<path d="M'+(left+3)+' '+gy+' Q'+(left+160)+' '+(gy+(g%3-1)*5)+' '+(left+350)+' '+gy+' T'+(w-right-3)+' '+(gy+2)+'" fill="none" stroke="'+(g%2?'#b46d4b':'#1a0f11')+'" stroke-opacity=".20" stroke-width="'+(g%4===0?2:1)+'"/>');}
  for(const fret of [3,5,7,9,12,15])if(fret<=fretboardRange){
    const x=centerX(fret);
@@ -1271,7 +1276,8 @@ function fullFretboardSvg(name,shape){
  }
  for(let fret=0;fret<=fretboardRange;fret++){
   const x=fretX(fret);
-  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="url(#metal)" stroke-width="'+(fret===0?6:2.4)+'"/>');
+  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="#160d0b" stroke-width="'+(fret===0?9:6)+'"/>');
+  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="#f8dfb6" stroke-width="'+(fret===0?5:3.4)+'"/>');
   lines.push('<text x="'+(centerX(fret))+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
  }
  for(let i=0;i<6;i++)for(let fret=0;fret<=fretboardRange;fret++){
