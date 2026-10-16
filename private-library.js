@@ -14,7 +14,7 @@ const check=document.getElementById('accountCheck');
 const verifyLogout=document.getElementById('accountVerifyLogout');
 const localKey='oma-biisikirja-v1';
 const validConfig=!!(firebaseConfig.apiKey&&firebaseConfig.authDomain&&firebaseConfig.projectId&&firebaseConfig.appId);
-let auth,db,uid=null,docRef=null,writeQueue=Promise.resolve(),cloudSongs=[];
+let auth,db,uid=null,docRef=null,writeQueue=Promise.resolve(),cloudSongs=[],registering=false;
 const info=s=>{status.textContent=s;};
 const showLoading=()=>{loading.hidden=false;box.hidden=true;app.hidden=true;};
 const showLogin=(verification=false)=>{loading.hidden=true;box.hidden=false;app.hidden=true;verifyBox.hidden=!verification;login.hidden=register.hidden=reset.hidden=verification;document.getElementById('accountEmail').disabled=verification;document.getElementById('accountPassword').disabled=verification;};
@@ -36,7 +36,7 @@ if(!validConfig){
     const email=()=>document.getElementById('accountEmail').value.trim();
     const password=()=>document.getElementById('accountPassword').value;
     login.onclick=async()=>{try{info('Kirjaudutaan…');await signInWithEmailAndPassword(auth,email(),password());}catch(e){info('Kirjautuminen epäonnistui: '+e.message);}};
-    register.onclick=async()=>{try{info('Luodaan tunnusta…');const credential=await createUserWithEmailAndPassword(auth,email(),password());await sendEmailVerification(credential.user);info('Vahvistusviesti lähetetty. Avaa sähköpostissa oleva linkki ja palaa sen jälkeen tänne.');showLogin(true);}catch(e){info('Tunnuksen luonti tai vahvistusviestin lähetys epäonnistui: '+e.message);}};
+    register.onclick=async()=>{registering=true;register.disabled=true;try{info('Luodaan tunnusta…');const credential=await createUserWithEmailAndPassword(auth,email(),password());showLogin(true);info('Tunnus luotu. Lähetetään vahvistusviestiä…');await sendEmailVerification(credential.user);info('Vahvistusviesti lähetetty. Avaa sähköpostissa oleva linkki ja palaa sen jälkeen tänne.');}catch(e){info('Tunnuksen luonti tai vahvistusviestin lähetys epäonnistui: '+e.message);if(auth.currentUser)showLogin(true);else showLogin();}finally{registering=false;register.disabled=false;}};
     reset.onclick=async()=>{const address=email();if(!address){info('Kirjoita ensin sähköpostiosoitteesi.');return;}try{await sendPasswordResetEmail(auth,address);info('Jos osoitteella on käyttäjätili, saat sähköpostiin salasanan palautusohjeen. Tarkista myös roskaposti.');}catch(e){info('Palautusviestin lähetys epäonnistui: '+e.message);}};
     resend.onclick=async()=>{try{if(!auth.currentUser)throw Error('Kirjaudu ensin sisään.');await sendEmailVerification(auth.currentUser);info('Vahvistusviesti lähetetty. Tarkista myös roskaposti.');}catch(e){info('Vahvistusviestin lähetys epäonnistui: '+e.message);}};
     check.onclick=async()=>{try{if(!auth.currentUser)throw Error('Kirjaudu ensin sisään.');await auth.currentUser.reload();if(!auth.currentUser.emailVerified){info('Sähköpostiosoitetta ei ole vielä vahvistettu. Avaa sähköpostiin tullut linkki.');return;}await auth.currentUser.getIdToken(true);info('Sähköpostiosoite vahvistettu. Avataan kirjasto…');await openCloudLibrary(auth.currentUser);}catch(e){info('Vahvistuksen tarkistus epäonnistui: '+e.message);}};
@@ -86,6 +86,7 @@ if(!validConfig){
       }catch(e){info('Kirjaston avaaminen epäonnistui: '+e.message);showLogin();console.error(e);}
     }
     onAuthStateChanged(auth,async user=>{
+      if(registering)return;
       showLoading();uid=null;docRef=null;window.bkSetSongs([]);
       if(!user){info('Kirjaudu sisään tai luo oma käyttäjätili.');showLogin();return;}
       await openCloudLibrary(user);
