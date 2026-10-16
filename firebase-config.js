@@ -1,9 +1,8 @@
-// Copy your Firebase web app configuration here from Firebase console.
-// Firebase API key is a public client identifier, NOT a secret.
-// Firestore security rules are what protect private songs.
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  appId: ""
+  apiKey: "AIzaSyC3b_-jiNs5NUJnGX80SXnvh5nBE6HE9fM",
+  authDomain: "oma-biisikirja.firebaseapp.com",
+  projectId: "oma-biisikirja",
+  appId: "1:293480314904:web:2a369ce4aeba82e0aeeb6d",
+  storageBucket: "oma-biisikirja.firebasestorage.app",
+  messagingSenderId: "293480314904"
 };
