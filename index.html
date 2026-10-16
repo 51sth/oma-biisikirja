@@ -289,35 +289,7 @@ const K='oma-biisikirja-v1', $=x=>document.getElementById(x);
 const EMPTY_BASE_FLAG='oma-biisikirja-tyhja-pohja-v38';
 const ARCHIVE_KEY='oma-biisikirja-talteen-ennen-tyhjennysta-v38';
 let songs=[],emptyBaseNotice='';
-try{
-  const parsed=JSON.parse(localStorage.getItem(K)||'[]');
-  songs=Array.isArray(parsed)?parsed:[];
-  // Tyhjennetään vanha selainkohtainen kirjasto kerran. Ennen tyhjentämistä
-  // tallennetaan jokainen kappale, sointu ja sormitus erilliseen palautuskopioon.
-  // Älä koskaan poista olemassa olevia kappaleita ilman onnistunutta arkistointia.
-  if(localStorage.getItem(EMPTY_BASE_FLAG)!=='yes'){
-    if(songs.length){
-      const snapshot=JSON.stringify(songs);
-      const previous=localStorage.getItem(ARCHIVE_KEY);
-      if(previous&&previous!==snapshot){
-        emptyBaseNotice='Tyhjennys keskeytettiin: aiempi palautuskopio poikkeaa nykyisestä kirjastosta. Biisejä ei poistettu.';
-      }else{
-        if(!previous)localStorage.setItem(ARCHIVE_KEY,snapshot);
-        if(localStorage.getItem(ARCHIVE_KEY)!==snapshot)throw Error('Palautuskopion tallennus epäonnistui');
-        localStorage.setItem(K,'[]');
-        if(localStorage.getItem(K)!=='[]')throw Error('Tyhjän kirjaston tallennus epäonnistui');
-        songs=[];
-        localStorage.setItem(EMPTY_BASE_FLAG,'yes');
-        emptyBaseNotice='Kappaleluettelo tyhjennettiin kerran. Vanhat kappaleet ovat palautettavissa alta.';
-      }
-    }else{
-      localStorage.setItem(EMPTY_BASE_FLAG,'yes');
-    }
-  }
-}catch(error){
-  emptyBaseNotice='Kappaleiden turvallinen tyhjennys ei onnistunut ('+(error?.message||'tallennusvirhe')+'). Vanhoja kappaleita ei tarkoituksella poisteta ilman palautuskopiota.';
-  console.error(error);
-}
+// Account preview never clears, migrates or rewrites browser-stored songs.
 let current=null;let editLines=[],editorRowOrigins=[],cursor={line:0,pos:0},selectedChord=null;
 let editorHistory=[],editorHistoryIndex=-1,editorHistoryTyping=null,lastEditorRow=-1;
 // Tyhjä peruskirjasto: kappaleita ei toimiteta sovelluksen mukana.
@@ -1899,7 +1871,7 @@ $('importSelected').onclick=()=>{
     alert(status.textContent);
   }
 };
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=41',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
+// Preview does not register the production service worker.showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
 window.bkGetSongs=()=>songs;
 window.bkSetSongs=value=>{songs=Array.isArray(value)?value:[];current=null;list();if(songs.length)openSong(songs[0].id);else $('new').click();};
 </script></div><script type="module" src="./private-library.js"></script></body></html>
