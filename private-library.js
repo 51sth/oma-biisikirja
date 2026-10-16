@@ -7,12 +7,17 @@ const login=document.getElementById('accountLogin');
 const register=document.getElementById('accountRegister');
 const logout=document.getElementById('accountLogout');
 const importButton=document.getElementById('accountImport');
+const verifyBox=document.getElementById('accountVerify');
+const reset=document.getElementById('accountReset');
+const resend=document.getElementById('accountResend');
+const check=document.getElementById('accountCheck');
+const verifyLogout=document.getElementById('accountVerifyLogout');
 const localKey='oma-biisikirja-v1';
 const validConfig=!!(firebaseConfig.apiKey&&firebaseConfig.authDomain&&firebaseConfig.projectId&&firebaseConfig.appId);
 let auth,db,uid=null,docRef=null,writeQueue=Promise.resolve(),cloudSongs=[];
 const info=s=>{status.textContent=s;};
 const showLoading=()=>{loading.hidden=false;box.hidden=true;app.hidden=true;};
-const showLogin=()=>{loading.hidden=true;box.hidden=false;app.hidden=true;};
+const showLogin=(verification=false)=>{loading.hidden=true;box.hidden=false;app.hidden=true;verifyBox.hidden=!verification;login.hidden=register.hidden=reset.hidden=verification;document.getElementById('accountEmail').disabled=verification;document.getElementById('accountPassword').disabled=verification;};
 const showApp=()=>{loading.hidden=true;box.hidden=true;app.hidden=false;};
 showLoading();
 if(!validConfig){
@@ -21,7 +26,7 @@ if(!validConfig){
   showLogin();
 }else{
   try{
-    const [{initializeApp},{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut},{getFirestore,doc,getDoc,setDoc,serverTimestamp}]=await Promise.all([
+    const [{initializeApp},{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail},{getFirestore,doc,getDoc,setDoc,serverTimestamp}]=await Promise.all([
       import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'),
       import('https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js')
@@ -31,7 +36,11 @@ if(!validConfig){
     const email=()=>document.getElementById('accountEmail').value.trim();
     const password=()=>document.getElementById('accountPassword').value;
     login.onclick=async()=>{try{info('Kirjaudutaan…');await signInWithEmailAndPassword(auth,email(),password());}catch(e){info('Kirjautuminen epäonnistui: '+e.message);}};
-    register.onclick=async()=>{try{info('Luodaan tunnusta…');await createUserWithEmailAndPassword(auth,email(),password());}catch(e){info('Tunnuksen luonti epäonnistui: '+e.message);}};
+    register.onclick=async()=>{try{info('Luodaan tunnusta…');const credential=await createUserWithEmailAndPassword(auth,email(),password());await sendEmailVerification(credential.user);info('Vahvistusviesti lähetetty. Avaa sähköpostissa oleva linkki ja palaa sen jälkeen tänne.');showLogin(true);}catch(e){info('Tunnuksen luonti tai vahvistusviestin lähetys epäonnistui: '+e.message);}};
+    reset.onclick=async()=>{const address=email();if(!address){info('Kirjoita ensin sähköpostiosoitteesi.');return;}try{await sendPasswordResetEmail(auth,address);info('Jos osoitteella on käyttäjätili, saat sähköpostiin salasanan palautusohjeen. Tarkista myös roskaposti.');}catch(e){info('Palautusviestin lähetys epäonnistui: '+e.message);}};
+    resend.onclick=async()=>{try{if(!auth.currentUser)throw Error('Kirjaudu ensin sisään.');await sendEmailVerification(auth.currentUser);info('Vahvistusviesti lähetetty. Tarkista myös roskaposti.');}catch(e){info('Vahvistusviestin lähetys epäonnistui: '+e.message);}};
+    check.onclick=async()=>{try{if(!auth.currentUser)throw Error('Kirjaudu ensin sisään.');await auth.currentUser.reload();if(!auth.currentUser.emailVerified){info('Sähköpostiosoitetta ei ole vielä vahvistettu. Avaa sähköpostiin tullut linkki.');return;}info('Sähköpostiosoite vahvistettu. Avataan kirjasto…');await openCloudLibrary(auth.currentUser);}catch(e){info('Vahvistuksen tarkistus epäonnistui: '+e.message);}};
+    verifyLogout.onclick=async()=>{showLoading();await signOut(auth);};
     logout.onclick=async()=>{showLoading();await signOut(auth);};
     window.bkCloudPersist=()=>{
       if(!uid||!docRef)throw new Error('Kirjaudu sisään ennen tallentamista.');
@@ -58,9 +67,9 @@ if(!validConfig){
       await window.bkCloudPersist();
       info('Paikalliset kappaleet yhdistetty pilvikirjastoon. Selaimen alkuperäisiä tietoja ei poistettu.');
     };
-    onAuthStateChanged(auth,async user=>{
-      showLoading();uid=null;docRef=null;window.bkSetSongs([]);
-      if(!user){info('Kirjaudu sisään tai luo oma käyttäjätili.');showLogin();return;}
+    async function openCloudLibrary(user){
+      if(!user.emailVerified){info('Sähköpostiosoitettasi ei ole vielä vahvistettu. Vahvista osoite sähköpostiin lähetetyn linkin kautta.');showLogin(true);return;}
+      showLoading();
       try{
         info('Avataan yksityistä kappalekirjastoa…');
         const target=doc(db,'users',user.uid,'private','library');
@@ -73,6 +82,11 @@ if(!validConfig){
         document.getElementById('accountSync').textContent='Yksityinen pilvikirjasto';
         showApp();
       }catch(e){info('Kirjaston avaaminen epäonnistui: '+e.message);showLogin();console.error(e);}
+    }
+    onAuthStateChanged(auth,async user=>{
+      showLoading();uid=null;docRef=null;window.bkSetSongs([]);
+      if(!user){info('Kirjaudu sisään tai luo oma käyttäjätili.');showLogin();return;}
+      await openCloudLibrary(user);
     });
   }catch(e){info('Firebase-yhteys epäonnistui: '+e.message);showLogin();}
 }
