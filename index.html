@@ -1233,13 +1233,21 @@ function fullFretboardSvg(name,shape){
  const allowed=new Set(chord.tones.map(n=>(chord.root+n)%12));
  const w=780,left=60,right=18,step=(w-left-right)/fretboardRange,top=38,row=32,h=top+5*row+44;
  const lines=[];
+ // Tumma ruusupuu: tekstuuri piirretään suoraan SVG:hen.
+ lines.push('<defs><linearGradient id="rosewood" x1="0" y1="0" x2="0.15" y2="1"><stop offset="0" stop-color="#4e2920"/><stop offset=".46" stop-color="#713d2b"/><stop offset="1" stop-color="#321a18"/></linearGradient><linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#ac977e"/><stop offset=".45" stop-color="#f5e4c8"/><stop offset="1" stop-color="#9b866d"/></linearGradient></defs>');
+ lines.push('<rect x="'+left+'" y="'+(top-14)+'" width="'+(w-right-left)+'" height="'+(5*row+28)+'" rx="8" fill="url(#rosewood)" stroke="#301b17" stroke-width="3"/>');
+ for(let g=0;g<21;g++){const gy=top-10+g*8.5;lines.push('<path d="M'+(left+3)+' '+gy+' Q'+(left+160)+' '+(gy+(g%3-1)*5)+' '+(left+350)+' '+gy+' T'+(w-right-3)+' '+(gy+2)+'" fill="none" stroke="'+(g%2?'#b46d4b':'#1a0f11')+'" stroke-opacity=".20" stroke-width="'+(g%4===0?2:1)+'"/>');}
+ for(const fret of [3,5,7,9,12,15])if(fret<=fretboardRange){
+   const x=left+(fret-.5)*step;
+   lines.push('<circle cx="'+x+'" cy="'+(top+2.5*row)+'" r="5.5" fill="#d6b7a0" opacity=".55"/>');
+ }
  for(let i=0;i<6;i++){
-  const y=top+i*row;lines.push('<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#87988d" stroke-width="'+(2.4-i*.23)+'"/>');
+  const y=top+i*row;lines.push('<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#e4d4bf" stroke-width="'+(2.4-i*.23)+'"/>');
   lines.push('<text x="19" y="'+(y+4)+'" font-size="13" fill="currentColor">'+['E','A','D','G','H','e'][i]+'</text>');
  }
  for(let fret=0;fret<=fretboardRange;fret++){
   const x=left+fret*step;
-  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="#9aa9a0" stroke-width="'+(fret===0?4:1)+'"/>');
+  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="url(#metal)" stroke-width="'+(fret===0?4:1)+'"/>');
   lines.push('<text x="'+(fret===0?left-25:x-step/2)+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
  }
  for(let i=0;i<6;i++)for(let fret=0;fret<=fretboardRange;fret++){
@@ -1249,8 +1257,8 @@ function fullFretboardSvg(name,shape){
   if(fretboardView==='roots'&&note!==chord.root)continue;
   const x=fret===0?left-25:left+(fret-.5)*step,y=top+i*row;
   const isRoot=note===chord.root;
-  const fill=picked?'#e5a72d':isRoot?'#087c55':'#dceee3';
-  const fg=picked||isRoot?'#fff':'#214b39';
+  const fill=picked?'#f4b43f':isRoot?'#287d61':'#e5efdb';
+  const fg=picked||isRoot?'#fff':'#1f513e';
   lines.push('<circle cx="'+x+'" cy="'+y+'" r="'+(picked?13:11)+'" fill="'+fill+'" stroke="'+(picked?'#7a4811':'#45836a')+'" stroke-width="'+(picked?2.5:1)+'"/>');
   lines.push('<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+fg+'">'+safe(names[note])+'</text>');
  }
@@ -1307,7 +1315,7 @@ function renderChordPopover(){
     content+='<div class="popover-meta">Keltainen = valittu ote · Vihreä = pohjasävel · Vaalea = muu soinnun sävel</div>'+
     '<div class="row"><label>Nauhat <select id="fretboardRange"><option value="12" '+(fretboardRange===12?'selected':'')+'>0–12</option><option value="15" '+(fretboardRange===15?'selected':'')+'>0–15</option></select></label>'+
     '<label>Näkymä <select id="fretboardView">'+[['all','Kaikki soinnun sävelet'],['selected','Vain valittu ote'],['roots','Vain pohjasävelet']].map(([value,label])=>'<option value="'+value+'" '+(fretboardView===value?'selected':'')+'>'+label+'</option>').join('')+'</select></label></div>'+
-    '<div class="full-neck" style="border:1px solid #c8ddd0;border-radius:10px;padding:8px;background:#f8fcf9">'+fullFretboardSvg(name,forms[index].shape)+'</div>';
+    '<div class="full-neck" style="border:1px solid #bca494;border-radius:10px;padding:8px;background:#f4ece2">'+fullFretboardSvg(name,forms[index].shape)+'</div>';
    }
    if(!shortlist.some(f=>f.seed))content+='<p class="popover-note">Tälle soinnulle ei ole käsin määriteltyjä perusotteita. Näytetään rajattu määrä säveliltään tarkistettuja ehdokkaita.</p>';
 
