@@ -1,5 +1,6 @@
 import {firebaseConfig} from './firebase-config.js';
 const box=document.getElementById('accountGate');
+const loading=document.getElementById('accountLoading');
 const status=document.getElementById('accountStatus');
 const app=document.getElementById('appShell');
 const login=document.getElementById('accountLogin');
@@ -10,11 +11,14 @@ const localKey='oma-biisikirja-v1';
 const validConfig=!!(firebaseConfig.apiKey&&firebaseConfig.authDomain&&firebaseConfig.projectId&&firebaseConfig.appId);
 let auth,db,uid=null,docRef=null,writeQueue=Promise.resolve(),cloudSongs=[];
 const info=s=>{status.textContent=s;};
-const showApp=ok=>{box.hidden=ok;app.hidden=!ok;};
-showApp(false);
+const showLoading=()=>{loading.hidden=false;box.hidden=true;app.hidden=true;};
+const showLogin=()=>{loading.hidden=true;box.hidden=false;app.hidden=true;};
+const showApp=()=>{loading.hidden=true;box.hidden=true;app.hidden=false;};
+showLoading();
 if(!validConfig){
   info('Kirjautuminen odottaa Firebase-asetuksia. Nykyinen julkaistu sovellus toimii normaalisti.');
   login.disabled=register.disabled=true;
+  showLogin();
 }else{
   try{
     const [{initializeApp},{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut},{getFirestore,doc,getDoc,setDoc,serverTimestamp}]=await Promise.all([
@@ -28,7 +32,7 @@ if(!validConfig){
     const password=()=>document.getElementById('accountPassword').value;
     login.onclick=async()=>{try{info('Kirjaudutaan…');await signInWithEmailAndPassword(auth,email(),password());}catch(e){info('Kirjautuminen epäonnistui: '+e.message);}};
     register.onclick=async()=>{try{info('Luodaan tunnusta…');await createUserWithEmailAndPassword(auth,email(),password());}catch(e){info('Tunnuksen luonti epäonnistui: '+e.message);}};
-    logout.onclick=async()=>{showApp(false);await signOut(auth);};
+    logout.onclick=async()=>{showLoading();await signOut(auth);};
     window.bkCloudPersist=()=>{
       if(!uid||!docRef)throw new Error('Kirjaudu sisään ennen tallentamista.');
       const snapshot=JSON.parse(JSON.stringify(window.bkGetSongs()));
@@ -55,8 +59,8 @@ if(!validConfig){
       info('Paikalliset kappaleet yhdistetty pilvikirjastoon. Selaimen alkuperäisiä tietoja ei poistettu.');
     };
     onAuthStateChanged(auth,async user=>{
-      showApp(false);uid=null;docRef=null;window.bkSetSongs([]);
-      if(!user){info('Kirjaudu sisään tai luo oma käyttäjätili.');return;}
+      showLoading();uid=null;docRef=null;window.bkSetSongs([]);
+      if(!user){info('Kirjaudu sisään tai luo oma käyttäjätili.');showLogin();return;}
       try{
         info('Avataan yksityistä kappalekirjastoa…');
         const target=doc(db,'users',user.uid,'private','library');
@@ -67,8 +71,8 @@ if(!validConfig){
         window.bkSetSongs(cloudSongs);
         document.getElementById('accountIdentity').textContent=user.email||'Oma käyttäjätili';
         document.getElementById('accountSync').textContent='Yksityinen pilvikirjasto';
-        showApp(true);
-      }catch(e){info('Kirjaston avaaminen epäonnistui: '+e.message);console.error(e);}
+        showApp();
+      }catch(e){info('Kirjaston avaaminen epäonnistui: '+e.message);showLogin();console.error(e);}
     });
-  }catch(e){info('Firebase-yhteys epäonnistui: '+e.message);}
+  }catch(e){info('Firebase-yhteys epäonnistui: '+e.message);showLogin();}
 }
