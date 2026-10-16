@@ -311,6 +311,35 @@ header{background:#102227;border-bottom:1px solid #35514e}
 #previewPanel .transpose-bar,#previewPanel .scrollbar{background:#23383e!important;border:1px solid #345057!important;box-shadow:none!important}
 #previewPanel .play-header h2{color:#f1f6f4}
 @media(max-width:800px){.play-type-controls{gap:8px;padding:9px}.play-type-controls label{flex-basis:100%}}
+
+/* Studio Dark: viimeistelty esitysnäkymä ja suosikit */
+body{background:#0f171b!important;color:#e7f0ec}
+header{background:#101b21!important;border-bottom:1px solid #2d4046!important}
+.panel{background:#162127!important;border-color:#2d4046!important;color:#e7f0ec!important}
+#previewPanel{background:#162127!important}
+#songSidebar{background:#162127!important}
+.song-entry .song{background:#1d3035!important;color:#edf5f1!important;border:0!important}
+.song-entry .song.active{background:#254d47!important;color:#fff!important}
+.song-favorite{flex:0 0 29px;align-self:center;border:0;background:transparent!important;color:#8aa09b!important;font-size:24px;line-height:1;padding:3px 0;margin:0;cursor:pointer}
+.song-favorite:hover,.song-favorite.is-favorite{color:#f0c46b!important}
+.song-favorite:focus-visible{outline:2px solid #f0c46b}
+.song-drag{background:#24373b!important;color:#a6c6b7!important;border-color:#354d50!important}
+#preview .notation-line{font-family:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace!important;letter-spacing:0!important}
+#preview .notation-chords,#preview .notation-lyrics{font-family:inherit!important;letter-spacing:0!important}
+#preview .notation-chord{
+  font-family:inherit!important;
+  font-size:var(--chords-font-size)!important;
+  /* ch-sijaintien mittayksikkö lukitaan sanoitusten kirjasinkokoon */
+  left:calc(var(--chord-position,0) * var(--lyric-character-width,9.63px))!important;
+  color:#f0c46b!important;
+  background:transparent!important;
+}
+#preview .song-section-heading{background:#1b3034!important;color:#80cba7!important;border-color:#347b67!important}
+.play-type-controls{background:#1b2a31!important;border-color:#2d4046!important}
+.play-type-controls input{accent-color:#2f9d79!important}
+#previewPanel .transpose-bar,#previewPanel .scrollbar{background:#1b2a31!important;border-color:#2d4046!important}
+.chord-popover{background:#162127!important;border-color:#2d4046!important}
+.voicing-choice{background:#1e3036!important}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -379,7 +408,7 @@ function persist(){if(window.bkCloudPersist){window.bkCloudPersist();return;}loc
 function list(){
   const q=$('search').value.toLowerCase();
   $('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>
-    `<div class="song-entry" role="listitem" data-song-entry="${safe(s.id)}"><span class="song-drag" draggable="true" role="button" tabindex="0" data-song-drag="${safe(s.id)}" title="Vedä kappale toiseen kohtaan tai siirrä nuolinäppäimillä" aria-label="Siirrä kappaletta ${safe(s.title)} nuolinäppäimillä tai hiirellä">⠿</span><button type="button" class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}" data-song-drag="${safe(s.id)}" draggable="true">${safe(s.title)}</button><button type="button" class="song-remove" data-remove-song="${safe(s.id)}" title="Poista kappale" aria-label="Poista kappale ${safe(s.title)}">×</button></div>`
+    `<div class="song-entry" role="listitem" data-song-entry="${safe(s.id)}"><button type="button" class="song-favorite ${s.favorite?'is-favorite':''}" data-favorite-song="${safe(s.id)}" aria-pressed="${Boolean(s.favorite)}" aria-label="${s.favorite?'Poista suosikeista':'Lisää suosikkeihin'}: ${safe(s.title)}" title="${s.favorite?'Poista suosikeista':'Lisää suosikkeihin'}">${s.favorite?'★':'☆'}</button><span class="song-drag" draggable="true" role="button" tabindex="0" data-song-drag="${safe(s.id)}" title="Vedä kappale toiseen kohtaan tai siirrä nuolinäppäimillä" aria-label="Siirrä kappaletta ${safe(s.title)} nuolinäppäimillä tai hiirellä">⠿</span><button type="button" class="song ${s.id===current?'active':''}" data-id="${safe(s.id)}" data-song-drag="${safe(s.id)}" draggable="true">${safe(s.title)}</button><button type="button" class="song-remove" data-remove-song="${safe(s.id)}" title="Poista kappale" aria-label="Poista kappale ${safe(s.title)}">×</button></div>`
   ).join('')||'<small>Ei kappaleita. Aloita lisäämällä uusi kappale tai tuo varmuuskopio.</small>';
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
@@ -1475,9 +1504,10 @@ function notationColumnCount(){
   const viewport=$('playViewport');
   if(!viewport||viewport.clientWidth<80)return 48;
   const sample=document.createElement('span');
-  sample.className='notation-measure';sample.textContent='0000000000';
+  sample.className='notation-measure';sample.style.fontSize=getComputedStyle(document.documentElement).getPropertyValue('--lyrics-font-size').trim()||'16px';sample.textContent='0000000000';
   viewport.appendChild(sample);
   const charWidth=sample.getBoundingClientRect().width/10||9.05;
+  document.documentElement.style.setProperty('--lyric-character-width',charWidth+'px');
   sample.remove();
   const style=window.getComputedStyle(viewport);
   const padding=(parseFloat(style.paddingLeft)||0)+(parseFloat(style.paddingRight)||0);
@@ -1663,7 +1693,7 @@ function preview(){
     const parts=wrapNotationLine(displayedLine,columns);
     return parts.map((part,partIndex)=>{
       const chordMarks=part.chords.map(c=>
-        `<button type="button" class="notation-chord" data-chord="${safe(c.name)}" data-line="${rowIndex}" data-chord-index="${c.index}" style="left:${c.pos}ch;top:calc(${c.lane} * var(--chord-lane-size))" aria-label="${safe(c.name)}: näytä sormitukset ja vaihda otetta">${safe(c.name)}</button>`
+        `<button type="button" class="notation-chord" data-chord="${safe(c.name)}" data-line="${rowIndex}" data-chord-index="${c.index}" style="--chord-position:${c.pos};top:calc(${c.lane} * var(--chord-lane-size))" aria-label="${safe(c.name)}: näytä sormitukset ja vaihda otetta">${safe(c.name)}</button>`
       ).join('');
       const className='notation-line'+(partIndex>0?' continuation':'')+
         (partIndex<parts.length-1?' wrapped-before-next':'')+
@@ -1697,7 +1727,7 @@ function showMode(mode){
   $('previewPanel').classList.toggle('hidden',mode==='edit');
   if(mode==='play')preview();
 }
-$('songs').onclick=e=>{const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
+$('songs').onclick=e=>{const fav=e.target.closest('[data-favorite-song]');if(fav){const song=songs.find(x=>x.id===fav.dataset.favoriteSong);if(song){song.favorite=!Boolean(song.favorite);persist();list()}return;}const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
 $('new').onclick=()=>{resetTranspose();finderQueuedVoicings=[];current=null;$('title').value='';$('capo').value='0';$('capoDisplay').textContent='';loadBody('');list();preview();showMode('edit');$('title').focus()};
 $('save').onclick=save;
