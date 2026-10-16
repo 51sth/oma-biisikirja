@@ -333,7 +333,7 @@ function repairLegacyChordHeader(song){
 }
 
 const chordDB={C:['x32010','x35553','875558'],Cm:['x35543'],D:['xx0232','x57775'],Dm:['xx0231'],E:['022100','x79997'],Em:['022000'],F:['133211','xx3211','x87565'],Fm:['133111'],G:['320003','320033','355433'],Gm:['355333'],A:['x02220'],Am:['x02210','577555'],B:['x24442'],Bm:['x24432'],B7:['x21202'],C7:['x32310'],D7:['xx0212'],E7:['020100'],A7:['x02020'],G7:['320001'],Fmaj7:['xx3210'],Cmaj7:['x32000'],Am7:['x02010'],Em7:['022030'],Dsus4:['xx0233'],Asus2:['x02200'],Gsus4:['330013']};
-function persist(){localStorage.setItem(K,JSON.stringify(songs));window.bkCloudPersist?.()}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function persist(){if(window.bkCloudPersist){window.bkCloudPersist();return;}localStorage.setItem(K,JSON.stringify(songs))}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function list(){
   const q=$('search').value.toLowerCase();
   $('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>
@@ -361,7 +361,7 @@ function moveSongInList(fromId,targetId,placeAfter=false){
     selectedIds=new Set([...backupSelectedPositions].map(i=>songs[i]?.id).filter(Boolean));
   }
   // Kirjoita ennen näkyvän listan vaihtoa; epäonnistuminen säilyttää vanhan järjestyksen.
-  try{localStorage.setItem(K,JSON.stringify(order))}
+  try{if(!window.bkCloudPersist)localStorage.setItem(K,JSON.stringify(order))}
   catch(error){
     $('songOrderStatus').textContent='Järjestystä ei saatu tallennettua selaimeen. Yritä uudelleen.';
     console.error(error);
@@ -1881,9 +1881,11 @@ $('importSelected').onclick=()=>{
       }
     }
     // Tallennetaan ennen kuin päivitetään käyttöliittymän lista.
-    localStorage.setItem(K,JSON.stringify(nextSongs));
-    const verified=JSON.parse(localStorage.getItem(K)||'[]');
-    if(!Array.isArray(verified)||verified.length!==nextSongs.length)throw Error('Tallennusta ei voitu vahvistaa');
+    if(!window.bkCloudPersist){
+      localStorage.setItem(K,JSON.stringify(nextSongs));
+      const verified=JSON.parse(localStorage.getItem(K)||'[]');
+      if(!Array.isArray(verified)||verified.length!==nextSongs.length)throw Error('Tallennusta ei voitu vahvistaa');
+    }
     songs=nextSongs;
     window.bkCloudPersist?.();
     current=null;list();
