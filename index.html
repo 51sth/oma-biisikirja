@@ -1164,6 +1164,36 @@ function directChordForms(forms,selectedIndex){
    add({...selected,index:selectedIndex,position:start(selected)});
  return result.sort((x,y)=>x.position-y.position).slice(0,6);
 }
+let fretboardOpen=false,fretboardRange=15,fretboardView='all';
+function fullFretboardSvg(name,shape){
+ const chord=ChordEngine.parse(name);if(!chord)return '';
+ const tuning=[40,45,50,55,59,64],names=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+ const allowed=new Set(chord.tones.map(n=>(chord.root+n)%12));
+ const w=780,left=48,right=18,step=(w-left-right)/(fretboardRange+1),top=38,row=32,h=top+5*row+44;
+ const lines=[];
+ for(let i=0;i<6;i++){
+  const y=top+i*row;lines.push('<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#87988d" stroke-width="'+(2.4-i*.23)+'"/>');
+  lines.push('<text x="19" y="'+(y+4)+'" font-size="13" fill="currentColor">'+['E','A','D','G','H','e'][i]+'</text>');
+ }
+ for(let fret=0;fret<=fretboardRange;fret++){
+  const x=left+fret*step;
+  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="#9aa9a0" stroke-width="'+(fret===0?4:1)+'"/>');
+  lines.push('<text x="'+(x+step/2)+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
+ }
+ for(let i=0;i<6;i++)for(let fret=0;fret<=fretboardRange;fret++){
+  const note=(tuning[i]+fret)%12;if(!allowed.has(note))continue;
+  const picked=shape[i]===fret&&shape[i]>=0;
+  if(fretboardView==='selected'&&!picked)continue;
+  if(fretboardView==='roots'&&note!==chord.root)continue;
+  const x=left+fret*step+step/2,y=top+i*row;
+  const isRoot=note===chord.root;
+  const fill=picked?'#e5a72d':isRoot?'#087c55':'#dceee3';
+  const fg=picked||isRoot?'#fff':'#214b39';
+  lines.push('<circle cx="'+x+'" cy="'+y+'" r="'+(picked?13:11)+'" fill="'+fill+'" stroke="'+(picked?'#7a4811':'#45836a')+'" stroke-width="'+(picked?2.5:1)+'"/>');
+  lines.push('<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="'+fg+'">'+safe(names[note])+'</text>');
+ }
+ return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Kitaran otelauta ja soinnun '+safe(name)+' sävelet" style="width:100%;height:auto;min-width:510px">'+lines.join('')+'</svg>';
+}
 function chordNamesForSong(){return parseBody($('editor').value).flatMap(line=>line.chords.map(c=>c.name))}
 function neighboringChords(){
  const marks=parseBody($('editor').value).flatMap((line,l)=>line.chords.map((c,i)=>({name:c.name,l,i})));
@@ -1203,6 +1233,13 @@ function renderChordPopover(){
    content+='<div class="popover-meta">Sama sointu eri kohdissa otelautaa. Valitse sopiva asema; soinnun nimi ei muutu.</div>';
    if(shortlist.length){
     content+='<div class="voicing-grid">'+shortlist.map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' (E→e)</span></button>').join('')+'</div>';
+   }
+   content+='<button type="button" class="popup-more" data-fretboard-toggle>'+(fretboardOpen?'Piilota koko otelauta':'Näytä koko otelauta')+'</button>';
+   if(fretboardOpen){
+    content+='<div class="popover-meta">Keltainen = valittu ote · Vihreä = pohjasävel · Vaalea = muu soinnun sävel</div>'+
+    '<div class="row"><label>Nauhat <select id="fretboardRange"><option value="12" '+(fretboardRange===12?'selected':'')+'>0–12</option><option value="15" '+(fretboardRange===15?'selected':'')+'>0–15</option></select></label>'+
+    '<label>Näkymä <select id="fretboardView">'+[['all','Kaikki soinnun sävelet'],['selected','Vain valittu ote'],['roots','Vain pohjasävelet']].map(([value,label])=>'<option value="'+value+'" '+(fretboardView===value?'selected':'')+'>'+label+'</option>').join('')+'</select></label></div>'+
+    '<div style="overflow-x:auto;border:1px solid #c8ddd0;border-radius:10px;padding:8px;background:#f8fcf9">'+fullFretboardSvg(name,forms[index].shape)+'</div>';
    }
    if(!shortlist.some(f=>f.seed))content+='<p class="popover-note">Tälle soinnulle ei ole käsin määriteltyjä perusotteita. Näytetään rajattu määrä säveliltään tarkistettuja ehdokkaita.</p>';
 
@@ -1261,12 +1298,15 @@ $('chordPopover').addEventListener('click',e=>{
   const next=choices[(at+Number(button.dataset.voicingStep)+choices.length)%choices.length].index;
   storeVoicing(chordPopoverTarget,forms[next]);popoverPinned=true;renderChordPopover();return;
  }
+ if(button.hasAttribute('data-fretboard-toggle')){fretboardOpen=!fretboardOpen;popoverPinned=true;renderChordPopover();return}
  if(button.hasAttribute('data-voicing-index')){
   const i=Number(button.dataset.voicingIndex);
   if(forms[i]){storeVoicing(chordPopoverTarget,forms[i]);popoverPinned=true;renderChordPopover()}
  }
 });
 $('chordPopover').addEventListener('change',e=>{
+ if(e.target.id==='fretboardRange'){fretboardRange=Number(e.target.value);renderChordPopover()}
+ if(e.target.id==='fretboardView'){fretboardView=e.target.value;renderChordPopover()}
  if(e.target.id==='fretRange'){voicingFilter=e.target.value;visibleVoicings=12;renderChordPopover()}
  if(e.target.id==='voicingOrder'){voicingOrder=e.target.value;visibleVoicings=12;renderChordPopover()}
  if(e.target.id==='chordKeySelect'){
