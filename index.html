@@ -266,6 +266,26 @@ body.board-open .full-neck svg{min-width:0!important;width:100%!important;height
  body.board-open main{padding-bottom:51dvh!important}
  body.board-open .voicing-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* Studio Dark — yhtenäinen tumma työtila, ruusupuinen otelauta säilyy. */
+body{background:#10191b;color:#e8f0eb}
+header{background:#121e22;color:#f0f7f2;border-bottom:1px solid #3b514b}
+.panel,.chord-popover{background:#1e2b2d!important;color:#edf3ef!important;border:1px solid #34484a!important;box-shadow:0 8px 25px #0003}
+.song,.song-entry .song{background:#29383a;color:#e7f3eb}
+.song.active{background:#265846;color:#fff}
+input,textarea,select{background:#203033;color:#edf5ef;border-color:#536660}
+button.secondary,.chord-popover .popover-controls button{background:#314941;color:#eff7f1;border-color:#4b685c}
+.scrollbar,.transpose-bar,.chord-tools,.current-shape,.song-section-heading,.finder,.backup-picker{background:#26383a!important;color:#ecf5ef!important;border-color:#49605a!important}
+.voicing-choice{background:#27393a!important;color:#e8f4ed!important;border-color:#4d6961!important}
+.voicing-choice.chosen{background:#245846!important;border-color:#64c79c!important}
+.chord-popover .popover-meta,.chord-popover .popover-note,.chord-popover .popover-no-voicing{color:#b6cfc1!important}
+.chord-popover .full-neck{background:#252527!important;border-color:#74584b!important}
+.fragment .chord,.notation-chord{background:#244a3d!important;color:#a7f1c9!important}
+.chord-popover .popover-head,.chord-popover strong{color:#f4faf5}
+#previewPanel .lyric-line,#previewPanel .notation-line,#previewPanel .preview{color:#eff6f1}
+.chord-popover .mini-fretboard text{fill:#cee2d6}
+.chord-popover .mini-fretboard line{stroke:#a0b6a9}
+small,.edit-status{color:#acc3b5}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1231,14 +1251,18 @@ function fullFretboardSvg(name,shape){
  const chord=ChordEngine.parse(name);if(!chord)return '';
  const tuning=[40,45,50,55,59,64],names=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
  const allowed=new Set(chord.tones.map(n=>(chord.root+n)%12));
- const w=780,left=60,right=18,step=(w-left-right)/fretboardRange,top=38,row=32,h=top+5*row+44;
+ const w=780,left=60,right=18,top=38,row=32,h=top+5*row+44;
+ // Todellisen kitaran nauhavälit pienenevät kohti runkoa (12. nauha puolittaa kielen pituuden).
+ const scale=(w-right-left)/(1-Math.pow(2,-fretboardRange/12));
+ const fretX=n=>left+scale*(1-Math.pow(2,-n/12));
+ const centerX=n=>n===0?left-25:(fretX(n-1)+fretX(n))/2;
  const lines=[];
  // Tumma ruusupuu: tekstuuri piirretään suoraan SVG:hen.
  lines.push('<defs><linearGradient id="rosewood" x1="0" y1="0" x2="0.15" y2="1"><stop offset="0" stop-color="#4e2920"/><stop offset=".46" stop-color="#713d2b"/><stop offset="1" stop-color="#321a18"/></linearGradient><linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#ac977e"/><stop offset=".45" stop-color="#f5e4c8"/><stop offset="1" stop-color="#9b866d"/></linearGradient></defs>');
  lines.push('<rect x="'+left+'" y="'+(top-14)+'" width="'+(w-right-left)+'" height="'+(5*row+28)+'" rx="8" fill="url(#rosewood)" stroke="#301b17" stroke-width="3"/>');
  for(let g=0;g<21;g++){const gy=top-10+g*8.5;lines.push('<path d="M'+(left+3)+' '+gy+' Q'+(left+160)+' '+(gy+(g%3-1)*5)+' '+(left+350)+' '+gy+' T'+(w-right-3)+' '+(gy+2)+'" fill="none" stroke="'+(g%2?'#b46d4b':'#1a0f11')+'" stroke-opacity=".20" stroke-width="'+(g%4===0?2:1)+'"/>');}
  for(const fret of [3,5,7,9,12,15])if(fret<=fretboardRange){
-   const x=left+(fret-.5)*step;
+   const x=centerX(fret);
    lines.push('<circle cx="'+x+'" cy="'+(top+2.5*row)+'" r="5.5" fill="#d6b7a0" opacity=".55"/>');
  }
  for(let i=0;i<6;i++){
@@ -1246,16 +1270,16 @@ function fullFretboardSvg(name,shape){
   lines.push('<text x="19" y="'+(y+4)+'" font-size="13" fill="currentColor">'+['E','A','D','G','H','e'][i]+'</text>');
  }
  for(let fret=0;fret<=fretboardRange;fret++){
-  const x=left+fret*step;
-  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="url(#metal)" stroke-width="'+(fret===0?4:1)+'"/>');
-  lines.push('<text x="'+(fret===0?left-25:x-step/2)+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
+  const x=fretX(fret);
+  lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="url(#metal)" stroke-width="'+(fret===0?6:2.4)+'"/>');
+  lines.push('<text x="'+(centerX(fret))+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
  }
  for(let i=0;i<6;i++)for(let fret=0;fret<=fretboardRange;fret++){
   const note=(tuning[i]+fret)%12;if(!allowed.has(note))continue;
   const picked=shape[i]===fret&&shape[i]>=0;
   if(fretboardView==='selected'&&!picked)continue;
   if(fretboardView==='roots'&&note!==chord.root)continue;
-  const x=fret===0?left-25:left+(fret-.5)*step,y=top+i*row;
+  const x=centerX(fret),y=top+i*row;
   const isRoot=note===chord.root;
   const fill=picked?'#f4b43f':isRoot?'#287d61':'#e5efdb';
   const fg=picked||isRoot?'#fff':'#1f513e';
