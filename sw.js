@@ -1,1 +1,14 @@
-const C='biisikirja-v41';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['./','./index.html','./chord-engine.js','./chord-finder.js','./manifest.webmanifest','./icon.svg'])))});self.addEventListener('activate',e=>e.waitUntil(Promise.all([caches.keys().then(k=>Promise.all(k.filter(x=>x.startsWith('biisikirja-')&&x!==C).map(x=>caches.delete(x)))),self.clients.claim()])));self.addEventListener('fetch',e=>{if(e.request.method==='GET'&&new URL(e.request.url).origin===location.origin)e.respondWith(fetch(new Request(e.request,{cache:'no-store'})).then(r=>{let c=r.clone();caches.open(C).then(cache=>cache.put(e.request,c));return r}).catch(()=>caches.match(e.request)))});
+// Version 42: Always obtain the latest application files from the network.
+// Purge older app caches, which could keep obsolete chord-list UI visible.
+const CACHE_PREFIX='biisikirja-';
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+ const keys=await caches.keys();
+ await Promise.all(keys.filter(k=>k.startsWith(CACHE_PREFIX)).map(k=>caches.delete(k)));
+ await self.clients.claim();
+})()));
+self.addEventListener('fetch',event=>{
+ if(event.request.method==='GET'&&new URL(event.request.url).origin===self.location.origin){
+   event.respondWith(fetch(new Request(event.request,{cache:'no-store'})));
+ }
+});
