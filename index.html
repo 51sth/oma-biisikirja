@@ -246,14 +246,24 @@ main{max-width:1040px}
 #accountGate button{margin-top:12px}#accountStatus{line-height:1.5;overflow-wrap:anywhere}
 #accountBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:end;padding:9px 18px;background:#e6f1e9}
 
-/* Rinnakkainen soittonäkymä: kappale näkyy otelaudan vieressä. */
-body.board-open .chord-popover{position:fixed!important;top:8px!important;right:8px!important;left:auto!important;width:min(53vw,780px)!important;max-width:none!important;height:calc(100dvh - 16px)!important;max-height:none!important;overflow-y:auto;z-index:1000}
-body.board-open main{width:calc(47vw - 42px);max-width:none;margin-left:12px;margin-right:0;box-sizing:border-box}
-body.board-open .layout{grid-template-columns:minmax(0,1fr)}
-body.board-open .voicing-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-body.board-open .full-neck svg{display:block;min-width:0!important;width:100%!important}
+/* Soittotilan rinnakkaisnäkymä: sanoitukset 2/3, otelauta 1/3. */
+@media(min-width:801px){
+ body.board-open main{width:calc(66.666vw - 28px);max-width:none;margin:0;padding:12px 10px 20px 12px;box-sizing:border-box}
+ body.board-open #songSidebar,body.board-open #sidebarToggle{display:none!important}
+ body.board-open #appLayout{display:block!important;grid-template-columns:minmax(0,1fr)!important}
+ body.board-open #appLayout>*:not(#songSidebar):not(#sidebarToggle){width:100%;max-width:none;min-width:0}
+ body.board-open #previewPanel{width:100%;max-width:none;box-sizing:border-box}
+ body.board-open #preview,body.board-open #playViewport{width:100%;max-width:100%}
+ body.board-open .chord-popover{position:fixed!important;top:8px!important;right:8px!important;left:auto!important;width:calc(33.333vw - 8px)!important;max-width:none!important;height:calc(100dvh - 16px)!important;max-height:none!important;overflow-y:auto;z-index:1000}
+ body.board-open .voicing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+body.board-open .full-neck svg{display:block;min-width:0!important;width:100%!important;height:auto}
 body.board-open .full-neck{overflow:hidden!important}
-@media(max-width:800px){body.board-open .chord-popover{left:5px!important;right:5px!important;top:auto!important;bottom:5px!important;width:calc(100vw - 10px)!important;height:49dvh!important;padding:10px!important}body.board-open main{width:auto;max-width:950px;margin:0 auto;padding-bottom:51dvh}body.board-open .voicing-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){
+ body.board-open .chord-popover{position:fixed!important;left:5px!important;right:5px!important;top:auto!important;bottom:5px!important;width:calc(100vw - 10px)!important;height:49dvh!important;max-height:none!important;padding:10px!important;overflow-y:auto}
+ body.board-open main{width:auto;max-width:950px;margin:0 auto;padding-bottom:51dvh}
+ body.board-open .voicing-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
