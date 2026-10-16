@@ -1155,11 +1155,22 @@ function placeChordPopover(){
 }
 function openChordPopover(button,pin=false){
  clearTimeout(popoverHideTimer);
- if(chordPopoverTarget!==button){fretboardOpen=false;document.body.classList.remove('board-open');popoverTab='voicings';popoverExpanded=pin;voicingFilter='all';voicingOrder='default';visibleVoicings=12;chordSearch=''}
- else if(pin)popoverExpanded=true;
+ const wasFull=fretboardOpen;
  if(chordPopoverTarget&&chordPopoverTarget!==button)chordPopoverTarget.classList.remove('chord-selected');
- chordPopoverTarget=button;popoverPinned=pin;
- button.classList.add('chord-selected');renderChordPopover();
+ chordPopoverTarget=button;
+ popoverPinned=pin||wasFull;
+ if(pin){
+   fretboardOpen=true;
+   popoverExpanded=true;
+   popoverTab='voicings';
+ }else{
+   fretboardOpen=false;
+   popoverExpanded=false;
+   popoverTab='voicings';
+ }
+ document.body.classList.toggle('board-open',fretboardOpen);
+ button.classList.add('chord-selected');
+ renderChordPopover();
 }
 function nearbyVoicingShapes(){
  const song=songs.find(s=>s.id===current);
@@ -1267,13 +1278,18 @@ function renderChordPopover(){
  if(!chordPopoverTarget)return;
  document.body.classList.toggle('board-open',Boolean(fretboardOpen));
  const name=chordPopoverTarget.dataset.chord,popup=$('chordPopover'),oldTop=popup.scrollTop;
- popup.classList.toggle('compact',!popoverExpanded);
+ popup.classList.toggle('compact',!fretboardOpen);
  const {forms,index}=selectedVoicing(name,chordPopoverTarget);
  if(transposeOffset)popoverTab='voicings';
  const head='<div class="popover-head"><span>'+safe(name)+'</span><button type="button" class="popover-close" data-popup-close aria-label="Sulje">×</button></div>'+
  '<div class="popup-tabs"><button type="button" data-tab="voicings" class="'+(popoverTab==='voicings'?'active':'')+'">Otteet</button>'+
  (transposeOffset?'<span class="popover-meta" style="align-self:center">Muokkaa alkuperäisiä sointuja palauttamalla transponointi</span>':
  '<button type="button" data-tab="replace" class="'+(popoverTab==='replace'?'active':'')+'">⇄ Korvaa sointu</button>')+'</div>';
+ if(!fretboardOpen){
+  const diagram=forms.length?'<div class="current-shape">'+miniDiagram(name,forms[index].shape)+'</div>':'<p class="popover-no-voicing">Sointukaaviota ei löytynyt.</p>';
+  popup.innerHTML='<div class="popover-head"><span>'+safe(name)+'</span></div>'+diagram+'<div class="popover-meta" style="text-align:center">Klikkaa sointua nähdäksesi otteet ja otelaudan</div>';
+  popup.classList.remove('hidden');popup.scrollTop=0;placeChordPopover();return;
+ }
  let content='';
  if(popoverTab==='voicings'){
   if(!forms.length){
@@ -1350,7 +1366,7 @@ $('chordPopover').addEventListener('click',e=>{
   const next=choices[(at+Number(button.dataset.voicingStep)+choices.length)%choices.length].index;
   storeVoicing(chordPopoverTarget,forms[next]);popoverPinned=true;renderChordPopover();return;
  }
- if(button.hasAttribute('data-fretboard-toggle')){fretboardOpen=!fretboardOpen;document.body.classList.toggle('board-open',fretboardOpen);popoverPinned=true;renderChordPopover();if(fretboardOpen){const line=chordPopoverTarget.closest('.notation-line')||chordPopoverTarget.closest('.lyric-line')||chordPopoverTarget;line.scrollIntoView({block:'center',behavior:'instant'});}return}
+ if(button.hasAttribute('data-fretboard-toggle')){if(fretboardOpen){closeChordPopover(true)}else{openChordPopover(chordPopoverTarget,true)}return}
  if(button.hasAttribute('data-voicing-index')){
   const i=Number(button.dataset.voicingIndex);
   if(forms[i]){storeVoicing(chordPopoverTarget,forms[i]);popoverPinned=true;renderChordPopover()}
