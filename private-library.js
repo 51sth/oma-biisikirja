@@ -68,6 +68,8 @@ if(!validConfig){
       info('Paikalliset kappaleet yhdistetty pilvikirjastoon. Selaimen alkuperäisiä tietoja ei poistettu.');
     };
     async function openCloudLibrary(user){
+      // Refresh account status from Firebase instead of relying on a cached session profile.
+      await user.reload();
       if(!user.emailVerified){info('Sähköpostiosoitettasi ei ole vielä vahvistettu. Vahvista osoite sähköpostiin lähetetyn linkin kautta.');showLogin(true);return;}
       showLoading();
       try{
