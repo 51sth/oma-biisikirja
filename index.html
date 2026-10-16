@@ -249,10 +249,11 @@ main{max-width:1040px}
 /* Focus split view: 2/3 lyrics, 1/3 neck; hide all other app panels. */
 @media (min-width:801px) {
  body.board-open header,body.board-open #songSidebar,body.board-open #sidebarToggle,
- body.board-open #editorPanel,body.board-open #appLayout > :not(#previewPanel),
+ body.board-open #editorPanel,body.board-open #appLayout > :not(#songContent),
  body.board-open main > :not(#appLayout){display:none!important}
  body.board-open main{position:static!important;width:66.6667vw!important;max-width:none!important;margin:0!important;padding:8px 6px 16px 8px!important;box-sizing:border-box!important}
  body.board-open #appLayout{display:block!important;width:100%!important;max-width:none!important;grid-template-columns:1fr!important;padding:0!important;margin:0!important}
+ body.board-open #songContent{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important}
  body.board-open #previewPanel{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;box-sizing:border-box!important;padding:14px!important}
  body.board-open #playViewport,body.board-open #preview{width:100%!important;max-width:100%!important;min-width:0!important}
  body.board-open .chord-popover{position:fixed!important;left:auto!important;right:8px!important;top:8px!important;bottom:auto!important;width:calc(33.3333vw - 12px)!important;max-width:none!important;height:calc(100dvh - 16px)!important;max-height:none!important;overflow-y:auto!important;box-sizing:border-box!important}
