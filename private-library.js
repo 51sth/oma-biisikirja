@@ -70,7 +70,8 @@ if(!validConfig){
     async function openCloudLibrary(user){
       // Refresh account status from Firebase instead of relying on a cached session profile.
       await user.reload();
-      if(!user.emailVerified){info('Sähköpostiosoitettasi ei ole vielä vahvistettu. Vahvista osoite sähköpostiin lähetetyn linkin kautta.');showLogin(true);return;}
+      document.getElementById('accountVerification').textContent=user.emailVerified?'✓ Sähköposti vahvistettu':'⚠ Sähköposti vahvistamatta';
+      if(!user.emailVerified){info('Sähköposti vahvistamatta. Paina Lähetä vahvistusviesti uudelleen, avaa saamasi linkki ja tarkista sitten vahvistus.');showLogin(true);return;}
       showLoading();
       try{
         info('Avataan yksityistä kappalekirjastoa…');
