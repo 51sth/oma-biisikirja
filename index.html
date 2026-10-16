@@ -1133,16 +1133,36 @@ function orderedVoicings(forms){
    :a.index-b.index);
 }
 function directChordForms(forms,selectedIndex){
- // Familiar shapes first: no auto-generated catalogue of dozens of exotic grips.
- const seeded=forms.map((form,index)=>({...form,index})).filter(x=>x.seed&&ChordEngine.valid(chordPopoverTarget.dataset.chord,x.shape));
- const shortlist=seeded.slice(0,4);
- if(!shortlist.length){
-   // For less common chords, offer at most two validated computed shapes.
-   shortlist.push(...forms.slice(0,2).map((form,index)=>({...form,index})));
+ // Show the same exact chord across distinct guitar neck positions.
+ // Prefer the named root in the bass (unless a slash chord specifies otherwise).
+ // ChordEngine.valid has already checked all six strings against the chord tones.
+ const name=chordPopoverTarget?.dataset.chord||'';
+ const parsed=ChordEngine.parse(name);
+ const tuning=[40,45,50,55,59,64];
+ const rootBass=form=>{
+   const i=form.shape.findIndex(f=>f>=0);
+   return i>=0&&parsed&&(tuning[i]+form.shape[i])%12===(parsed.bass??parsed.root);
+ };
+ const start=form=>{
+   const f=form.shape.filter(n=>n>0);
+   return f.length?Math.min(...f):0;
+ };
+ const candidates=forms.map((form,index)=>({...form,index,position:start(form)}))
+   .filter(form=>ChordEngine.valid(name,form.shape)&&rootBass(form))
+   .sort((x,y)=>Number(y.seed)-Number(x.seed)||x.rank-y.rank);
+ const selected=forms[selectedIndex];
+ const result=[];
+ const add=f=>{if(f&&!result.some(x=>x.index===f.index))result.push(f);};
+ // Recognizable open and barre shapes distributed along the neck.
+ const regions=[[0,3],[4,6],[7,9],[10,12],[13,15]];
+ for(const [lo,hi] of regions){
+   const group=candidates.filter(f=>f.position>=lo&&f.position<=hi);
+   if(group.length)add(group[0]);
  }
- // Never hide an existing explicitly saved shape.
- if(!shortlist.some(x=>x.index===selectedIndex)&&forms[selectedIndex])shortlist.unshift({...forms[selectedIndex],index:selectedIndex});
- return shortlist.slice(0,4);
+ // Include previously saved voicing, even if it is an unusual inversion.
+ if(selected&&ChordEngine.valid(name,selected.shape)&&!result.some(x=>x.index===selectedIndex))
+   add({...selected,index:selectedIndex,position:start(selected)});
+ return result.sort((x,y)=>x.position-y.position).slice(0,6);
 }
 function chordNamesForSong(){return parseBody($('editor').value).flatMap(line=>line.chords.map(c=>c.name))}
 function neighboringChords(){
@@ -1180,7 +1200,7 @@ function renderChordPopover(){
    const shortlist=directChordForms(forms,index);
    const chosen=shortlist.find(x=>x.index===index)||shortlist[0];
    content='<div class="current-shape">'+miniDiagram(name,forms[index].shape)+'<div class="popover-meta">'+safe(shapeLabel(forms[index].shape))+' (E→e)</div></div>';
-   content+='<div class="popover-meta">Vain saman soinnun tarkistetut otteet. Ei sointumuunnoksia eikä korvaavia sointuja.</div>';
+   content+='<div class="popover-meta">Sama sointu eri kohdissa otelautaa. Valitse sopiva asema; soinnun nimi ei muutu.</div>';
    if(shortlist.length){
     content+='<div class="voicing-grid">'+shortlist.map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' (E→e)</span></button>').join('')+'</div>';
    }
