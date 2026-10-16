@@ -1251,11 +1251,11 @@ function fullFretboardSvg(name,shape){
  const chord=ChordEngine.parse(name);if(!chord)return '';
  const tuning=[40,45,50,55,59,64],names=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
  const allowed=new Set(chord.tones.map(n=>(chord.root+n)%12));
- const w=780,left=60,right=18,top=38,row=32,h=top+5*row+44;
+ const w=780,left=94,right=30,top=38,row=32,h=top+5*row+44;
  // Todellisen kitaran nauhavälit pienenevät kohti runkoa (12. nauha puolittaa kielen pituuden).
  const scale=(w-right-left)/(1-Math.pow(2,-fretboardRange/12));
  const fretX=n=>left+scale*(1-Math.pow(2,-n/12));
- const centerX=n=>n===0?left-25:(fretX(n-1)+fretX(n))/2;
+ const centerX=n=>n===0?left-36:(fretX(n-1)+fretX(n))/2;
  const lines=[];
  // Tumma ruusupuu: tekstuuri piirretään suoraan SVG:hen.
  lines.push('<defs><linearGradient id="rosewood" x1="0" y1="0" x2="0.15" y2="1"><stop offset="0" stop-color="#4e2920"/><stop offset=".46" stop-color="#713d2b"/><stop offset="1" stop-color="#321a18"/></linearGradient><linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#ac977e"/><stop offset=".45" stop-color="#f5e4c8"/><stop offset="1" stop-color="#9b866d"/></linearGradient></defs>');
@@ -1272,7 +1272,7 @@ function fullFretboardSvg(name,shape){
  }
  for(let i=0;i<6;i++){
   const y=top+i*row;lines.push('<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#e4d4bf" stroke-width="'+(2.4-i*.23)+'"/>');
-  lines.push('<text x="19" y="'+(y+4)+'" font-size="13" fill="currentColor">'+['E','A','D','G','H','e'][i]+'</text>');
+  lines.push('<text x="14" y="'+(y+4)+'" font-size="13" fill="currentColor">'+['E','A','D','G','H','e'][i]+'</text>');
  }
  for(let fret=0;fret<=fretboardRange;fret++){
   const x=fretX(fret);
