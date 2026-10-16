@@ -285,7 +285,7 @@ main{max-width:1040px}
 <div id="copyPlacementPanel" class="copy-placement-panel hidden" aria-label="Sijoita kopioitu osio"><div class="copy-placement-title"><strong id="copyPlacementTitle">Kopio luotu</strong><span class="copy-placement-note">Sanat ja soinnut siirtyvät kopion mukana.</span></div><div class="copy-placement-actions"><label for="copyDestination">Sijoita kopio <select id="copyDestination" aria-label="Kopion sijoituskohta"><option value="">Valitse uusi sijainti…</option></select></label><button type="button" id="moveCopiedSection" disabled>Siirrä kopio</button><button type="button" id="closeCopyPlacement" class="secondary">Valmis</button></div></div>
 
 <div id="visualEditor" class="visual-editor" aria-label="Sanoitusten ja sointujen muokkaus"></div>
-<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="transpose-bar" role="group" aria-label="Kappaleen nopea transponointi"><span class="transpose-title">Transponoi</span><button id="transposeDown" type="button" aria-label="Transponoi alaspäin yksi puolisävelaskel" title="−1 puolisävelaskel">−</button><output id="transposeValue" aria-live="polite" aria-atomic="true">0</output><button id="transposeUp" type="button" aria-label="Transponoi ylöspäin yksi puolisävelaskel" title="+1 puolisävelaskel">+</button><button id="transposeReset" type="button" class="secondary" disabled>↶ Alkuperäinen</button><span id="transposeInfo" class="transpose-info">Soinnut vaihtuvat heti · ei muuta tallennettua biisiä</span></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small><small class="scroll-keyboard-hint" title="Pikanäppäimet toimivat soittonäkymässä, paitsi kirjoittaessa tai ohjaimissa">Välilyönti: ▶ / ⏸ &nbsp; + / −: nopeus</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=26"></script><script src="chord-finder.js?v=26"></script><script>
+<details class="raw-mode"><summary>Vanha tallennusmuoto (vain tarvittaessa)</summary><p><small>Yläpuolella olevat soinnut tallennetaan automaattisesti. Osio-otsikot tallennetaan erillisinä {bk-section:tyyppi:otsikko}-merkintöinä. Tässä yhteensopivuusnäkymässä soinnut näkyvät hakasulkeissa.</small></p><textarea id="editor" spellcheck="false" aria-label="Kappaleen ChordPro-tekstimuoto"></textarea></details></div><div class="panel" id="previewPanel"><div class="row play-header"><h2>Soita <small id="capoDisplay" style="font-size:13px"></small></h2><button id="editBtn" class="secondary" type="button">✎ Muokkaa kappaletta</button></div><div class="transpose-bar" role="group" aria-label="Kappaleen nopea transponointi"><span class="transpose-title">Transponoi</span><button id="transposeDown" type="button" aria-label="Transponoi alaspäin yksi puolisävelaskel" title="−1 puolisävelaskel">−</button><output id="transposeValue" aria-live="polite" aria-atomic="true">0</output><button id="transposeUp" type="button" aria-label="Transponoi ylöspäin yksi puolisävelaskel" title="+1 puolisävelaskel">+</button><button id="transposeReset" type="button" class="secondary" disabled>↶ Alkuperäinen</button><span id="transposeInfo" class="transpose-info">Soinnut vaihtuvat heti · ei muuta tallennettua biisiä</span></div><div class="scrollbar"><button id="scrollToggle" type="button">▶ Käynnistä</button><label for="scrollSpeed">Nopeus</label><input id="scrollSpeed" type="range" min="1" max="10" step="1" value="5" title="Nopeus 1 on erittäin hidas"><output id="speedValue">5</output><small title="Nopeus säilyy tässä selaimessa">Muistetaan</small><small class="scroll-keyboard-hint" title="Pikanäppäimet toimivat soittonäkymässä, paitsi kirjoittaessa tai ohjaimissa">Välilyönti: ▶ / ⏸ &nbsp; + / −: nopeus</small></div><p id="scrollStatus" class="edit-status" role="status" aria-live="polite"></p><div id="playViewport" class="play-viewport" tabindex="0" aria-label="Kappale, vieritä sormella tai käynnistä automaattinen vieritys"><div id="preview" class="preview"></div></div></div></section></div></main><div id="chordPopover" class="chord-popover hidden" role="dialog" aria-label="Soinnun sormitukset ja korvaaminen" aria-live="polite"></div><script src="chord-engine.js?v=27"></script><script src="chord-finder.js?v=26"></script><script>
 let finderPending=null, finderQueuedVoicings=[], copiedSectionVoicings=[], copyPlacementStart=-1;
 let transposeOffset=0;
 const temporaryTransposedVoicings=new Map();
@@ -1049,7 +1049,7 @@ function miniDiagram(name,shape){
 }
 function shapeLabel(shape){return shape.map(f=>f<0?'x':String(f)).join(shape.some(f=>f>9)?'-':'')}
 function region(shape){const a=shape.filter(n=>n>0);return a.length?Math.min(...a):0}
-let chordPopoverTarget=null,popoverPinned=false,popoverHideTimer=null,popoverTab='voicings',popoverExpanded=false,voicingFilter='all',visibleVoicings=12,chordSearch='';
+let chordPopoverTarget=null,popoverPinned=false,popoverHideTimer=null,popoverTab='voicings',popoverExpanded=false,voicingFilter='all',voicingOrder='default',visibleVoicings=12,chordSearch='';
 const chordCache=new Map();
 function voicingKey(button){return button.dataset.line+':'+button.dataset.chordIndex}
 function selectedVoicing(name,button){
@@ -1104,11 +1104,33 @@ function placeChordPopover(){
 }
 function openChordPopover(button,pin=false){
  clearTimeout(popoverHideTimer);
- if(chordPopoverTarget!==button){popoverTab='voicings';popoverExpanded=pin;voicingFilter='all';visibleVoicings=12;chordSearch=''}
+ if(chordPopoverTarget!==button){popoverTab='voicings';popoverExpanded=pin;voicingFilter='all';voicingOrder='default';visibleVoicings=12;chordSearch=''}
  else if(pin)popoverExpanded=true;
  if(chordPopoverTarget&&chordPopoverTarget!==button)chordPopoverTarget.classList.remove('chord-selected');
  chordPopoverTarget=button;popoverPinned=pin;
  button.classList.add('chord-selected');renderChordPopover();
+}
+function nearbyVoicingShapes(){
+ const song=songs.find(s=>s.id===current);
+ const marks=parseBody($('editor').value).flatMap((line,l)=>line.chords.map((c,i)=>({name:c.name,key:l+':'+i})));
+ const key=voicingKey(chordPopoverTarget),at=marks.findIndex(m=>m.key===key);
+ if(at<0)return [];
+ return [marks[at-1],marks[at+1]].filter(Boolean).flatMap(m=>{
+  const stored=song?.voicings?.[m.key];
+  const form=typeof stored==='string'?stored.split(',').map(Number):null;
+  if(form&&ChordEngine.valid(m.name,form))return [form];
+  const generated=ChordEngine.voicings(m.name)[0]?.shape;
+  return generated?[generated]:[];
+ });
+}
+function orderedVoicings(forms){
+ const neighbors=nearbyVoicingShapes();
+ return forms.map((f,index)=>({...f,index,movement:neighbors.length
+   ?neighbors.reduce((sum,n)=>sum+ChordEngine.transitionCost(n,f.shape),0)/neighbors.length
+   :null}))
+ .sort((a,b)=>voicingOrder==='smooth'&&neighbors.length
+   ?a.movement-b.movement||a.rank-b.rank
+   :a.index-b.index);
 }
 function chordNamesForSong(){return parseBody($('editor').value).flatMap(line=>line.chords.map(c=>c.name))}
 function neighboringChords(){
@@ -1147,8 +1169,11 @@ function renderChordPopover(){
    content='<div class="current-shape">'+miniDiagram(name,form.shape)+'<div class="popover-meta">'+safe(shapeLabel(form.shape))+' (E→e) · ote '+(index+1)+'/'+forms.length+'</div></div>'+
     '<div class="popover-controls"><button type="button" data-voicing-step="-1" aria-label="Edellinen ote">‹</button><strong>Vaihda otetta</strong><button type="button" data-voicing-step="1" aria-label="Seuraava ote">›</button></div>'+
     (popoverExpanded?'<label class="range-label">Otteet eri puolilla otelautaa<select id="fretRange"><option value="all" '+(voicingFilter==='all'?'selected':'')+'>Kaikki nauhavälit</option>'+[['low','Avoimet / 1–4'],['mid','5–8'],['high','9–12'],['highest','13–15']].map(([v,l])=>'<option value="'+v+'" '+(voicingFilter===v?'selected':'')+'>'+l+'</option>').join('')+'</select></label>':'<button type="button" class="popup-more" data-open-voicings>Näytä kaikki otteet</button>');
-   const filtered=forms.map((f,i)=>({...f,index:i})).filter(f=>{const n=region(f.shape);return voicingFilter==='all'||(voicingFilter==='low'&&n<=4)||(voicingFilter==='mid'&&n>=5&&n<=8)||(voicingFilter==='high'&&n>=9&&n<=12)||(voicingFilter==='highest'&&n>=13)});
-   if(popoverExpanded)content+='<div class="popover-meta">'+filtered.length+' säveliltään tarkistettua otetta · EADGBe</div><div class="voicing-grid">'+filtered.slice(0,visibleVoicings).map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse ote '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' E→e</span></button>').join('')+'</div>';
+   const neighbors=nearbyVoicingShapes();
+   if(popoverExpanded)content+='<label class="range-label">Järjestä otteet<select id="voicingOrder"><option value="default" '+(voicingOrder==='default'?'selected':'')+'>Tavalliset ja helpot ensin</option><option value="smooth" '+(voicingOrder==='smooth'?'selected':'')+'>Sujuvin siirtymä läheisistä soinnuista</option></select></label>'+
+     '<div class="popover-meta">'+(neighbors.length?'Siirtymäarvio vertaa edellisen ja seuraavan soinnun tallennettuja tai oletusotteita.':'Tälle sointukohdalle ei löytynyt viereisiä sointuja. Näytetään oletusjärjestys.')+'</div>';
+   const filtered=orderedVoicings(forms).filter(f=>{const n=region(f.shape);return voicingFilter==='all'||(voicingFilter==='low'&&n<=4)||(voicingFilter==='mid'&&n>=5&&n<=8)||(voicingFilter==='high'&&n>=9&&n<=12)||(voicingFilter==='highest'&&n>=13)});
+   if(popoverExpanded)content+='<div class="popover-meta">'+filtered.length+' säveliltään tarkistettua otetta · EADGBe</div><div class="voicing-grid">'+filtered.slice(0,visibleVoicings).map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse ote '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' E→e</span>'+(voicingOrder==='smooth'&&neighbors.length?'<span>Siirtymäarvio '+f.movement.toFixed(1)+'</span>':'')+'</button>').join('')+'</div>';
    if(popoverExpanded&&filtered.length>visibleVoicings)content+='<button type="button" class="popup-more" data-voicing-more>Näytä lisää ('+(filtered.length-visibleVoicings)+' jäljellä)</button>';
    if(popoverExpanded)content+='<p class="popover-note">Kaikki otteet on tarkistettu sävelistä. Kokeile niiden ergonomia käytännössä; vaikeat otteet voivat vaatia barré-tekniikkaa.</p>';
   }
@@ -1212,6 +1237,7 @@ $('chordPopover').addEventListener('click',e=>{
 });
 $('chordPopover').addEventListener('change',e=>{
  if(e.target.id==='fretRange'){voicingFilter=e.target.value;visibleVoicings=12;renderChordPopover()}
+ if(e.target.id==='voicingOrder'){voicingOrder=e.target.value;visibleVoicings=12;renderChordPopover()}
  if(e.target.id==='chordKeySelect'){
   const s=songs.find(x=>x.id===current);if(s){s.keyChoice=e.target.value;persist()}renderChordPopover()
  }
