@@ -1132,6 +1132,18 @@ function orderedVoicings(forms){
    ?a.movement-b.movement||a.rank-b.rank
    :a.index-b.index);
 }
+function directChordForms(forms,selectedIndex){
+ // Familiar shapes first: no auto-generated catalogue of dozens of exotic grips.
+ const seeded=forms.map((form,index)=>({...form,index})).filter(x=>x.seed&&ChordEngine.valid(chordPopoverTarget.dataset.chord,x.shape));
+ const shortlist=seeded.slice(0,4);
+ if(!shortlist.length){
+   // For less common chords, offer at most two validated computed shapes.
+   shortlist.push(...forms.slice(0,2).map((form,index)=>({...form,index})));
+ }
+ // Never hide an existing explicitly saved shape.
+ if(!shortlist.some(x=>x.index===selectedIndex)&&forms[selectedIndex])shortlist.unshift({...forms[selectedIndex],index:selectedIndex});
+ return shortlist.slice(0,4);
+}
 function chordNamesForSong(){return parseBody($('editor').value).flatMap(line=>line.chords.map(c=>c.name))}
 function neighboringChords(){
  const marks=parseBody($('editor').value).flatMap((line,l)=>line.chords.map((c,i)=>({name:c.name,l,i})));
@@ -1165,17 +1177,15 @@ function renderChordPopover(){
   if(!forms.length){
    content='<p class="popover-no-voicing">Tälle soinnulle ei löytynyt tarkistettua otetta. Kaaviota ei arvata.</p>';
   }else{
-   const form=forms[index];
-   content='<div class="current-shape">'+miniDiagram(name,form.shape)+'<div class="popover-meta">'+safe(shapeLabel(form.shape))+' (E→e) · ote '+(index+1)+'/'+forms.length+'</div></div>'+
-    '<div class="popover-controls"><button type="button" data-voicing-step="-1" aria-label="Edellinen ote">‹</button><strong>Vaihda otetta</strong><button type="button" data-voicing-step="1" aria-label="Seuraava ote">›</button></div>'+
-    (popoverExpanded?'<label class="range-label">Otteet eri puolilla otelautaa<select id="fretRange"><option value="all" '+(voicingFilter==='all'?'selected':'')+'>Kaikki nauhavälit</option>'+[['low','Avoimet / 1–4'],['mid','5–8'],['high','9–12'],['highest','13–15']].map(([v,l])=>'<option value="'+v+'" '+(voicingFilter===v?'selected':'')+'>'+l+'</option>').join('')+'</select></label>':'<button type="button" class="popup-more" data-open-voicings>Näytä kaikki otteet</button>');
-   const neighbors=nearbyVoicingShapes();
-   if(popoverExpanded)content+='<label class="range-label">Järjestä otteet<select id="voicingOrder"><option value="default" '+(voicingOrder==='default'?'selected':'')+'>Tavalliset ja helpot ensin</option><option value="smooth" '+(voicingOrder==='smooth'?'selected':'')+'>Sujuvin siirtymä läheisistä soinnuista</option></select></label>'+
-     '<div class="popover-meta">'+(neighbors.length?'Siirtymäarvio vertaa edellisen ja seuraavan soinnun tallennettuja tai oletusotteita.':'Tälle sointukohdalle ei löytynyt viereisiä sointuja. Näytetään oletusjärjestys.')+'</div>';
-   const filtered=orderedVoicings(forms).filter(f=>{const n=region(f.shape);return voicingFilter==='all'||(voicingFilter==='low'&&n<=4)||(voicingFilter==='mid'&&n>=5&&n<=8)||(voicingFilter==='high'&&n>=9&&n<=12)||(voicingFilter==='highest'&&n>=13)});
-   if(popoverExpanded)content+='<div class="popover-meta">'+filtered.length+' säveliltään tarkistettua otetta · EADGBe</div><div class="voicing-grid">'+filtered.slice(0,visibleVoicings).map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse ote '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' E→e</span>'+(voicingOrder==='smooth'&&neighbors.length?'<span>Siirtymäarvio '+f.movement.toFixed(1)+'</span>':'')+'</button>').join('')+'</div>';
-   if(popoverExpanded&&filtered.length>visibleVoicings)content+='<button type="button" class="popup-more" data-voicing-more>Näytä lisää ('+(filtered.length-visibleVoicings)+' jäljellä)</button>';
-   if(popoverExpanded)content+='<p class="popover-note">Kaikki otteet on tarkistettu sävelistä. Kokeile niiden ergonomia käytännössä; vaikeat otteet voivat vaatia barré-tekniikkaa.</p>';
+   const shortlist=directChordForms(forms,index);
+   const chosen=shortlist.find(x=>x.index===index)||shortlist[0];
+   content='<div class="current-shape">'+miniDiagram(name,forms[index].shape)+'<div class="popover-meta">'+safe(shapeLabel(forms[index].shape))+' (E→e)</div></div>';
+   content+='<div class="popover-meta">Vain saman soinnun tarkistetut otteet. Ei sointumuunnoksia eikä korvaavia sointuja.</div>';
+   if(shortlist.length){
+    content+='<div class="voicing-grid">'+shortlist.map(f=>'<button type="button" class="voicing-choice '+(f.index===index?'chosen':'')+'" data-voicing-index="'+f.index+'" title="Valitse '+safe(shapeLabel(f.shape))+'">'+miniDiagram(name,f.shape)+'<span>'+safe(shapeLabel(f.shape))+' (E→e)</span></button>').join('')+'</div>';
+   }
+   if(!shortlist.some(f=>f.seed))content+='<p class="popover-note">Tälle soinnulle ei ole käsin määriteltyjä perusotteita. Näytetään rajattu määrä säveliltään tarkistettuja ehdokkaita.</p>';
+
   }
  }else{
   const originalNames=chordNamesForSong(),{key,list}=ChordEngine.substitutions(name,originalNames,currentKey(),neighboringChords());
@@ -1227,7 +1237,8 @@ $('chordPopover').addEventListener('click',e=>{
  if(!chordPopoverTarget)return;
  const {forms,index}=selectedVoicing(chordPopoverTarget.dataset.chord,chordPopoverTarget);
  if(button.hasAttribute('data-voicing-step')&&forms.length){
-  const next=(index+Number(button.dataset.voicingStep)+forms.length)%forms.length;
+  const choices=directChordForms(forms,index);const at=choices.findIndex(x=>x.index===index);
+  const next=choices[(at+Number(button.dataset.voicingStep)+choices.length)%choices.length].index;
   storeVoicing(chordPopoverTarget,forms[next]);popoverPinned=true;renderChordPopover();return;
  }
  if(button.hasAttribute('data-voicing-index')){
