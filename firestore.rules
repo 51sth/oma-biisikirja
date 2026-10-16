@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/private/{documentId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      allow get: if isOwner() && documentId == 'library';
+      allow list: if false;
+      allow create, update: if isOwner() && documentId == 'library'
+        && request.resource.data.keys().hasOnly(['songs', 'updatedAt'])
+        && request.resource.data.songs is list;
+      allow delete: if isOwner() && documentId == 'library';
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
