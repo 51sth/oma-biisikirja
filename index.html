@@ -1169,7 +1169,7 @@ function fullFretboardSvg(name,shape){
  const chord=ChordEngine.parse(name);if(!chord)return '';
  const tuning=[40,45,50,55,59,64],names=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
  const allowed=new Set(chord.tones.map(n=>(chord.root+n)%12));
- const w=780,left=48,right=18,step=(w-left-right)/(fretboardRange+1),top=38,row=32,h=top+5*row+44;
+ const w=780,left=60,right=18,step=(w-left-right)/fretboardRange,top=38,row=32,h=top+5*row+44;
  const lines=[];
  for(let i=0;i<6;i++){
   const y=top+i*row;lines.push('<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#87988d" stroke-width="'+(2.4-i*.23)+'"/>');
@@ -1178,14 +1178,14 @@ function fullFretboardSvg(name,shape){
  for(let fret=0;fret<=fretboardRange;fret++){
   const x=left+fret*step;
   lines.push('<line x1="'+x+'" y1="'+(top-12)+'" x2="'+x+'" y2="'+(top+5*row+12)+'" stroke="#9aa9a0" stroke-width="'+(fret===0?4:1)+'"/>');
-  lines.push('<text x="'+(x+step/2)+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
+  lines.push('<text x="'+(fret===0?left-25:x-step/2)+'" y="18" font-size="12" text-anchor="middle" fill="currentColor">'+fret+'</text>');
  }
  for(let i=0;i<6;i++)for(let fret=0;fret<=fretboardRange;fret++){
   const note=(tuning[i]+fret)%12;if(!allowed.has(note))continue;
   const picked=shape[i]===fret&&shape[i]>=0;
   if(fretboardView==='selected'&&!picked)continue;
   if(fretboardView==='roots'&&note!==chord.root)continue;
-  const x=left+fret*step+step/2,y=top+i*row;
+  const x=fret===0?left-25:left+(fret-.5)*step,y=top+i*row;
   const isRoot=note===chord.root;
   const fill=picked?'#e5a72d':isRoot?'#087c55':'#dceee3';
   const fg=picked||isRoot?'#fff':'#214b39';
