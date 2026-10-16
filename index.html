@@ -236,7 +236,12 @@ main{max-width:1040px}
   #appLayout.sidebar-collapsed>#songContent{grid-column:2;grid-row:1}
   #appLayout>.sidebar-toggle{min-height:46px}
 }
-</style></head><body><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
+#accountGate[hidden],#appShell[hidden]{display:none!important}
+#accountGate{max-width:460px;margin:35px auto;padding:24px;background:white;border-radius:16px;box-shadow:0 2px 14px #10291d19}
+#accountGate label{display:block;margin:12px 0 4px;font-weight:650}#accountGate input{display:block;width:100%}
+#accountGate button{margin-top:12px}#accountStatus{line-height:1.5;overflow-wrap:anywhere}
+#accountBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:end;padding:9px 18px;background:#e6f1e9}
+</style></head><body><section id="accountGate"><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -328,7 +333,7 @@ function repairLegacyChordHeader(song){
 }
 
 const chordDB={C:['x32010','x35553','875558'],Cm:['x35543'],D:['xx0232','x57775'],Dm:['xx0231'],E:['022100','x79997'],Em:['022000'],F:['133211','xx3211','x87565'],Fm:['133111'],G:['320003','320033','355433'],Gm:['355333'],A:['x02220'],Am:['x02210','577555'],B:['x24442'],Bm:['x24432'],B7:['x21202'],C7:['x32310'],D7:['xx0212'],E7:['020100'],A7:['x02020'],G7:['320001'],Fmaj7:['xx3210'],Cmaj7:['x32000'],Am7:['x02010'],Em7:['022030'],Dsus4:['xx0233'],Asus2:['x02200'],Gsus4:['330013']};
-function persist(){localStorage.setItem(K,JSON.stringify(songs))}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function persist(){localStorage.setItem(K,JSON.stringify(songs));window.bkCloudPersist?.()}function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function list(){
   const q=$('search').value.toLowerCase();
   $('songs').innerHTML=songs.filter(s=>s.title.toLowerCase().includes(q)).map(s=>
@@ -363,6 +368,7 @@ function moveSongInList(fromId,targetId,placeAfter=false){
     return false;
   }
   songs=order;
+  window.bkCloudPersist?.();
   if(selectedIds)backupSelectedPositions=new Set(
     order.flatMap((song,i)=>selectedIds.has(song.id)?[i]:[])
   );
@@ -1879,6 +1885,7 @@ $('importSelected').onclick=()=>{
     const verified=JSON.parse(localStorage.getItem(K)||'[]');
     if(!Array.isArray(verified)||verified.length!==nextSongs.length)throw Error('Tallennusta ei voitu vahvistaa');
     songs=nextSongs;
+    window.bkCloudPersist?.();
     current=null;list();
     if(songs.length)openSong(songs[0].id);else $('new').click();
     closeImportPicker();
@@ -1891,4 +1898,6 @@ $('importSelected').onclick=()=>{
   }
 };
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=41',{updateViaCache:'none'}).catch(()=>{});showArchivedSongs();list();if(songs.length)openSong(songs[0].id);else $('new').click();
-</script></body></html>
+window.bkGetSongs=()=>songs;
+window.bkSetSongs=value=>{songs=Array.isArray(value)?value:[];current=null;list();if(songs.length)openSong(songs[0].id);else $('new').click();};
+</script></div><script type="module" src="./private-library.js"></script></body></html>
