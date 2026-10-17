@@ -758,6 +758,11 @@ body.import-modal-open{overflow:hidden}
 /* Tuontiin liittyvä vanha lomake ja palautuskopiot eivät näy sivupalkissa. */
 #songSidebar #importTools{display:none!important}
 #songSidebar>#backupStatus{display:none!important}
+
+/* Oikean sointupaneelin korvausehdotusten kelluva sormituskuva */
+.replacement-chord-preview{z-index:1200;width:175px;border-color:#6a9383;background:#182a30}
+.replacement-chord-preview .mini-fretboard{width:100%;height:auto;max-height:148px}
+.replacement-chord-preview small{display:block;color:#d2e5db;line-height:1.4}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
 <div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1628,6 +1633,43 @@ function showHoverCard(button){
  hoverCard.style.left=Math.max(8,Math.min(window.innerWidth-width-8,rect.right+10))+'px';
  hoverCard.style.top=Math.max(8,Math.min(window.innerHeight-height-8,rect.top))+'px';
 }
+// Korvaavien sointujen pikakatselu: oma kuvake, jotta biisin sointujen
+// nykyinen hiiriesikatselu ja oikean paneelin valinta eivät muutu.
+let replacementHoverCard=null;
+const replacementPreviewCache=new Map();
+function hideReplacementPreview(){
+ if(replacementHoverCard)replacementHoverCard.style.display='none';
+}
+function showReplacementPreview(button){
+ if(!button||popoverTab!=='replace'||!fretboardOpen)return;
+ const name=button.dataset.replace;
+ if(!name||!ChordEngine.parse(name))return;
+ if(!replacementHoverCard){
+  replacementHoverCard=document.createElement('div');
+  replacementHoverCard.className='quick-chord-card replacement-chord-preview';
+  replacementHoverCard.setAttribute('role','tooltip');
+  replacementHoverCard.id='replacementChordPreview';
+  document.body.appendChild(replacementHoverCard);
+ }
+ if(!replacementPreviewCache.has(name)){
+  // Vain säveliltään tarkistettu ote. Jos sellaista ei ole, älä arvaa otetta.
+  const form=ChordEngine.voicings(name).find(f=>ChordEngine.valid(name,f.shape));
+  if(replacementPreviewCache.size>=80)replacementPreviewCache.clear();
+  replacementPreviewCache.set(name,form?.shape||null);
+ }
+ const shape=replacementPreviewCache.get(name);
+ replacementHoverCard.innerHTML='<strong>'+safe(name)+'</strong>'+
+   (shape?miniDiagram(name,shape):'<small>Ei tarkistettua sointuotetta.</small>');
+ replacementHoverCard.style.display='block';
+ const rect=button.getBoundingClientRect();
+ const width=replacementHoverCard.offsetWidth,height=replacementHoverCard.offsetHeight;
+ const left=rect.left>=width+12?rect.left-width-10:
+   rect.right+width+10<=innerWidth?rect.right+10:
+   Math.max(8,Math.min(innerWidth-width-8,rect.left+8));
+ const top=Math.max(8,Math.min(innerHeight-height-8,rect.top));
+ replacementHoverCard.style.left=Math.round(left)+'px';
+ replacementHoverCard.style.top=Math.round(top)+'px';
+}
 let chordPopoverTarget=null,popoverPinned=false,popoverHideTimer=null,popoverTab='voicings',popoverExpanded=false,voicingFilter='all',voicingOrder='default',visibleVoicings=12,chordSearch='';
 const chordCache=new Map();
 function voicingKey(button){return button.dataset.line+':'+button.dataset.chordIndex}
@@ -1657,6 +1699,7 @@ function storeVoicing(button,form){
  song.voicings ||= {};song.voicings[voicingKey(button)]=form.shape.join(',');persist();
 }
 function closeChordPopover(force=false){
+ hideReplacementPreview();
  lastQuickChord=null;
  if(popoverPinned&&!force)return;
  hideHoverCard();clearTimeout(popoverHideTimer);popoverPinned=false;fretboardOpen=false;document.body.classList.remove('board-open');
@@ -1842,6 +1885,7 @@ function currentKey(){
  return null;
 }
 function renderChordPopover(){
+ hideReplacementPreview();
  if(!chordPopoverTarget)return;
  document.body.classList.toggle('board-open',Boolean(fretboardOpen));
  const name=chordPopoverTarget.dataset.chord,popup=$('chordPopover'),oldTop=popup.scrollTop;
@@ -1895,6 +1939,7 @@ function renderChordPopover(){
  popup.scrollTop=oldTop;placeChordPopover();
 }
 function renderChordSearchResults(){
+ hideReplacementPreview();
  const node=$('chordSearchResults');if(!node)return;
  const names=ChordEngine.searchNames(chordSearch).filter(n=>n!==chordPopoverTarget?.dataset.chord);
  const visible=chordSearch?names.slice(0,20):names.slice(0,8);
@@ -1917,8 +1962,26 @@ function replaceChord(name){
  const newButton=$('preview').querySelector('[data-line="'+l+'"][data-chord-index="'+i+'"]');
  if(newButton)openChordPopover(newButton,true);
 }
+// Kaikki korvausehdotukset, myös haun ja lisävaihtoehtojen rivit.
+$('chordPopover').addEventListener('pointerover',e=>{
+ if(e.pointerType==='touch')return;
+ const choice=e.target.closest('button[data-replace]');
+ if(choice&&!choice.contains(e.relatedTarget))showReplacementPreview(choice);
+});
+$('chordPopover').addEventListener('pointerout',e=>{
+ const choice=e.target.closest('button[data-replace]');
+ if(choice&&!choice.contains(e.relatedTarget))hideReplacementPreview();
+});
+$('chordPopover').addEventListener('focusin',e=>{
+ const choice=e.target.closest('button[data-replace]');
+ if(choice)showReplacementPreview(choice);
+});
+$('chordPopover').addEventListener('focusout',e=>{
+ if(e.target.closest('button[data-replace]'))hideReplacementPreview();
+});
+$('chordPopover').addEventListener('scroll',hideReplacementPreview,{passive:true});
 $('chordPopover').addEventListener('mouseenter',()=>clearTimeout(popoverHideTimer));
-$('chordPopover').addEventListener('mouseleave',()=>delayCloseChordPopover());
+$('chordPopover').addEventListener('mouseleave',()=>{hideReplacementPreview();delayCloseChordPopover()});
 $('chordPopover').addEventListener('click',e=>{
  const button=e.target.closest('button');if(!button)return;
  if(button.hasAttribute('data-popup-close')){if(fretboardOpen&&popoverTab==='replace'){popoverTab='voicings';chordSearch='';$('chordPopover').scrollTop=0;renderChordPopover();return}rightPanelWanted=false;closeChordPopover(true);return}
