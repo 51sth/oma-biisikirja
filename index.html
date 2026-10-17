@@ -396,8 +396,8 @@ body.board-open .side-panels-control{position:relative;z-index:2}
 
 /* Keep full fretboard aligned to the same top baseline as song and library panels. */
 @media(min-width:801px){
- body.board-open .chord-popover{top:30px!important;height:calc(100dvh - 38px)!important}
- body.board-open #rightEdgeToggle{top:30px!important}
+ body.board-open .chord-popover{top:var(--bk-panel-top,100px)!important;height:calc(100dvh - var(--bk-panel-top,100px) - 8px)!important}
+ body.board-open #rightEdgeToggle{top:var(--bk-panel-top,100px)!important}
 }
 @media(max-width:800px){
  body.board-open .chord-popover{top:auto!important}
@@ -1237,6 +1237,14 @@ function shapeLabel(shape){return shape.map(f=>f<0?'x':String(f)).join(shape.som
 function region(shape){const a=shape.filter(n=>n>0);return a.length?Math.min(...a):0}
 let rightPanelWanted=true;
 function syncRightPanelButton(){const button=$('rightPanelToggle'),edge=$('rightEdgeToggle');if(button){button.textContent=fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki';button.setAttribute('aria-expanded',String(fretboardOpen));}if(edge){edge.textContent=fretboardOpen?'›':'‹';edge.setAttribute('aria-expanded',String(fretboardOpen));edge.setAttribute('aria-label',fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki');edge.title=edge.getAttribute('aria-label')}}
+function alignRightPanel(){
+ if(!fretboardOpen)return;
+ const leftPanel=$('previewPanel');
+ if(!leftPanel)return;
+ // Match the real top edge of the song panel instead of a hard-coded 30px.
+ const top=Math.max(8,Math.min(240,Math.round(leftPanel.getBoundingClientRect().top)));
+ document.documentElement.style.setProperty('--bk-panel-top',top+'px');
+}
 function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
 let originalSongColumns=0;
 let hoverCard=null;
@@ -1325,6 +1333,7 @@ function openChordPopover(button,pin=false){
    popoverTab='voicings';
  }
  document.body.classList.toggle('board-open',fretboardOpen);
+ if(fretboardOpen)requestAnimationFrame(alignRightPanel);
  syncRightPanelButton();
  button.classList.add('chord-selected');
  renderChordPopover();
@@ -1602,8 +1611,8 @@ document.addEventListener('pointerdown',e=>{
  if(fretboardOpen)return;
  if(!$('chordPopover').contains(e.target)&&!e.target.closest?.('[data-chord]'))closeChordPopover(true);
 });
-window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover()},{passive:true});
-window.addEventListener('resize',placeChordPopover);
+window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover();alignRightPanel()},{passive:true});
+window.addEventListener('resize',()=>{placeChordPopover();alignRightPanel()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChordPopover(true)});
 // Wrapping is visual only: keep the original lyrics, lines, and saved chord positions intact.
 function notationColumnCount(){
