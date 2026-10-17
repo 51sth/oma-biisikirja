@@ -1833,7 +1833,7 @@ function setSidebarCollapsed(collapsed,savePreference=true){
   }
   // Sointujen rivitys lasketaan uudelleen, kun soittoalueen leveys vaihtuu.
   if(!$('previewPanel').classList.contains('hidden')){
-    requestAnimationFrame(()=>preview());
+    requestAnimationFrame(()=>{const wasOpen=fretboardOpen;preview(wasOpen);if(wasOpen){const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true)}});
   }
 }
 $('rightPanelToggle').onclick=()=>{rightPanelWanted=!fretboardOpen;if(rightPanelWanted)showDefaultRightPanel();else closeChordPopover(true);syncRightPanelButton()};
