@@ -754,6 +754,10 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
 #importPicker #importSelected,#importPicker #importCancel{margin-top:12px}
 body.import-modal-open{overflow:hidden}
 @media(max-width:540px){.import-modal-overlay{padding:8px}#importPicker{padding:15px!important;max-height:94dvh}}
+
+/* Tuontiin liittyvä vanha lomake ja palautuskopiot eivät näy sivupalkissa. */
+#songSidebar #importTools{display:none!important}
+#songSidebar>#backupStatus{display:none!important}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
 <div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -2464,10 +2468,10 @@ function closeBackupPicker(){
   $('backup').setAttribute('aria-expanded','false');
 }
 $('importToggle').onclick=()=>{
- // Avaa tiedostovalitsin suoraan. Valinnan jälkeen näytetään biisikohtaiset rastit.
+ // Tuonti tapahtuu tiedostovalitsimessa ja erillisessä popupissa.
+ // Vasemman sivupalkin lisätyökaluja ei avata.
  $('restoreMode').value='merge';
- $('importTools').classList.remove('hidden');
- $('importToggle').setAttribute('aria-expanded','true');
+ $('importTools').classList.add('hidden');
  $('restore').click();
 };
 const importTools=$('importTools');
@@ -2575,8 +2579,6 @@ $('restore').onchange=async e=>{
        !entries.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&
        typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000))
       throw Error('Tiedosto on tyhjä tai virheellisen muotoinen');
-    $('importTools').classList.remove('hidden');
-    $('importToggle').setAttribute('aria-expanded','true');
     showImportPicker(file.name,entries);
   }catch(err){
     console.error(err);
