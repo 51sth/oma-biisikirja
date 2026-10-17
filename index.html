@@ -568,7 +568,7 @@ function removeSong(id){
   else list();
   if(!$('backupPicker').classList.contains('hidden'))renderBackupChoices();
 }
-function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;resetTranspose();finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');requestAnimationFrame(showDefaultRightPanel);$('playViewport').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'})}
+function openSong(id){let s=songs.find(x=>x.id===id);if(!s)return;resetTranspose();finderPending=null;finderQueuedVoicings=[];current=id;$('title').value=s.title;$('capo').value=Number.isInteger(s.capo)&&s.capo>=0?s.capo:0;$('capoDisplay').textContent=Number.isInteger(s.capo)&&s.capo>0?'· capo '+s.capo+'. nauha':'';loadBody(s.body);list();preview();showMode('play');$('playViewport').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'})}
 function save(){if(!syncRaw()){alert('Korjaa ensin sointirivin merkintä. Virhe näkyy editorin yläpuolella.');return}let title=$('title').value.trim()||'Nimetön kappale',body=$('editor').value,capo=Math.max(0,Math.min(15,Number($('capo').value)||0));if(!current)current=String(Date.now())+'-'+Math.random();let s=songs.find(x=>x.id===current);
   // Säilytä tallennetut soitto-otteet vain samoille sointukohdille myös rivin poiston jälkeen.
   if(s&&s.voicings){
@@ -1206,7 +1206,7 @@ function shapeLabel(shape){return shape.map(f=>f<0?'x':String(f)).join(shape.som
 function region(shape){const a=shape.filter(n=>n>0);return a.length?Math.min(...a):0}
 let rightPanelWanted=true;
 function syncRightPanelButton(){const button=$('rightPanelToggle');if(button){button.textContent=fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki';button.setAttribute('aria-expanded',String(fretboardOpen));}}
-function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
+function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
 let originalSongColumns=0;
 let hoverCard=null;
 function hideHoverCard(){if(hoverCard)hoverCard.style.display='none'}
@@ -1800,7 +1800,7 @@ function showMode(mode){
   stopScroll();closeChordPopover(true);
   $('editorPanel').classList.toggle('hidden',mode!=='edit');
   $('previewPanel').classList.toggle('hidden',mode==='edit');
-  if(mode==='play'){preview();requestAnimationFrame(showDefaultRightPanel)}
+  if(mode==='play'){preview();requestAnimationFrame(()=>requestAnimationFrame(showDefaultRightPanel))}
 }
 $('songs').onclick=e=>{const fav=e.target.closest('[data-favorite-song]');if(fav){const song=songs.find(x=>x.id===fav.dataset.favoriteSong);if(song){song.favorite=!Boolean(song.favorite);persist();list()}return;}const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
 $('search').oninput=list;
