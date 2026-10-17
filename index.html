@@ -2145,10 +2145,30 @@ function refreshTransposeControls(){
 function changeTranspose(steps){
   const next=Math.max(-12,Math.min(12,transposeOffset+steps));
   if(next===transposeOffset)return;
+  // Muista oikean otelautapaneelin tila ja valittu sointukohta.
+  // Transponointi piirtää soinnut uusiksi, joten vanha painike-olio ei enää ole DOMissa.
+  const keepFretboard=fretboardOpen;
+  const selectedLocation=keepFretboard&&chordPopoverTarget
+    ?{line:chordPopoverTarget.dataset.line,index:chordPopoverTarget.dataset.chordIndex}
+    :null;
   transposeOffset=next;
   temporaryTransposedVoicings.clear();
   refreshTransposeControls();
-  preview();
+  preview(keepFretboard);
+  if(keepFretboard){
+    const buttons=Array.from($('preview').querySelectorAll('[data-chord]'));
+    const target=buttons.find(button=>selectedLocation
+      &&button.dataset.line===selectedLocation.line
+      &&button.dataset.chordIndex===selectedLocation.index) || buttons[0];
+    if(target){
+      chordPopoverTarget=target;
+      popoverPinned=true;
+      target.classList.add('chord-selected');
+      renderChordPopover();
+    }else{
+      closeChordPopover(true);
+    }
+  }
 }
 function resetTranspose(){
   transposeOffset=0;
