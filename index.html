@@ -2449,10 +2449,17 @@ function closeBackupPicker(){
   $('backup').setAttribute('aria-expanded','false');
 }
 $('importToggle').onclick=()=>{
- const tools=$('importTools'),opening=tools.classList.contains('hidden');
- tools.classList.toggle('hidden',!opening);
- $('importToggle').setAttribute('aria-expanded',String(opening));
+ // Avaa tiedostovalitsin suoraan. Valinnan jälkeen näytetään biisikohtaiset rastit.
+ $('restoreMode').value='merge';
+ $('importTools').classList.remove('hidden');
+ $('importToggle').setAttribute('aria-expanded','true');
+ $('restore').click();
 };
+const importTools=$('importTools');
+const restoreArea=$('restore').closest('.backup-area');
+const importPicker=$('importPicker');
+if(restoreArea)importTools.appendChild(restoreArea);
+if(importPicker)importTools.appendChild(importPicker);
 const localImport=$('accountImport');
 if(localImport){$('localSongImportSlot').appendChild(localImport);localImport.textContent='Tuo tämän selaimen aiemmat biisit';}
 $('backup').onclick=()=>{
@@ -2532,6 +2539,8 @@ $('restore').onchange=async e=>{
        !entries.every(x=>x&&typeof x.id==='string'&&x.id.length<300&&
        typeof x.title==='string'&&x.title.length<500&&typeof x.body==='string'&&x.body.length<1000000))
       throw Error('Tiedosto on tyhjä tai virheellisen muotoinen');
+    $('importTools').classList.remove('hidden');
+    $('importToggle').setAttribute('aria-expanded','true');
     showImportPicker(file.name,entries);
   }catch(err){
     console.error(err);
