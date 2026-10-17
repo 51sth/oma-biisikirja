@@ -470,7 +470,7 @@ body.board-open .side-panels-control{position:relative;z-index:2}
    oikealle riittävä tila ja saman korkeuden avausnuolet. */
 @media(min-width:1100px){
  body.play-layout{
-  --bk-left-rail:254px;
+  --bk-left-rail:314px;
   --bk-fret-width:clamp(360px,29vw,470px);
   --bk-song-max:760px;
   --bk-song-actual:min(var(--bk-song-max),calc(100vw - var(--bk-left-rail) - var(--bk-fret-width) - 32px));
@@ -484,10 +484,10 @@ body.board-open .side-panels-control{position:relative;z-index:2}
   max-width:none!important;padding:8px 0!important;
  }
  body.play-layout #appLayout,body.play-layout.board-open #appLayout{
-  display:grid!important;grid-template-columns:34px 200px minmax(0,1fr)!important;
+  display:grid!important;grid-template-columns:34px 260px minmax(0,1fr)!important;
   column-gap:10px!important;align-items:start!important;
  }
- body.play-layout #appLayout>#songSidebar{grid-column:2!important}
+ body.play-layout #appLayout>#songSidebar{grid-column:2!important;min-width:0!important;width:100%!important}
  body.play-layout #appLayout>#songContent{grid-column:3!important;width:100%!important;min-width:0!important}
  body.play-layout .chord-popover,body.play-layout.board-open .chord-popover{
   left:var(--bk-panel-x)!important;right:auto!important;
