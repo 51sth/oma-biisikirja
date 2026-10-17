@@ -403,6 +403,35 @@ body.board-open .side-panels-control{position:relative;z-index:2}
  body.board-open .chord-popover{top:auto!important}
  body.board-open #rightEdgeToggle{top:calc(51dvh - 28px)!important}
 }
+
+/* STABLE PLAY LAYOUT: side panels never change the song's column width. */
+@media(min-width:1100px){
+ body.play-layout main,body.play-layout.board-open main{width:calc(66.6667vw - 8px)!important;max-width:none!important;margin:0!important;padding:8px 6px!important}
+ body.play-layout #appLayout,body.play-layout.board-open #appLayout{display:grid!important;grid-template-columns:34px 220px minmax(0,1fr)!important;gap:10px!important;align-items:start!important}
+ body.play-layout #appLayout>.sidebar-toggle{display:flex!important;grid-column:1!important;grid-row:1!important}
+ body.play-layout #appLayout>#songSidebar{grid-column:2!important;grid-row:1!important;position:static!important;display:block!important;min-width:0!important}
+ body.play-layout #appLayout>#songContent{grid-column:3!important;grid-row:1!important;min-width:0!important;display:block!important}
+ body.play-layout #appLayout.sidebar-collapsed>#songSidebar{visibility:hidden!important;pointer-events:none!important;display:block!important}
+ body.play-layout #appLayout.sidebar-collapsed>#songContent{grid-column:3!important}
+ body.play-layout .chord-popover{right:8px!important;width:calc(33.3333vw - 16px)!important}
+ body.play-layout #rightEdgeToggle{right:calc(33.3333vw - 4px)!important}
+}
+@media(min-width:801px) and (max-width:1099px){
+ body.play-layout main,body.play-layout.board-open main{width:calc(62vw - 8px)!important;max-width:none!important;margin:0!important}
+ body.play-layout #appLayout,body.play-layout.board-open #appLayout{display:grid!important;grid-template-columns:30px minmax(0,1fr)!important;gap:8px!important}
+ body.play-layout #appLayout>#songContent{grid-column:2!important;grid-row:1!important}
+ body.play-layout #appLayout>#songSidebar:not([hidden]){position:fixed!important;display:block!important;top:85px!important;left:42px!important;width:min(260px,40vw)!important;max-height:80dvh;overflow-y:auto;z-index:900}
+ body.play-layout .chord-popover{width:calc(38vw - 12px)!important;right:6px!important}
+ body.play-layout #rightEdgeToggle{right:calc(38vw - 2px)!important}
+}
+@media(min-width:801px){
+ body.play-layout #rightEdgeToggle{top:calc(var(--bk-panel-top,100px) + 74px)!important}
+ body.play-layout .chord-popover{top:var(--bk-panel-top,100px)!important}
+ body.play-layout .side-panels-control{display:none!important}
+}
+@media(max-width:800px){
+ body.play-layout #rightEdgeToggle{top:43vh!important;right:3px!important}
+}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1840,6 +1869,7 @@ function showMode(mode){
   stopScroll();closeChordPopover(true);
   $('editorPanel').classList.toggle('hidden',mode!=='edit');
   $('previewPanel').classList.toggle('hidden',mode==='edit');
+  document.body.classList.toggle('play-layout',mode==='play');
   if(mode==='play'){preview();requestAnimationFrame(()=>requestAnimationFrame(showDefaultRightPanel))}
 }
 $('songs').onclick=e=>{const fav=e.target.closest('[data-favorite-song]');if(fav){const song=songs.find(x=>x.id===fav.dataset.favoriteSong);if(song){song.favorite=!Boolean(song.favorite);persist();list()}return;}const remove=e.target.closest('[data-remove-song]');if(remove){removeSong(remove.dataset.removeSong);return;}const b=e.target.closest('[data-id]');if(b)openSong(b.dataset.id)};
