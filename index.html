@@ -340,6 +340,12 @@ header{background:#101b21!important;border-bottom:1px solid #2d4046!important}
 #previewPanel .transpose-bar,#previewPanel .scrollbar{background:#1b2a31!important;border-color:#2d4046!important}
 .chord-popover{background:#162127!important;border-color:#2d4046!important}
 .voicing-choice{background:#1e3036!important}
+
+.quick-chord-card{position:fixed;z-index:1100;width:165px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:10px 8px;border:1px solid #507367;border-radius:12px;background:#17272d;color:#eaf6ed;box-shadow:0 10px 28px #0008;pointer-events:none;text-align:center}
+.quick-chord-card strong{display:block;font-size:13px;text-align:left;margin:0 0 5px 5px}
+.quick-chord-card .mini-fretboard{width:100%;height:140px;display:block}
+body.board-open #playViewport{overflow-x:auto!important}
+body.board-open #preview .notation-line{max-width:none!important}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1172,6 +1178,19 @@ function miniDiagram(name,shape){
 }
 function shapeLabel(shape){return shape.map(f=>f<0?'x':String(f)).join(shape.some(f=>f>9)?'-':'')}
 function region(shape){const a=shape.filter(n=>n>0);return a.length?Math.min(...a):0}
+let originalSongColumns=0;
+let hoverCard=null;
+function hideHoverCard(){if(hoverCard)hoverCard.style.display='none'}
+function showHoverCard(button){
+ if(!button)return;
+ if(!hoverCard){hoverCard=document.createElement('div');hoverCard.className='quick-chord-card';document.body.appendChild(hoverCard)}
+ const name=button.dataset.chord,form=selectedVoicing(name,button).forms[0];
+ hoverCard.innerHTML='<strong>'+safe(name)+'</strong>'+(form?miniDiagram(name,form.shape):'<small>Ei otetta</small>');
+ hoverCard.style.display='block';
+ const rect=button.getBoundingClientRect(),width=hoverCard.offsetWidth,height=hoverCard.offsetHeight;
+ hoverCard.style.left=Math.max(8,Math.min(window.innerWidth-width-8,rect.right+10))+'px';
+ hoverCard.style.top=Math.max(8,Math.min(window.innerHeight-height-8,rect.top))+'px';
+}
 let chordPopoverTarget=null,popoverPinned=false,popoverHideTimer=null,popoverTab='voicings',popoverExpanded=false,voicingFilter='all',voicingOrder='default',visibleVoicings=12,chordSearch='';
 const chordCache=new Map();
 function voicingKey(button){return button.dataset.line+':'+button.dataset.chordIndex}
@@ -1202,7 +1221,7 @@ function storeVoicing(button,form){
 }
 function closeChordPopover(force=false){
  if(popoverPinned&&!force)return;
- clearTimeout(popoverHideTimer);popoverPinned=false;fretboardOpen=false;document.body.classList.remove('board-open');
+ hideHoverCard();clearTimeout(popoverHideTimer);popoverPinned=false;fretboardOpen=false;document.body.classList.remove('board-open');
  if(chordPopoverTarget)chordPopoverTarget.classList.remove('chord-selected');
  chordPopoverTarget=null;$('chordPopover').classList.add('hidden');
 }
@@ -1227,6 +1246,8 @@ function placeChordPopover(){
  popup.style.left=left+'px';popup.style.top=top+'px';
 }
 function openChordPopover(button,pin=false){
+ hideHoverCard();
+ if(pin&&!fretboardOpen)originalSongColumns=notationColumnCount();
  clearTimeout(popoverHideTimer);
  const wasFull=fretboardOpen;
  if(chordPopoverTarget&&chordPopoverTarget!==button)chordPopoverTarget.classList.remove('chord-selected');
@@ -1479,12 +1500,12 @@ $('chordPopover').addEventListener('input',e=>{
 $('preview').addEventListener('pointerover',e=>{
  if(e.pointerType==='touch')return;
  const b=e.target.closest('[data-chord]');
- if(fretboardOpen)return; // Jaettu näkymä pysyy auki hiirtä liikutettaessa.
+ if(fretboardOpen){if(b)showHoverCard(b);return;} // Pikasointu näytetään erillisessä kortissa.
  if(b&&(b!==chordPopoverTarget||!popoverPinned))openChordPopover(b,false);
 });
 $('preview').addEventListener('pointerout',e=>{
  if(e.pointerType==='touch')return;
- if(fretboardOpen)return;
+ if(fretboardOpen){if(e.target.closest('[data-chord]'))hideHoverCard();return;}
  if(e.target.closest('[data-chord]'))delayCloseChordPopover();
 });
 $('preview').addEventListener('focusin',e=>{const b=e.target.closest('[data-chord]');if(b)openChordPopover(b,true)});
@@ -1676,7 +1697,7 @@ $('transposeReset').onclick=()=>changeTranspose(-transposeOffset);
 refreshTransposeControls();
 function preview(){
   closeChordPopover(true);
-  const columns=notationColumnCount();
+  const columns=fretboardOpen?Math.max(originalSongColumns,notationColumnCount()):notationColumnCount();
   const lines=parseBody($('editor').value);
   $('preview').innerHTML=lines.map((line,rowIndex)=>{
     if(line.isSection){
