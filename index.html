@@ -684,21 +684,31 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
  }
 }
 
-/* Kolme näkyvää palstaa: kappale pysyy paikallaan, vain sanoitukset vierivät. */
+/* Yhtenäinen keskialue: kaikki soittimen osat vierivät samassa paneelissa.
+   Vasemman paneelin yläreuna on pysyvästi oikean paneelin tasolla. */
 @media(min-width:1100px){
  body.play-layout #appLayout>#songContent{
   position:sticky!important;top:8px!important;align-self:start!important;
-  max-height:calc(100dvh - 16px)!important;
+  height:calc(100dvh - 16px)!important;max-height:calc(100dvh - 16px)!important;
   overflow:hidden!important;
  }
  body.play-layout #previewPanel{
-  height:calc(100dvh - 16px)!important;max-height:calc(100dvh - 16px)!important;
-  display:flex!important;flex-direction:column!important;overflow:hidden!important;
+  height:100%!important;max-height:100%!important;
+  display:block!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain;scrollbar-width:thin;
  }
  body.play-layout #playViewport{
-  flex:1 1 auto!important;min-height:0!important;
-  overflow-y:auto!important;overscroll-behavior:contain;
-  scrollbar-width:thin;
+  display:block!important;overflow:visible!important;
+  min-height:0!important;max-height:none!important;
+ }
+ body.play-layout #appLayout>#songSidebar,
+ body.play-layout.board-open #appLayout>#songSidebar{
+  position:fixed!important;top:8px!important;
+  left:calc(var(--bk-triple-left) + 44px)!important;
+  width:278px!important;max-width:278px!important;
+  height:calc(100dvh - 16px)!important;max-height:calc(100dvh - 16px)!important;
+  box-sizing:border-box!important;
  }
 }
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
@@ -2221,7 +2231,7 @@ function changeScrollSpeed(amount){
 function stopScroll(){scrolling=false;cancelAnimationFrame(frameId);lastFrame=0;$('scrollToggle').textContent='▶ Käynnistä';$('scrollToggle').classList.remove('playing')}
 function pageMaxScroll(){return Math.max(0,document.documentElement.scrollHeight-window.innerHeight)}
 function songScrollEnd(){
-  if(innerWidth>=1100&&document.body.classList.contains('play-layout')){const v=$('playViewport');return Math.max(0,v.scrollHeight-v.clientHeight)}
+  if(innerWidth>=1100&&document.body.classList.contains('play-layout')){const v=$('previewPanel');return Math.max(0,v.scrollHeight-v.clientHeight)}
   // Stop after the last lyric line has travelled into the visible region.
   const sheet=$('playViewport').getBoundingClientRect();
   const pageBottom=window.scrollY+sheet.bottom;
@@ -2235,9 +2245,9 @@ function scrollStep(now){
     const end=songScrollEnd();
     // Maintain sub-pixel progress even in browsers that round scrollY.
     virtualScrollY=Math.min(end,virtualScrollY+(2+Math.pow((speed-1)/9,1.85)*98)*elapsed);
-    if(innerWidth>=1100&&document.body.classList.contains('play-layout'))$('playViewport').scrollTop=virtualScrollY;
+    if(innerWidth>=1100&&document.body.classList.contains('play-layout'))$('previewPanel').scrollTop=virtualScrollY;
     else window.scrollTo({top:virtualScrollY,behavior:'instant'});
-    const currentPos=innerWidth>=1100&&document.body.classList.contains('play-layout')?$('playViewport').scrollTop:window.scrollY;
+    const currentPos=innerWidth>=1100&&document.body.classList.contains('play-layout')?$('previewPanel').scrollTop:window.scrollY;
     if(currentPos>=end-1||virtualScrollY>=end-0.2){stopScroll();return}
   }
   lastFrame=now;frameId=requestAnimationFrame(scrollStep);
@@ -2247,9 +2257,9 @@ function toggleAutoScroll(){
   let end=songScrollEnd();
   // At the end, restart from the top of the song instead of doing nothing.
   const innerMode=innerWidth>=1100&&document.body.classList.contains('play-layout');
-  let currentPos=innerMode?$('playViewport').scrollTop:window.scrollY;
+  let currentPos=innerMode?$('previewPanel').scrollTop:window.scrollY;
   if(currentPos>=end-1&&end>1){
-    if(innerMode)$('playViewport').scrollTop=0;
+    if(innerMode)$('previewPanel').scrollTop=0;
     else {const start=Math.max(0,window.scrollY+$('previewPanel').getBoundingClientRect().top-12);window.scrollTo({top:start,behavior:'instant'});}
     currentPos=innerMode?0:window.scrollY;
     end=songScrollEnd();
