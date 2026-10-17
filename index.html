@@ -2304,7 +2304,12 @@ $('finderNext').onclick=()=>{finderBase=Math.min(11,finderBase+3);renderFinder()
 $('finderClear').onclick=()=>{finderShape.fill(0);finderTouched=false;finderBase=1;renderFinder()};
 $('finderExample').onclick=()=>{finderShape.splice(0,6,-1,3,2,0,1,0);finderTouched=true;finderBase=1;renderFinder()};
 renderFinder();
-
+// Muista sointuetsimen viimeisin auki/kiinni-tila tässä selaimessa.
+const finderOpenKey='biisikirja-sointuetsin-auki';
+try{$('chordFinderPanel').open=localStorage.getItem(finderOpenKey)==='1'}catch{}
+$('chordFinderPanel').addEventListener('toggle',()=>{
+ try{localStorage.setItem(finderOpenKey,$('chordFinderPanel').open?'1':'0')}catch{}
+});
 
 // Selaimen valintaruutujen todellinen checked-tila määrää varmuuskopion sisällön.
 // Käytetään luettelon indeksejä: vanhoista varmuuskopioista voi löytyä samoja id-arvoja.
