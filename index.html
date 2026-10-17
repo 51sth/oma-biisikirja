@@ -372,7 +372,28 @@ body.board-open #preview .notation-line{max-width:none!important}
 }
 .side-panels-control{display:flex;justify-content:flex-end;margin:6px 0 2px}.side-panels-control button{font-size:12px;padding:7px 12px;background:#274942;color:#e8f5ed;border:1px solid #48645b}
 body.board-open .side-panels-control{position:relative;z-index:2}
-</style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
+
+/* Persistent independent right-edge handle, visible at every viewport width. */
+#rightEdgeToggle{position:fixed;right:6px;top:15vh;z-index:1010;width:35px;height:54px;padding:0;margin:0;border-radius:9px 0 0 9px;background:#dff3e7;color:#155c43;border:1px solid #aed3c0;box-shadow:0 3px 16px #0004;font-size:25px;font-weight:700;display:none;align-items:center;justify-content:center}
+#appShell:not([hidden]) #rightEdgeToggle{display:flex}
+#rightEdgeToggle:focus-visible{outline:3px solid #4ed3a0;outline-offset:2px}
+@media(min-width:1100px){
+ body.board-open #rightEdgeToggle{right:calc(33.3333vw - 1px)}
+ body.board-open #appLayout:not(.sidebar-collapsed)>#songSidebar{display:block!important}
+}
+@media(min-width:801px) and (max-width:1099px){
+ body.board-open main{width:62vw!important}
+ body.board-open .chord-popover{width:calc(38vw - 9px)!important;right:6px!important}
+ body.board-open #rightEdgeToggle{right:calc(38vw - 1px)}
+ body.board-open #appLayout>#songSidebar:not([hidden]){position:fixed!important;display:block!important;left:42px;top:10px;width:min(260px,40vw);max-height:88dvh;overflow-y:auto;z-index:900;box-shadow:0 8px 30px #0009}
+ body.board-open #appLayout.sidebar-collapsed>#songSidebar{display:none!important}
+}
+@media(max-width:800px){
+ #rightEdgeToggle{top:38vh;right:4px}
+ body.board-open #rightEdgeToggle{top:calc(51dvh - 28px);right:4px}
+ body.board-open #songSidebar:not([hidden]){display:block}
+}
+</style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
@@ -1205,7 +1226,7 @@ function miniDiagram(name,shape){
 function shapeLabel(shape){return shape.map(f=>f<0?'x':String(f)).join(shape.some(f=>f>9)?'-':'')}
 function region(shape){const a=shape.filter(n=>n>0);return a.length?Math.min(...a):0}
 let rightPanelWanted=true;
-function syncRightPanelButton(){const button=$('rightPanelToggle');if(button){button.textContent=fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki';button.setAttribute('aria-expanded',String(fretboardOpen));}}
+function syncRightPanelButton(){const button=$('rightPanelToggle'),edge=$('rightEdgeToggle');if(button){button.textContent=fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki';button.setAttribute('aria-expanded',String(fretboardOpen));}if(edge){edge.textContent=fretboardOpen?'›':'‹';edge.setAttribute('aria-expanded',String(fretboardOpen));edge.setAttribute('aria-label',fretboardOpen?'Piilota otelautapalkki':'Näytä otelautapalkki');edge.title=edge.getAttribute('aria-label')}}
 function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
 let originalSongColumns=0;
 let hoverCard=null;
@@ -1836,7 +1857,9 @@ function setSidebarCollapsed(collapsed,savePreference=true){
     requestAnimationFrame(()=>{const wasOpen=fretboardOpen;preview(wasOpen);if(wasOpen){const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true)}});
   }
 }
-$('rightPanelToggle').onclick=()=>{rightPanelWanted=!fretboardOpen;if(rightPanelWanted)showDefaultRightPanel();else closeChordPopover(true);syncRightPanelButton()};
+function toggleRightPanel(){rightPanelWanted=!fretboardOpen;if(rightPanelWanted)showDefaultRightPanel();else closeChordPopover(true);syncRightPanelButton()}
+$('rightPanelToggle').onclick=toggleRightPanel;
+$('rightEdgeToggle').onclick=toggleRightPanel;
 $('sidebarToggle').onclick=()=>{
   setSidebarCollapsed(!$('songSidebar').hidden);
   // Hiirellä nuolta painaneen välilyönti ohjaa seuraavaksi soitinta,
