@@ -1266,6 +1266,19 @@ function openChordPopover(button,pin=false){
  document.body.classList.toggle('board-open',fretboardOpen);
  button.classList.add('chord-selected');
  renderChordPopover();
+ // The split view changes the lyrics container width: recalculate line wrapping
+ // after the layout has settled, without closing the pinned chord panel.
+ if(pin&&fretboardOpen){
+   const chordLine=button.dataset.line,chordIndex=button.dataset.chordIndex;
+   requestAnimationFrame(()=>{
+     if(!fretboardOpen)return;
+     preview(true);
+     const match=Array.from($('preview').querySelectorAll('[data-chord]')).find(el=>
+       el.dataset.line===chordLine&&el.dataset.chordIndex===chordIndex);
+     if(match){chordPopoverTarget=match;match.classList.add('chord-selected')}
+     renderChordPopover();
+   });
+ }
 }
 function nearbyVoicingShapes(){
  const song=songs.find(s=>s.id===current);
@@ -1706,9 +1719,9 @@ $('transposeDown').onclick=()=>changeTranspose(-1);
 $('transposeUp').onclick=()=>changeTranspose(1);
 $('transposeReset').onclick=()=>changeTranspose(-transposeOffset);
 refreshTransposeControls();
-function preview(){
-  closeChordPopover(true);
-  const columns=fretboardOpen?Math.max(originalSongColumns,notationColumnCount()):notationColumnCount();
+function preview(preserveChordPanel=false){
+  if(!preserveChordPanel)closeChordPopover(true);
+  const columns=notationColumnCount();
   const lines=parseBody($('editor').value);
   $('preview').innerHTML=lines.map((line,rowIndex)=>{
     if(line.isSection){
