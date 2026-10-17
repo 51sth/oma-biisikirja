@@ -1184,7 +1184,7 @@ function hideHoverCard(){if(hoverCard)hoverCard.style.display='none'}
 function showHoverCard(button){
  if(!button)return;
  if(!hoverCard){hoverCard=document.createElement('div');hoverCard.className='quick-chord-card';document.body.appendChild(hoverCard)}
- const name=button.dataset.chord,form=selectedVoicing(name,button).forms[0];
+ const name=button.dataset.chord,{forms,index}=selectedVoicing(name,button),form=forms[index];
  hoverCard.innerHTML='<strong>'+safe(name)+'</strong>'+(form?miniDiagram(name,form.shape):'<small>Ei otetta</small>');
  hoverCard.style.display='block';
  const rect=button.getBoundingClientRect(),width=hoverCard.offsetWidth,height=hoverCard.offsetHeight;
