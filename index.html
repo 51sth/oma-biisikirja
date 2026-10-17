@@ -1487,7 +1487,9 @@ function alignRightPanel(){
  const leftPanel=(!$('songSidebar').hidden&&innerWidth>=1100)?$('songSidebar'):$('previewPanel');
  if(!leftPanel)return;
  // Match the real top edge of the song panel instead of a hard-coded 30px.
- const top=Math.max(8,Math.min(240,Math.round(leftPanel.getBoundingClientRect().top)));
+ // Kiinnitä oikea palkki näyttöön: vieritys ei saa muuttaa yläreunaa.
+ // Alkukorkeus lasketaan asiakirjakoordinaateista, ei vierivästä viewportista.
+ const top=Math.max(8,Math.min(240,Math.round(leftPanel.getBoundingClientRect().top+window.scrollY)));
  document.documentElement.style.setProperty('--bk-panel-top',top+'px');
 }
 function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
@@ -1856,7 +1858,7 @@ document.addEventListener('pointerdown',e=>{
  if(fretboardOpen)return;
  if(!$('chordPopover').contains(e.target)&&!e.target.closest?.('[data-chord]'))closeChordPopover(true);
 });
-window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover();alignRightPanel()},{passive:true});
+window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover()},{passive:true});
 window.addEventListener('resize',()=>{placeChordPopover();alignRightPanel();alignLeftArrow()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChordPopover(true)});
 // Wrapping is visual only: keep the original lyrics, lines, and saved chord positions intact.
