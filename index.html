@@ -634,6 +634,25 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
 .finder button.finder-help-trigger{width:25px;height:25px;border-radius:50%;font-size:14px;background:#37524c;color:#e6f9ec;border:1px solid #6b9583;font-weight:750}
 .finder-help-popup{display:none;position:absolute;right:0;top:calc(100% + 7px);z-index:120;box-sizing:border-box;width:min(260px,75vw);white-space:normal;padding:10px 12px;background:#102027;color:#ebf5ed;border:1px solid #75aa92;border-radius:9px;box-shadow:0 5px 25px #0009;font-size:12px;line-height:1.5}
 .finder-help-wrap:hover .finder-help-popup,.finder-help-wrap:focus-within .finder-help-popup{display:block}
+
+/* Kiinnitetyt ohjaimet eivät liiku dokumentin vierityksen mukana. */
+@media(min-width:1100px){
+ body.play-layout.board-open .chord-popover{
+  position:fixed!important;top:8px!important;bottom:8px!important;
+  height:auto!important;max-height:none!important;
+ }
+ body.play-layout #rightEdgeToggle,
+ body.play-layout.board-open #rightEdgeToggle,
+ body.play-layout #appLayout>.sidebar-toggle{
+  position:fixed!important;top:8px!important;
+ }
+}
+@media(min-width:801px) and (max-width:1099px){
+ body.play-layout.board-open .chord-popover{
+  position:fixed!important;top:8px!important;bottom:8px!important;height:auto!important;
+ }
+ body.play-layout #rightEdgeToggle,body.play-layout.board-open #rightEdgeToggle{top:8px!important}
+}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
 <div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1479,7 +1498,7 @@ function alignLeftArrow(){
  arrow.style.setProperty('position','fixed','important');
  arrow.style.setProperty('left',Math.round(rect.left-35)+'px','important');
  const right=$('rightEdgeToggle');
- const top=right?right.getBoundingClientRect().top:rect.top;
+ const top=8; // Molemmat nuolet samalla pysyvällä korkeudella.
  arrow.style.setProperty('top',Math.round(top)+'px','important');
 }
 function alignRightPanel(){
@@ -1489,7 +1508,7 @@ function alignRightPanel(){
  // Match the real top edge of the song panel instead of a hard-coded 30px.
  // Kiinnitä oikea palkki näyttöön: vieritys ei saa muuttaa yläreunaa.
  // Alkukorkeus lasketaan asiakirjakoordinaateista, ei vierivästä viewportista.
- const top=Math.max(8,Math.min(240,Math.round(leftPanel.getBoundingClientRect().top+window.scrollY)));
+ const top=8; // Kiinteä näyttökoordinaatti: ei seuraa sivun vieritystä.
  document.documentElement.style.setProperty('--bk-panel-top',top+'px');
 }
 function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
