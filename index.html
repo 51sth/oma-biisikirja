@@ -1220,6 +1220,7 @@ function storeVoicing(button,form){
  song.voicings ||= {};song.voicings[voicingKey(button)]=form.shape.join(',');persist();
 }
 function closeChordPopover(force=false){
+ lastQuickChord=null;
  if(popoverPinned&&!force)return;
  hideHoverCard();clearTimeout(popoverHideTimer);popoverPinned=false;fretboardOpen=false;document.body.classList.remove('board-open');
  if(chordPopoverTarget)chordPopoverTarget.classList.remove('chord-selected');
@@ -1500,14 +1501,24 @@ $('chordPopover').addEventListener('input',e=>{
 $('preview').addEventListener('pointerover',e=>{
  if(e.pointerType==='touch')return;
  const b=e.target.closest('[data-chord]');
- if(fretboardOpen){if(b)showHoverCard(b);return;} // Pikasointu näytetään erillisessä kortissa.
+ if(fretboardOpen)return; // Pikakatselua ohjaa koko sivun hiiriseuranta.
  if(b&&(b!==chordPopoverTarget||!popoverPinned))openChordPopover(b,false);
 });
 $('preview').addEventListener('pointerout',e=>{
  if(e.pointerType==='touch')return;
- if(fretboardOpen){if(e.target.closest('[data-chord]'))hideHoverCard();return;}
+ if(fretboardOpen)return;
  if(e.target.closest('[data-chord]'))delayCloseChordPopover();
 });
+// Erillinen hiiriseuranta myös lukitussa 2/3 + 1/3 -näkymässä.
+// Ei muuta oikean paneelin valittua sointua.
+let lastQuickChord=null;
+document.addEventListener('pointermove',e=>{
+ if(!fretboardOpen||e.pointerType==='touch'){if(lastQuickChord){hideHoverCard();lastQuickChord=null}return;}
+ const target=e.target instanceof Element?e.target.closest('#preview [data-chord]'):null;
+ if(target===lastQuickChord)return;
+ lastQuickChord=target;
+ if(target)showHoverCard(target);else hideHoverCard();
+},{passive:true});
 $('preview').addEventListener('focusin',e=>{const b=e.target.closest('[data-chord]');if(b)openChordPopover(b,true)});
 $('preview').addEventListener('click',e=>{
  const b=e.target.closest('[data-chord]');if(b)openChordPopover(b,true);
