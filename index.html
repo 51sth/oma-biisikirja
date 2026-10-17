@@ -666,7 +666,21 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
   overflow-y:auto!important;
   overflow-x:hidden!important;
   overscroll-behavior:contain;
-  scrollbar-width:thin;
+  scrollbar-width:none;
+ }
+ body.play-layout #songSidebar::-webkit-scrollbar{display:none}
+}
+
+/* Sama aloituslinja: oikea paneeli seuraa vasemman sticky-paneelin korkeutta. */
+@media(min-width:1100px){
+ body.play-layout.board-open .chord-popover{
+  top:var(--bk-panel-top,8px)!important;
+  bottom:8px!important;height:auto!important;
+ }
+ body.play-layout #rightEdgeToggle,
+ body.play-layout.board-open #rightEdgeToggle,
+ body.play-layout #appLayout>.sidebar-toggle{
+  top:var(--bk-panel-top,8px)!important;
  }
 }
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
@@ -1514,17 +1528,15 @@ function alignLeftArrow(){
  arrow.style.setProperty('position','fixed','important');
  arrow.style.setProperty('left',Math.round(rect.left-35)+'px','important');
  const right=$('rightEdgeToggle');
- const top=8; // Molemmat nuolet samalla pysyvällä korkeudella.
+ const top=Math.max(8,Math.round(($('songSidebar').hidden?center:$('songSidebar')).getBoundingClientRect().top));
  arrow.style.setProperty('top',Math.round(top)+'px','important');
 }
 function alignRightPanel(){
- if(!fretboardOpen)return;
- const leftPanel=(!$('songSidebar').hidden&&innerWidth>=1100)?$('songSidebar'):$('previewPanel');
- if(!leftPanel)return;
- // Match the real top edge of the song panel instead of a hard-coded 30px.
- // Kiinnitä oikea palkki näyttöön: vieritys ei saa muuttaa yläreunaa.
- // Alkukorkeus lasketaan asiakirjakoordinaateista, ei vierivästä viewportista.
- const top=8; // Kiinteä näyttökoordinaatti: ei seuraa sivun vieritystä.
+ if(!document.body.classList.contains('play-layout'))return;
+ const sidebar=$('songSidebar'),panel=$('previewPanel');
+ const target=sidebar&&!sidebar.hidden&&innerWidth>=1100?sidebar:panel;
+ if(!target)return;
+ const top=Math.max(8,Math.round(target.getBoundingClientRect().top));
  document.documentElement.style.setProperty('--bk-panel-top',top+'px');
 }
 function showDefaultRightPanel(){if(!rightPanelWanted||$('previewPanel').classList.contains('hidden'))return;if(fretboardOpen&&chordPopoverTarget?.isConnected)return;const chord=$('preview').querySelector('[data-chord]');if(chord)openChordPopover(chord,true);else syncRightPanelButton()}
@@ -1893,7 +1905,7 @@ document.addEventListener('pointerdown',e=>{
  if(fretboardOpen)return;
  if(!$('chordPopover').contains(e.target)&&!e.target.closest?.('[data-chord]'))closeChordPopover(true);
 });
-window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover()},{passive:true});
+window.addEventListener('scroll',()=>{if(!popoverPinned)closeChordPopover(true);else placeChordPopover();alignRightPanel();alignLeftArrow()},{passive:true});
 window.addEventListener('resize',()=>{placeChordPopover();alignRightPanel();alignLeftArrow()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChordPopover(true)});
 // Wrapping is visual only: keep the original lyrics, lines, and saved chord positions intact.
