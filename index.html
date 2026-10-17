@@ -635,7 +635,7 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
 .finder-help-popup{display:none;position:absolute;right:0;top:calc(100% + 7px);z-index:120;box-sizing:border-box;width:min(260px,75vw);white-space:normal;padding:10px 12px;background:#102027;color:#ebf5ed;border:1px solid #75aa92;border-radius:9px;box-shadow:0 5px 25px #0009;font-size:12px;line-height:1.5}
 .finder-help-wrap:hover .finder-help-popup,.finder-help-wrap:focus-within .finder-help-popup{display:block}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
-<div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">Kaikki kielet soivat aluksi avoimina (○). Valitse painettavat nauhat tai vaimenna kieli (×). Valinta ? antaa ohjelman päätellä, soiko kieli avoimena. Kielet ylhäältä alas: e–H–G–D–A–E. Sävelet lasketaan vakiovirityksellä ilman capoa.</span></span></div>
+<div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
 <div id="finderGrid" class="finder-grid" aria-label="Kitaran kielet ylhäältä alas: ohut e, H, G, D, A, paksu E"></div>
 <div class="finder-actions"><button id="finderExample" type="button">Esim. C</button><button id="finderClear" type="button">Aloita alusta</button></div>
@@ -2245,11 +2245,13 @@ function renderFinder(){
      const name=finderStringNames[i];
      const active=finderShape[i];
      const head='<span class="finder-name">'+name+'</span>';
-     const state=active===-2?'automaattinen':active===0?'avoin':active===-1?'vaimennettu':'painettu';
-     const toggle='<button type="button" class="finder-cell '+(active===-2?'automatic':active===0?'opened':active===-1?'muted':'')+'" data-finder-open="'+i+'" aria-label="'+name+'-kieli, '+state+', muuta tilaa" title="'+name+': '+state+'" aria-pressed="'+(active===0)+'">'+(active===-2?'?':active===0?'○':active===-1?'×':'↺')+'</button>';
+     const state=active===0?'avoin':active===-1?'vaimennettu':'painettu';
+     const toggle='<button type="button" class="finder-cell '+(active===0?'opened':active===-1?'muted':'')+'" data-finder-open="'+i+'" aria-label="'+name+'-kieli, '+state+', muuta tilaa" title="'+name+': '+state+'" aria-pressed="'+(active===0)+'">'+(active===0?'○':active===-1?'×':'↺')+'</button>';
      const frets=cols.map(f=>'<button type="button" class="finder-cell '+(active===f?'active':'')+'" data-finder-string="'+i+'" data-finder-fret="'+f+'" aria-label="'+name+'-kieli, nauha '+f+'" aria-pressed="'+(active===f)+'">'+(active===f?'●':'·')+'</button>').join('');
      return head+toggle+frets;
    }).join('');
+  // Vanhat automaattitilat eivät enää kuulu tähän työkaluun.
+  for(let i=0;i<finderShape.length;i++)if(finderShape[i]===-2)finderShape[i]=-1;
   const result=ChordFinder.identifyFlexible(finderShape);
   const out=$('finderResult');
   if(!finderTouched){out.innerHTML='<small>Kaikki kielet ovat aluksi avoimia (○). Valitse painettavat nauhat ja vaimenna tarvittavat kielet (×).</small>';return}
@@ -2280,7 +2282,7 @@ $('finderResult').addEventListener('click',e=>{
   const result=ChordFinder.identifyFlexible(finderShape);
   const entry=result.options?.[Number((insert||suggestion).dataset[insert?'finderInsert':'finderSuggestion'])];
   if(!entry)return;
-  if(suggestion){finderShape.splice(0,6,...entry.shape);finderTouched=true;renderFinder();return;}
+  if(suggestion){finderShape.splice(0,6,...entry.shape.map(v=>v===-2?-1:v));finderTouched=true;renderFinder();return;}
   if(!ChordEngine.parse(entry.name) || !ChordEngine.valid(entry.name,entry.shape)){
     $('finderResult').insertAdjacentHTML('beforeend','<small>Otteelle ei saatu vahvistettua sointunimeä. Täsmennä kielten tilat.</small>');return;
   }
@@ -2294,7 +2296,7 @@ $('finderResult').addEventListener('click',e=>{
 $('finderGrid').addEventListener('click',e=>{
   const open=e.target.closest('[data-finder-open]');
   const fret=e.target.closest('[data-finder-string]');
-  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===0?-1:finderShape[i]===-1?-2:0;finderTouched=true;renderFinder()}
+  if(open){const i=Number(open.dataset.finderOpen);finderShape[i]=finderShape[i]===0?-1:0;finderTouched=true;renderFinder()}
   else if(fret){const i=Number(fret.dataset.finderString),n=Number(fret.dataset.finderFret);finderShape[i]=finderShape[i]===n?0:n;finderTouched=true;renderFinder()}
 });
 $('finderPrev').onclick=()=>{finderBase=Math.max(1,finderBase-3);renderFinder()};
