@@ -1148,17 +1148,16 @@ function chordFingers(shape){
  return null;
 }
 function miniDiagram(name,shape){
-  // Kitaran sävelmalli käyttää järjestystä paksu E → ohut e. Kuvassa näytetään
-  // ohut e vasemmalla samoin kuin sointuetsimen ensimmäisellä (ylimmällä) rivillä.
-  // Vaihdetaan ainoastaan piirtämisen indeksit; soivia säveliä ei muuteta.
+  // Sointukaavion kitaran vakiokatselusuunta: paksu E vasemmalla, ohut e oikealla.
+  // Muutetaan vain piirtojärjestystä; tallennetut otteet säilyvät muuttumattomina.
   const frets=shape,fingers=chordFingers(shape),played=frets.filter(f=>f>0);
   const firstPlayed=played.length?Math.min(...played):1;
   const hasOpen=frets.some(f=>f===0);
   const base=hasOpen&&firstPlayed<=4?1:Math.max(1,firstPlayed);
   const rows=played.length?Math.max(4,Math.max(...played)-base+1):4;
-  let out='<svg class="mini-fretboard" viewBox="0 0 148 '+(50+25*rows)+'" role="img" aria-label="'+safe(name)+' - sointuote, kielet vasemmalta e H G D A E">';
-  const stringNames=['e','H','G','D','A','E'];
-  const displayIndices=[5,4,3,2,1,0];
+  let out='<svg class="mini-fretboard" viewBox="0 0 148 '+(50+25*rows)+'" role="img" aria-label="'+safe(name)+' - sointuote, kielet vasemmalta E A D G H e">';
+  const stringNames=['E','A','D','G','H','e'];
+  const displayIndices=[0,1,2,3,4,5];
   for(let visual=0;visual<6;visual++){
     const i=displayIndices[visual],x=23+20*visual,f=frets[i];
     out+='<text x="'+x+'" y="10" text-anchor="middle" font-size="10" fill="#54665d">'+stringNames[visual]+'</text>';
