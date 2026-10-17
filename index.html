@@ -683,6 +683,24 @@ body.play-layout #appLayout>.sidebar-toggle:hover{background:#cce8d8!important}
   top:var(--bk-panel-top,8px)!important;
  }
 }
+
+/* Kolme näkyvää palstaa: kappale pysyy paikallaan, vain sanoitukset vierivät. */
+@media(min-width:1100px){
+ body.play-layout #appLayout>#songContent{
+  position:sticky!important;top:8px!important;align-self:start!important;
+  max-height:calc(100dvh - 16px)!important;
+  overflow:hidden!important;
+ }
+ body.play-layout #previewPanel{
+  height:calc(100dvh - 16px)!important;max-height:calc(100dvh - 16px)!important;
+  display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ }
+ body.play-layout #playViewport{
+  flex:1 1 auto!important;min-height:0!important;
+  overflow-y:auto!important;overscroll-behavior:contain;
+  scrollbar-width:thin;
+ }
+}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
 <div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -2203,6 +2221,7 @@ function changeScrollSpeed(amount){
 function stopScroll(){scrolling=false;cancelAnimationFrame(frameId);lastFrame=0;$('scrollToggle').textContent='▶ Käynnistä';$('scrollToggle').classList.remove('playing')}
 function pageMaxScroll(){return Math.max(0,document.documentElement.scrollHeight-window.innerHeight)}
 function songScrollEnd(){
+  if(innerWidth>=1100&&document.body.classList.contains('play-layout')){const v=$('playViewport');return Math.max(0,v.scrollHeight-v.clientHeight)}
   // Stop after the last lyric line has travelled into the visible region.
   const sheet=$('playViewport').getBoundingClientRect();
   const pageBottom=window.scrollY+sheet.bottom;
@@ -2216,8 +2235,10 @@ function scrollStep(now){
     const end=songScrollEnd();
     // Maintain sub-pixel progress even in browsers that round scrollY.
     virtualScrollY=Math.min(end,virtualScrollY+(2+Math.pow((speed-1)/9,1.85)*98)*elapsed);
-    window.scrollTo({top:virtualScrollY,behavior:'instant'});
-    if(window.scrollY>=end-1||virtualScrollY>=end-0.2){stopScroll();return}
+    if(innerWidth>=1100&&document.body.classList.contains('play-layout'))$('playViewport').scrollTop=virtualScrollY;
+    else window.scrollTo({top:virtualScrollY,behavior:'instant'});
+    const currentPos=innerWidth>=1100&&document.body.classList.contains('play-layout')?$('playViewport').scrollTop:window.scrollY;
+    if(currentPos>=end-1||virtualScrollY>=end-0.2){stopScroll();return}
   }
   lastFrame=now;frameId=requestAnimationFrame(scrollStep);
 }
@@ -2225,18 +2246,21 @@ function toggleAutoScroll(){
   if(scrolling){stopScroll();return}
   let end=songScrollEnd();
   // At the end, restart from the top of the song instead of doing nothing.
-  if(window.scrollY>=end-1&&end>1){
-    const start=Math.max(0,window.scrollY+$('previewPanel').getBoundingClientRect().top-12);
-    window.scrollTo({top:start,behavior:'instant'});
+  const innerMode=innerWidth>=1100&&document.body.classList.contains('play-layout');
+  let currentPos=innerMode?$('playViewport').scrollTop:window.scrollY;
+  if(currentPos>=end-1&&end>1){
+    if(innerMode)$('playViewport').scrollTop=0;
+    else {const start=Math.max(0,window.scrollY+$('previewPanel').getBoundingClientRect().top-12);window.scrollTo({top:start,behavior:'instant'});}
+    currentPos=innerMode?0:window.scrollY;
     end=songScrollEnd();
   }
-  if(end<=window.scrollY+1){
+  if(end<=currentPos+1){
     // The whole song already fits in the screen; scrolling is unnecessary.
     $('scrollStatus').textContent='Kappale näkyy jo kokonaan tällä näytöllä.';
     return;
   }
   $('scrollStatus').textContent='';
-  scrolling=true;lastFrame=0;virtualScrollY=window.scrollY;
+  scrolling=true;lastFrame=0;virtualScrollY=currentPos;
   $('scrollToggle').textContent='⏸ Pysäytä';$('scrollToggle').classList.add('playing');
   frameId=requestAnimationFrame(scrollStep);
 }
