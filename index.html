@@ -768,6 +768,17 @@ body.import-modal-open{overflow:hidden}
 .chord-popover .suggestion{grid-template-columns:minmax(94px,0.9fr) minmax(0,1.4fr) 16px}
 .chord-popover .suggestion b{font-size:13px;overflow-wrap:normal;word-break:normal;line-height:1.35}
 .chord-popover .search-choice{white-space:normal;overflow-wrap:normal}
+
+/* Sulje Korvaa sointu -näkymä ja palaa otteisiin poistumatta otelautapaneelista. */
+.chord-popover .popover-head .popover-close{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:28px;height:28px;min-width:28px;padding:0!important;
+ border:1px solid transparent;border-radius:7px;
+ background:transparent!important;color:#d0e8dd!important;
+ font-size:22px;line-height:1;cursor:pointer;
+}
+.chord-popover .popover-head .popover-close:hover{background:#314b49!important;border-color:#658a80}
+.chord-popover .popover-head .popover-close:focus-visible{outline:2px solid #79d6ac;outline-offset:2px}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder"><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#a2b9ae">v4.7</small></summary>
 <div class="finder-help-row"><span>Muodosta sointu otelaudalla</span><span class="finder-help-wrap"><button type="button" class="finder-help-trigger" aria-label="Sointuetsimen käyttöohje" aria-describedby="finderHelpText">?</button><span id="finderHelpText" class="finder-help-popup" role="tooltip">O = vapaa kieli. × = vaimennettu kieli. Kielet ylhäältä alas: e–H–G–D–A–E.</span></span></div>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
@@ -1938,7 +1949,8 @@ function renderChordPopover(){
  popup.classList.toggle('compact',!fretboardOpen);
  const {forms,index}=selectedVoicing(name,chordPopoverTarget);
  if(transposeOffset)popoverTab='voicings';
- const head='<div class="popover-head"><span>'+safe(name)+'</span></div>'+
+ const head='<div class="popover-head"><span>'+safe(name)+'</span>'+
+ (popoverTab==='replace'?'<button type="button" class="popover-close" data-popup-close aria-label="Palaa sointuotteisiin" title="Palaa sointuotteisiin">×</button>':'')+'</div>'+
  '<div class="popup-tabs"><button type="button" data-tab="voicings" class="'+(popoverTab==='voicings'?'active':'')+'">Otteet</button>'+
  (transposeOffset?'<span class="popover-meta" style="align-self:center">Muokkaa alkuperäisiä sointuja palauttamalla transponointi</span>':
  '<button type="button" data-tab="replace" class="'+(popoverTab==='replace'?'active':'')+'">⇄ Korvaa sointu</button>')+'</div>';
