@@ -432,6 +432,39 @@ body.board-open .side-panels-control{position:relative;z-index:2}
 @media(max-width:800px){
  body.play-layout #rightEdgeToggle{top:43vh!important;right:3px!important}
 }
+
+/* Keskitetty soittoalue: sanoitusten sijainti ei riipu otelautapalkin tilasta. */
+@media(min-width:1250px){
+ body.play-layout{
+  --bk-center-song-width:min(820px,calc(100vw - 520px));
+  --bk-left-offset:calc(50vw - var(--bk-center-song-width)/2 - 264px);
+  --bk-right-start:calc(50vw + var(--bk-center-song-width)/2 + 10px);
+ }
+ body.play-layout main,body.play-layout.board-open main{
+  width:calc(var(--bk-center-song-width) + 264px)!important;
+  max-width:none!important;
+  margin-left:var(--bk-left-offset)!important;
+  margin-right:0!important;
+  padding:8px 6px!important;
+  box-sizing:border-box!important;
+ }
+ body.play-layout #appLayout,body.play-layout.board-open #appLayout{
+  display:grid!important;
+  grid-template-columns:34px 210px minmax(0,1fr)!important;
+  column-gap:10px!important;
+ }
+ body.play-layout #appLayout>#songContent,body.play-layout.board-open #appLayout>#songContent{grid-column:3!important;min-width:0!important}
+ body.play-layout .chord-popover,body.play-layout.board-open .chord-popover{
+  left:var(--bk-right-start)!important;
+  right:auto!important;
+  width:calc(100vw - var(--bk-right-start) - 12px)!important;
+  max-width:none!important;
+ }
+ body.play-layout #rightEdgeToggle,body.play-layout.board-open #rightEdgeToggle{
+  right:auto!important;
+  left:calc(var(--bk-right-start) - 34px)!important;
+ }
+}
 </style></head><body><section id="accountLoading" role="status" aria-live="polite"><h2>🎸 Oma Biisikirja</h2><div class="account-loading-spinner" aria-hidden="true"></div><p>Avataan omaa kappalekirjastoa…</p></section><section id="accountGate" hidden><h2>🎸 Oma Biisikirja</h2><p>Kirjaudu omaan yksityiseen kappalekirjastoosi.</p><label for="accountEmail">Sähköposti</label><input id="accountEmail" type="email" autocomplete="email"><label for="accountPassword">Salasana</label><input id="accountPassword" type="password" autocomplete="current-password"><div><button id="accountLogin" type="button">Kirjaudu sisään</button><button id="accountRegister" type="button" class="secondary">Luo tunnus</button><button id="accountReset" type="button" class="secondary">Unohtuiko salasana?</button></div><div id="accountVerify" hidden><p>Vahvista sähköpostiosoitteesi sähköpostiin lähetetystä linkistä. Tarkista myös roskaposti.</p><button id="accountResend" type="button" class="secondary">Lähetä vahvistusviesti uudelleen</button><button id="accountCheck" type="button">Olen vahvistanut sähköpostin</button><button id="accountVerifyLogout" type="button" class="secondary">Kirjaudu ulos</button></div><p id="accountStatus" role="status">Yhdistetään kirjautumispalveluun…</p></section><div id="appShell" hidden><div id="accountBar"><strong id="accountIdentity"></strong><span id="accountVerification" role="status"></span><span id="accountSync" role="status"></span><button id="accountImport" type="button" class="secondary">Tuo tämän selaimen biisit</button><button id="accountLogout" type="button" class="secondary">Kirjaudu ulos</button></div><header><h1>🎸 Oma biisikirja</h1><div>Sanat, soinnut ja sormitukset</div></header><button id="rightEdgeToggle" type="button" aria-label="Piilota otelautapalkki" aria-controls="chordPopover" aria-expanded="false" title="Piilota otelautapalkki">›</button><main><div class="layout" id="appLayout"><button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Piilota sivupalkki" aria-controls="songSidebar" aria-expanded="true" title="Piilota sivupalkki">‹</button><aside class="panel" id="songSidebar"><h2>Kappaleet</h2><input id="search" placeholder="Hae kappaletta" style="width:100%"><p class="song-order-hint">⠿ Vedä kappale uuteen kohtaan. Järjestys tallentuu automaattisesti.</p><div id="songs" role="list" aria-label="Kappaleiden järjestys"></div><p id="songOrderStatus" class="song-order-status" role="status" aria-live="polite"></p><button id="new">+ Uusi kappale</button><hr><details id="chordFinderPanel" class="finder" open><summary>🎸 Sointuetsin <small style="font-size:11px;font-weight:normal;color:#597769">v4.7</small></summary>
 <p class="finder-hint"><b>Kaikki kielet soivat aluksi avoimina (○).</b> Merkitse painetut nauhat ja vaimenna tarvittavat kielet (×). Valinnainen ? antaa ohjelman päätellä, soiko kieli avoimena vai ei. <b>Ylhäältä alas: e–H–G–D–A–E.</b></p>
 <div class="finder-controls"><button id="finderPrev" type="button" title="Edelliset nauhat" aria-label="Edelliset nauhat">‹</button><span id="finderRange">Nauhat 1–5</span><button id="finderNext" type="button" title="Seuraavat nauhat" aria-label="Seuraavat nauhat">›</button></div>
