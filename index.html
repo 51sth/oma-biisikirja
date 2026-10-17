@@ -1257,7 +1257,8 @@ function openChordPopover(button,pin=false){
  if(pin){
    fretboardOpen=true;
    popoverExpanded=true;
-   popoverTab='voicings';
+   // Preserve "Korvaa sointu" while selecting another chord in the song.
+   if(!wasFull)popoverTab='voicings';
  }else{
    fretboardOpen=false;
    popoverExpanded=false;
@@ -1481,7 +1482,7 @@ $('chordPopover').addEventListener('mouseenter',()=>clearTimeout(popoverHideTime
 $('chordPopover').addEventListener('mouseleave',()=>delayCloseChordPopover());
 $('chordPopover').addEventListener('click',e=>{
  const button=e.target.closest('button');if(!button)return;
- if(button.hasAttribute('data-popup-close')){closeChordPopover(true);return}
+ if(button.hasAttribute('data-popup-close')){if(fretboardOpen&&popoverTab==='replace'){popoverTab='voicings';chordSearch='';$('chordPopover').scrollTop=0;renderChordPopover();return}closeChordPopover(true);return}
  if(button.hasAttribute('data-tab')){if(transposeOffset&&button.dataset.tab==='replace')return;popoverTab=button.dataset.tab;popoverExpanded=true;chordSearch='';$('chordPopover').scrollTop=0;renderChordPopover();popoverPinned=true;return}
  if(button.hasAttribute('data-replace')){replaceChord(button.dataset.replace);return}
  if(button.hasAttribute('data-voicing-more')){visibleVoicings+=16;renderChordPopover();return}
