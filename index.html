@@ -1237,7 +1237,8 @@ function freeSongTextFromLines(lines){
   if(l.isSection)return '# '+(l.sectionTitle||SECTION_TYPES[l.sectionType]||'Muu osio');
   if(l.legacyOverlap)return serializeBody([l]);
   const chords=l.chordRow||chordsToRow(l.chords)||'';
-  return chords?chords+'\n'+l.text:l.text;
+  const words=l.text.trim()?l.text:'';
+  return chords?chords+'\n'+words:words;
  }).join('\n');
 }
 function mapPlainEditorOrigins(oldLines,oldOrigins,nextLines){
